@@ -4,10 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import android.text.SpannableStringBuilder;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -19,6 +15,7 @@ import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.font.PxFont;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.viewmodel.EmptyLocalized;
 import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
@@ -27,6 +24,7 @@ import com.mercadopago.android.px.internal.viewmodel.ILocalizedCharSequence;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.internal.Text;
 
+import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 import static com.mercadopago.android.px.internal.util.TextUtil.isEmpty;
 
 public class AmountDescriptorView extends ConstraintLayout {
@@ -82,17 +80,28 @@ public class AmountDescriptorView extends ConstraintLayout {
         updateLeftLabel(model);
         updateRightLabel(model);
         updateDrawable(model.detailDrawable, model.detailDrawableColor);
-        setOnClickListener(model.listener);
+        // For accessibility
+        if (model.listener != null) {
+            setOnClickListener(model.listener);
+        }
+
+        executeIfAccessibilityTalkBackEnable(getContext(), () -> {
+            final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+            spannableStringBuilder.append(leftLabel.getText()).append(TextUtil.SPACE);
+            final String textAmount = model.right.get(getContext()).toString();
+            final String[] listAmount = textAmount.split(" ");
+            if (listAmount.length > 0) {
+                spannableStringBuilder
+                    .append(listAmount[listAmount.length - 1])
+                    .append(getResources().getString(R.string.px_money));
+            }
+            setContentDescription(spannableStringBuilder.toString());
+            return null;
+        });
     }
 
     private void updateRightLabel(@NonNull final AmountDescriptorView.Model model) {
-        final String textAmount = model.right.get(getContext()).toString();
-        updateLabel(textAmount, rightLabel, rightLabelSemiBold);
-        final String[] listAmount = textAmount.split(" ");
-        if (listAmount.length > 0) {
-            rightLabel
-                .setContentDescription(listAmount[listAmount.length - 1] + getResources().getString(R.string.px_money));
-        }
+        updateLabel(model.right.get(getContext()).toString(), rightLabel, rightLabelSemiBold);
     }
 
     private void updateLeftLabel(@NonNull final AmountDescriptorView.Model model) {
@@ -192,7 +201,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             right = new EmptyLocalized();
         }
 
-        public AmountDescriptorView.Model setDetailDrawable(@Nullable final IDetailDrawable detailDrawable,
+        AmountDescriptorView.Model setDetailDrawable(@Nullable final IDetailDrawable detailDrawable,
             @Nullable final IDetailColor detailDrawableColor) {
             this.detailDrawable = detailDrawable;
             this.detailDrawableColor = detailDrawableColor;

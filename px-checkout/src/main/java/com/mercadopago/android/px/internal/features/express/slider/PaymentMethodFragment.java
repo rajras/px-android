@@ -21,6 +21,7 @@ import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
+import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import java.util.Arrays;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
@@ -123,7 +124,9 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
 
         if (TextUtil.isNotEmpty(description)) {
             setDescriptionForAccessibility(description);
-        } else if (isDisableMethod()) {
+        }
+
+        if (isDisableMethod()) {
             String statusMessage = model.getStatus().getMainMessage().getMessage();
             statusMessage = TextUtil.isNotEmpty(statusMessage) ? statusMessage : TextUtil.EMPTY;
             if (TextUtil.isNotEmpty(statusMessage)) {
@@ -178,11 +181,13 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     @Override
     public void disable() {
         final Fragment parentFragment = getParentFragment();
+        final DisabledPaymentMethod disabledPaymentMethod = model.getDisabledPaymentMethod();
+
         if (!(parentFragment instanceof DisabledDetailDialogLauncher)) {
             throw new IllegalStateException(
                 "Parent fragment should implement " + DisabledDetailDialogLauncher.class.getSimpleName());
         }
-        if (model.getDisabledPaymentMethod() == null) {
+        if (disabledPaymentMethod == null) {
             throw new IllegalStateException(
                 "Should have a disabledPaymentMethod to disable");
         }
@@ -190,7 +195,7 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
         card.setOnClickListener(
             v -> DisabledPaymentMethodDetailDialog
                 .showDialog(parentFragment, ((DisabledDetailDialogLauncher) parentFragment).getRequestCode(),
-                    model.getDisabledPaymentMethod().getPaymentStatusDetail(), model.getStatus()));
+                    disabledPaymentMethod.getPaymentStatusDetail(), model.getStatus()));
     }
 
     protected void tintBackground(@NonNull final ImageView background, @NonNull final String color) {

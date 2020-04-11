@@ -33,8 +33,6 @@ public interface OfflineMethods {
 
         void onSlideSheet(final float offset);
 
-        void onSheetStateChanged(int newSheetState);
-
         void startSecurityValidation(SecurityValidationData data);
 
         void startKnowYourCustomerFlow(@NonNull final String flowLink);
