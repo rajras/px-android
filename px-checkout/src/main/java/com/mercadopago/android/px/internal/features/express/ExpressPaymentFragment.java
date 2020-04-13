@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.features.express;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -113,7 +114,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Nullable private Animation slideUpAndFadeAnimation;
     @Nullable private Animation slideDownAndFadeAnimation;
     private InstallmentsAdapter installmentsAdapter;
-    private TitlePager titlePager;
     private PaymentMethodHeaderView paymentMethodHeaderView;
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
@@ -245,7 +245,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
         payButtonContainer = view.findViewById(R.id.pay_button);
         splitPaymentView = view.findViewById(R.id.labeledSwitch);
-        titlePager = view.findViewById(R.id.title_pager);
+        final TitlePager titlePager = view.findViewById(R.id.title_pager);
         summaryView = view.findViewById(R.id.summary_view);
 
         pagerAndConfirmButtonContainer = view.findViewById(R.id.container);
@@ -302,36 +302,38 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void configureBottomSheet() {
-        bottomSheet = getActivity().findViewById(R.id.off_methods_fragment);
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        bottomSheetBehavior.setHideable(true);
-        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull final View view, final int state) {
-                final OfflineMethodsFragment fragment = FragmentUtil
-                    .getFragmentByTag(getFragmentManager(), TAG_OFFLINE_METHODS_FRAGMENT,
-                        OfflineMethodsFragment.class);
-                if (state == BottomSheetBehavior.STATE_HIDDEN) {
-                    presenter.trackAbort();
-                    getFragmentManager().popBackStackImmediate();
+        final FragmentManager manager = getFragmentManager();
+        final Activity activity = getActivity();
+        if (activity != null) {
+            bottomSheet = activity.findViewById(R.id.off_methods_fragment);
+            bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+            bottomSheetBehavior.setHideable(true);
+            bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(@NonNull final View view, final int state) {
+                    if (manager != null && state == BottomSheetBehavior.STATE_HIDDEN) {
+                        presenter.trackAbort();
+                        manager.popBackStackImmediate();
+                    }
                 }
 
-                if (fragment != null) {
-                    fragment.onSheetStateChanged(state);
+                @Override
+                public void onSlide(@NonNull final View view, final float v) {
+                    if (manager != null) {
+                        final OfflineMethodsFragment fragment = FragmentUtil
+                            .getFragmentByTag(manager, TAG_OFFLINE_METHODS_FRAGMENT,
+                                OfflineMethodsFragment.class);
+                        if (fragment != null) {
+                            fragment.onSlideSheet(v);
+                        }
+                    }
                 }
-            }
-
-            @Override
-            public void onSlide(@NonNull final View view, final float v) {
-                final OfflineMethodsFragment fragment = FragmentUtil
-                    .getFragmentByTag(getFragmentManager(), TAG_OFFLINE_METHODS_FRAGMENT,
-                        OfflineMethodsFragment.class);
-                fragment.onSlideSheet(v);
-            }
-        });
+            });
+        }
     }
 
     private void registerFragmentLifecycleCallbacks() {
+        final FragmentManager manager = getFragmentManager();
         fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
             public void onFragmentAttached(@NonNull final FragmentManager fm, @NonNull final Fragment fragment,
@@ -345,7 +347,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             @Override
             public void onFragmentDetached(@NonNull final FragmentManager fm, @NonNull final Fragment fragment) {
                 if (fragment instanceof ExpressPaymentFragment) {
-                    getFragmentManager().unregisterFragmentLifecycleCallbacks(this);
+                    fm.unregisterFragmentLifecycleCallbacks(this);
                 } else if (fragment instanceof OfflineMethodsFragment) {
                     bottomSheet.setVisibility(GONE);
                     presenter.onOtherPaymentMethodClickableStateChanged(true);
@@ -353,13 +355,19 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 super.onFragmentDetached(fm, fragment);
             }
         };
-        getFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
+
+        if (manager != null) {
+            manager.registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
+        }
     }
 
     @Override
     public void onDestroyView() {
-        getFragmentManager().unregisterFragmentLifecycleCallbacks(fragmentLifecycleCallbacks);
-        getFragmentManager().beginTransaction().remove(payButtonFragment).commitAllowingStateLoss();
+        final FragmentManager manager = getFragmentManager();
+        if (manager != null) {
+            manager.unregisterFragmentLifecycleCallbacks(fragmentLifecycleCallbacks);
+            manager.beginTransaction().remove(payButtonFragment).commitAllowingStateLoss();
+        }
         super.onDestroyView();
     }
 
@@ -591,7 +599,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void showDynamicDialog(@NonNull final DynamicDialogCreator creator,
         @NonNull final DynamicDialogCreator.CheckoutData checkoutData) {
-        if (creator.shouldShowDialog(getContext(), checkoutData)) {
+        final Context context;
+        if ((context = getContext()) != null && creator.shouldShowDialog(context, checkoutData)) {
             creator.create(getContext(), checkoutData).show(getChildFragmentManager(),
                 TAG_HEADER_DYNAMIC_DIALOG);
         }
@@ -614,12 +623,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void showOfflineMethods(@NonNull final OfflinePaymentTypesMetadata offlineMethods) {
+        final FragmentManager manager = getFragmentManager();
         bottomSheet.setVisibility(VISIBLE);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        if (FragmentUtil.getFragmentByTag(getFragmentManager(), TAG_OFFLINE_METHODS_FRAGMENT) == null) {
+        if (manager != null && FragmentUtil.getFragmentByTag(manager, TAG_OFFLINE_METHODS_FRAGMENT) == null) {
             final OfflineMethodsFragment instance = OfflineMethodsFragment.getInstance(offlineMethods);
-            getFragmentManager().beginTransaction()
+            manager.beginTransaction()
                 .setCustomAnimations(R.anim.px_off_methods_slide_up_in, 0, 0, R.anim.px_off_methods_slide_down_out)
                 .replace(R.id.off_methods_fragment, instance,
                     TAG_OFFLINE_METHODS_FRAGMENT)

@@ -28,6 +28,8 @@ import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PaymentMethodSearchItem;
 import com.mercadopago.android.px.model.internal.Text;
 
+import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
+
 public class OtherPaymentMethodFragment
     extends BaseFragment<OtherPaymentMethodPresenter, OtherPaymentMethodFragmentItem>
     implements AddNewCard.View {
@@ -113,6 +115,10 @@ public class OtherPaymentMethodFragment
         loadSecondaryMessageView(view, secondaryMessage);
         loadImage(view, imageResId);
         view.setOnClickListener(listener);
+        executeIfAccessibilityTalkBackEnable(view.getContext(), () -> {
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            return null;
+        });
     }
 
     @Override
@@ -122,11 +128,13 @@ public class OtherPaymentMethodFragment
         final ViewGroup parent = view != null ? (ViewGroup) view.getParent() : null;
 
         if (presenter != null && parent != null) {
-            parent.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
-            if (isVisibleToUser) {
-                offPaymentMethodView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-                addNewCardView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-            }
+            executeIfAccessibilityTalkBackEnable(parent.getContext(), () -> {
+                int modeForAccessibility = isVisibleToUser ? View.IMPORTANT_FOR_ACCESSIBILITY_YES : View.IMPORTANT_FOR_ACCESSIBILITY_NO;
+                parent.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+                offPaymentMethodView.setImportantForAccessibility(modeForAccessibility);
+                addNewCardView.setImportantForAccessibility(modeForAccessibility);
+                return null;
+            });
         }
     }
 

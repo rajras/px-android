@@ -24,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:importantForAccessibility="no"
             android:maxLines="1"
             android:textColor="@color/px_expressCheckoutTextColor"
             android:textSize="@dimen/px_s_text"
@@ -33,6 +34,7 @@
             android:id="@+id/icon_descriptor_amount"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:importantForAccessibility="no"
             android:layout_marginLeft="@dimen/px_xxxs_margin"
             android:layout_marginStart="@dimen/px_xxxs_margin"
             tools:src="@drawable/px_helper"/>
@@ -51,6 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/px_expressCheckoutTextColor"
+        android:importantForAccessibility="no"
         android:textSize="@dimen/px_s_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/space"
