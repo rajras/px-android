@@ -72,7 +72,7 @@ class GenericDialog : MeliDialog() {
 
     private fun loadView(item: GenericDialogItem) {
         with(item) {
-            item.imageUrl?.let { image.loadImage(imageUrl) } ?: image.gone()
+            item.imageUrl?.let { if(it.isNotEmpty()) image.loadImage(it) } ?: image.gone()
             with(dialog_title) { ViewUtils.loadOrGone(item.title.get(context), this) }
             with(dialog_description) { ViewUtils.loadOrGone(item.description.get(context), this) }
             mainAction?.let {

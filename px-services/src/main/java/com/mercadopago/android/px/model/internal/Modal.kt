@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.model.internal
 
 import android.os.Parcel
-import com.google.gson.annotations.SerializedName
 import com.mercadopago.android.px.internal.util.KParcelable
 import com.mercadopago.android.px.internal.util.parcelableCreator
 
@@ -10,7 +9,7 @@ data class Modal(
     val description: Text,
     val mainButton: Action,
     val secondaryButton: Action?,
-    @SerializedName("icon_url") val imageUrl: String?) : KParcelable {
+    val imageUrl: String?) : KParcelable {
 
     constructor(parcel: Parcel) : this(
         parcel.readParcelable(Text::class.java.classLoader)!!,

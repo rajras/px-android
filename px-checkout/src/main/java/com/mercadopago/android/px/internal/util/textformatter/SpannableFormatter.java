@@ -36,6 +36,17 @@ public class SpannableFormatter extends ChainFormatter {
         return this;
     }
 
+    public SpannableFormatter withTextColor(@Nullable final String color) {
+        if (TextUtil.isNotEmpty(color)) {
+            //noinspection CatchMayIgnoreException
+            try {
+                textColor = Color.parseColor(color);
+            } catch (final Exception e) {
+            }
+        }
+        return this;
+    }
+
     public SpannableFormatter withStyle(@NonNull final String name) {
         font = PxFont.from(name);
         return this;
@@ -56,7 +67,7 @@ public class SpannableFormatter extends ChainFormatter {
             return apply(TextUtil.EMPTY);
         }
         withStyle(text.getWeight());
-        withTextColor(TextUtil.isNotEmpty(text.getTextColor()) ? Color.parseColor(text.getTextColor()) : 0);
+        withTextColor(text.getTextColor());
         return apply(text.getMessage());
     }
 
