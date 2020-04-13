@@ -17,6 +17,7 @@ import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
+import com.mercadopago.android.px.internal.features.express.ExpressPayment;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity;
@@ -93,8 +94,11 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
         if (intent.getData() != null) {
-            //Callback from KYC
-            //TODO refresh one tap
+            final ExpressPayment.View fragment =
+                (ExpressPayment.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
+            if (fragment != null) {
+                fragment.onDeepLinkReceived();
+            }
         } else {
             FragmentUtil.removeFragment(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
             // if onNewIntent is called, means that we are initialized twice, so we need to detach previews presenter

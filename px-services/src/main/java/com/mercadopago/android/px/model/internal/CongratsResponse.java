@@ -8,19 +8,19 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
 import java.util.List;
 
-public final class PaymentReward implements Parcelable {
+public final class CongratsResponse implements Parcelable {
 
-    public static final PaymentReward EMPTY = new PaymentReward();
+    public static final CongratsResponse EMPTY = new CongratsResponse();
 
-    public static final Creator<PaymentReward> CREATOR = new Creator<PaymentReward>() {
+    public static final Creator<CongratsResponse> CREATOR = new Creator<CongratsResponse>() {
         @Override
-        public PaymentReward createFromParcel(final Parcel in) {
-            return new PaymentReward(in);
+        public CongratsResponse createFromParcel(final Parcel in) {
+            return new CongratsResponse(in);
         }
 
         @Override
-        public PaymentReward[] newArray(final int size) {
-            return new PaymentReward[size];
+        public CongratsResponse[] newArray(final int size) {
+            return new CongratsResponse[size];
         }
     };
 
@@ -30,17 +30,23 @@ public final class PaymentReward implements Parcelable {
     @Nullable private final Discount discount;
     @SerializedName("cross_selling")
     private final List<CrossSelling> crossSellings;
+    private final Text topTextBox;
+    private final Action viewReceipt;
 
-    private PaymentReward() {
+    private CongratsResponse() {
         score = null;
         discount = null;
         crossSellings = Collections.emptyList();
+        topTextBox = Text.EMPTY;
+        viewReceipt = null;
     }
 
-    /* default */ PaymentReward(final Parcel in) {
+    /* default */ CongratsResponse(final Parcel in) {
         score = in.readParcelable(Score.class.getClassLoader());
         discount = in.readParcelable(Discount.class.getClassLoader());
         crossSellings = in.createTypedArrayList(CrossSelling.CREATOR);
+        topTextBox = in.readParcelable(Text.class.getClassLoader());
+        viewReceipt = in.readParcelable(Action.class.getClassLoader());
     }
 
     @Override
@@ -48,6 +54,8 @@ public final class PaymentReward implements Parcelable {
         dest.writeParcelable(score, flags);
         dest.writeParcelable(discount, flags);
         dest.writeTypedList(crossSellings);
+        dest.writeParcelable(topTextBox, flags);
+        dest.writeParcelable(viewReceipt, flags);
     }
 
     @Override
@@ -68,6 +76,16 @@ public final class PaymentReward implements Parcelable {
     @NonNull
     public List<CrossSelling> getCrossSellings() {
         return crossSellings != null ? crossSellings : Collections.emptyList();
+    }
+
+    @NonNull
+    public Text getTopTextBox() {
+        return topTextBox != null ? topTextBox : Text.EMPTY;
+    }
+
+    @Nullable
+    public Action getViewReceipt() {
+        return viewReceipt;
     }
 
     /* default */public static final class Score implements Parcelable {
@@ -337,48 +355,6 @@ public final class PaymentReward implements Parcelable {
         @NonNull
         public List<Item> getItems() {
             return items != null ? items : Collections.emptyList();
-        }
-    }
-
-    /* default */ public static final class Action implements Parcelable {
-
-        public static final Creator<Action> CREATOR = new Creator<Action>() {
-            @Override
-            public Action createFromParcel(final Parcel in) {
-                return new Action(in);
-            }
-
-            @Override
-            public Action[] newArray(final int size) {
-                return new Action[size];
-            }
-        };
-
-        private final String label;
-        private final String target;
-
-        /* default */ Action(final Parcel in) {
-            label = in.readString();
-            target = in.readString();
-        }
-
-        @Override
-        public void writeToParcel(final Parcel dest, final int flags) {
-            dest.writeString(label);
-            dest.writeString(target);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public String getTarget() {
-            return target;
         }
     }
 

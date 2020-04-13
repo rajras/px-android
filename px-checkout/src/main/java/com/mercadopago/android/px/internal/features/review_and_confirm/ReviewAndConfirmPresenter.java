@@ -28,8 +28,6 @@ import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.model.internal.PaymentReward;
-import com.mercadopago.android.px.model.internal.remedies.RemediesResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
@@ -255,11 +253,6 @@ import java.util.Set;
             @Override
             public void onChangePaymentMethod() {
                 // Do nothing, It is handled before.
-            }
-
-            @Override
-            public void onUserValidation() {
-                // Do nothing
             }
         });
     }

@@ -94,6 +94,9 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
         super.onViewCreated(view, savedInstanceState);
         header = view.findViewById(R.id.header);
         panIndicator = view.findViewById(R.id.pan_indicator);
+        ViewUtils.loadOrHide(View.GONE,
+            model.getDisplayInfo() != null ? model.getDisplayInfo().getBottomDescription() : null,
+            view.findViewById(R.id.bottom_description));
         confirmButton = view.findViewById(R.id.confirm_button);
         confirmButton.setState(MeliButton.State.DISABLED);
         confirmButton.setOnClickListener(v -> {
@@ -107,7 +110,7 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
         final ImageView closeImage = view.findViewById(R.id.close);
         closeImage.setOnClickListener(v -> {
             final Activity activity = getActivity();
-            if (activity != null ) {
+            if (activity != null) {
                 activity.onBackPressed();
             }
         });
@@ -199,7 +202,7 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
             session.getAmountRepository(),
             session.getDiscountRepository(),
             session.getProductIdProvider(),
-            model.getPaymentTypes().get(0).getId(),
+            model.getPaymentTypes().isEmpty() ? TextUtil.EMPTY : model.getPaymentTypes().get(0).getId(),
             session.getInitRepository());
     }
 

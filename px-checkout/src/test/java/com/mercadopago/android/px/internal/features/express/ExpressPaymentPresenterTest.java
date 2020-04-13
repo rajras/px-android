@@ -2,11 +2,11 @@ package com.mercadopago.android.px.internal.features.express;
 
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
-import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.core.ConnectionHelper;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
+import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
@@ -15,6 +15,7 @@ import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
+import com.mercadopago.android.px.internal.repository.PayerComplianceRepository;
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -120,6 +121,12 @@ public class ExpressPaymentPresenterTest {
     @Mock
     private CongratsRepository congratsRepository;
 
+    @Mock
+    private PayerComplianceRepository payerComplianceRepository;
+
+    @Mock
+    private SessionIdProvider sessionIdProvider;
+
     private ExpressPaymentPresenter expressPaymentPresenter;
 
     @Before
@@ -144,7 +151,8 @@ public class ExpressPaymentPresenterTest {
             new ExpressPaymentPresenter(paymentRepository, paymentSettingRepository, disabledPaymentMethodRepository,
                 payerCostSelectionRepository, discountRepository, amountRepository, initRepository,
                 amountConfigurationRepository, chargeRepository, escManagerBehaviour, productIdProvider,
-                paymentMethodDrawableItemMapper, connectionHelper, congratsRepository);
+                paymentMethodDrawableItemMapper, connectionHelper, congratsRepository, payerComplianceRepository,
+                sessionIdProvider);
 
         verifyAttachView();
     }

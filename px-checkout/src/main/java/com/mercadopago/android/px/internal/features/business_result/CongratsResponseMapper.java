@@ -9,7 +9,8 @@ import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusin
 import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusinessDiscountTracker;
 import com.mercadolibre.android.mlbusinesscomponents.components.loyalty.MLBusinessLoyaltyRingData;
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
-import com.mercadopago.android.px.model.internal.PaymentReward;
+import com.mercadopago.android.px.model.internal.Action;
+import com.mercadopago.android.px.model.internal.CongratsResponse;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardViewModel> {
+public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsViewModel> {
 
     /* default */ final MLBusinessDiscountTracker discountTracker;
 
@@ -26,27 +27,28 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
      *
      * @param discountTracker A {@link MLBusinessDiscountTracker}
      */
-    public PaymentRewardMapper(final MLBusinessDiscountTracker discountTracker) {
+    public CongratsResponseMapper(final MLBusinessDiscountTracker discountTracker) {
         this.discountTracker = discountTracker;
     }
 
     @Override
-    public PaymentRewardViewModel map(@NonNull final PaymentReward paymentReward) {
-        final PaymentReward.Discount discount = paymentReward.getDiscount();
-        return new PaymentRewardViewModel(getLoyaltyData(paymentReward.getScore()),
+    public CongratsViewModel map(@NonNull final CongratsResponse congratsResponse) {
+        final CongratsResponse.Discount discount = congratsResponse.getDiscount();
+        return new CongratsViewModel(getLoyaltyData(congratsResponse.getScore()),
             getDiscountBoxData(discount), getShowAllDiscount(discount), getDownloadAppData(discount),
-            getCrossSellingBoxData(paymentReward.getCrossSellings()));
+            getCrossSellingBoxData(congratsResponse.getCrossSellings()), congratsResponse.getTopTextBox(),
+            congratsResponse.getViewReceipt());
     }
 
     @Nullable
-    private MLBusinessLoyaltyRingData getLoyaltyData(@Nullable final PaymentReward.Score score) {
+    private MLBusinessLoyaltyRingData getLoyaltyData(@Nullable final CongratsResponse.Score score) {
 
         if (score == null) {
             return null;
         }
 
-        final PaymentReward.Score.Progress progress = score.getProgress();
-        final PaymentReward.Action action = score.getAction();
+        final CongratsResponse.Score.Progress progress = score.getProgress();
+        final Action action = score.getAction();
 
         return new MLBusinessLoyaltyRingData() {
             @Override
@@ -83,7 +85,7 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
 
     @Nullable
     private MLBusinessDiscountBoxData getDiscountBoxData(
-        @Nullable final PaymentReward.Discount discount) {
+        @Nullable final CongratsResponse.Discount discount) {
 
         if (discount == null) {
             return null;
@@ -118,11 +120,11 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
 
     @NonNull
     private List<MLBusinessSingleItem> getDisCountItems(
-        @NonNull List<PaymentReward.Discount.Item> items) {
+        @NonNull List<CongratsResponse.Discount.Item> items) {
 
         List<MLBusinessSingleItem> singleItems = new LinkedList<>();
 
-        for (PaymentReward.Discount.Item item : items) {
+        for (CongratsResponse.Discount.Item item : items) {
             singleItems.add(new MLBusinessSingleItem() {
                 @Override
                 public String getImageUrl() {
@@ -165,8 +167,8 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
     }
 
     @Nullable
-    private PaymentReward.Action getShowAllDiscount(@Nullable final PaymentReward.Discount discount) {
-        final PaymentReward.Action showAllDiscount;
+    private Action getShowAllDiscount(@Nullable final CongratsResponse.Discount discount) {
+        final Action showAllDiscount;
         if (discount == null || (showAllDiscount = discount.getAction()) == null) {
             return null;
         }
@@ -175,8 +177,8 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
     }
 
     @Nullable
-    private MLBusinessDownloadAppData getDownloadAppData(@Nullable final PaymentReward.Discount discount) {
-        final PaymentReward.Discount.DownloadApp downloadApp;
+    private MLBusinessDownloadAppData getDownloadAppData(@Nullable final CongratsResponse.Discount discount) {
+        final CongratsResponse.Discount.DownloadApp downloadApp;
         if (discount == null || (downloadApp = discount.getActionDownload()) == null) {
             return null;
         }
@@ -212,13 +214,13 @@ public class PaymentRewardMapper extends Mapper<PaymentReward, PaymentRewardView
 
     @NonNull
     private List<MLBusinessCrossSellingBoxData> getCrossSellingBoxData(
-        List<PaymentReward.CrossSelling> crossSellingList) {
+        List<CongratsResponse.CrossSelling> crossSellingList) {
 
         final List<MLBusinessCrossSellingBoxData> crossSellingBoxData = new LinkedList<>();
 
-        for (PaymentReward.CrossSelling crossSellingItem : crossSellingList) {
+        for (CongratsResponse.CrossSelling crossSellingItem : crossSellingList) {
 
-            PaymentReward.Action action = crossSellingItem.getAction();
+            Action action = crossSellingItem.getAction();
             crossSellingBoxData.add(new MLBusinessCrossSellingBoxData() {
                 @NonNull
                 @Override

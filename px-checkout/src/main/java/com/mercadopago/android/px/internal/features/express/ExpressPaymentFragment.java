@@ -1,8 +1,10 @@
 package com.mercadopago.android.px.internal.features.express;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +26,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.core.ConnectionHelper;
+import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
@@ -44,10 +47,15 @@ import com.mercadopago.android.px.internal.features.express.slider.PaymentMethod
 import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.SummaryViewAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.TitlePagerAdapter;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialog;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogAction;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity;
+import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
+import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
 import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
@@ -89,8 +97,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     PaymentMethodFragment.DisabledDetailDialogLauncher,
     OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener,
     OfflineMethodsFragment.SheetHandler, TitlePagerAdapter.InstallmentChanged,
-    PayButton.Handler {
+    PayButton.Handler, GenericDialog.Listener {
 
+    private static final String TAG = ExpressPaymentFragment.class.getSimpleName();
     public static final String TAG_OFFLINE_METHODS_FRAGMENT = "TAG_OFFLINE_METHODS_FRAGMENT";
     private static final String TAG_HEADER_DYNAMIC_DIALOG = "TAG_HEADER_DYNAMIC_DIALOG";
     private static final String EXTRA_RENDER_MODE = "render_mode";
@@ -118,6 +127,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
     @RenderMode private String renderMode;
+    private View loading;
 
     private HubAdapter hubAdapter;
     /* default */ View bottomSheet;
@@ -141,7 +151,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void prePayment(@NotNull final PayButton.OnReadyForPaymentCallback callback) {
-        presenter.requireCurrentConfiguration(callback);
+        presenter.handlePrePaymentAction(callback);
     }
 
     @Override
@@ -245,8 +255,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
         payButtonContainer = view.findViewById(R.id.pay_button);
         splitPaymentView = view.findViewById(R.id.labeledSwitch);
-        final TitlePager titlePager = view.findViewById(R.id.title_pager);
         summaryView = view.findViewById(R.id.summary_view);
+        loading = view.findViewById(R.id.loading);
 
         pagerAndConfirmButtonContainer = view.findViewById(R.id.container);
         paymentMethodPager = view.findViewById(R.id.payment_method_pager);
@@ -287,6 +297,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             summaryView.configureToolbar((AppCompatActivity) getActivity(), v -> presenter.cancel());
         }
 
+        final TitlePager titlePager = view.findViewById(R.id.title_pager);
         final TitlePagerAdapter titlePagerAdapter = new TitlePagerAdapter(titlePager, this);
         titlePager.setAdapter(titlePagerAdapter);
 
@@ -373,22 +384,26 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     private ExpressPaymentPresenter createPresenter() {
         final Session session = Session.getInstance();
+        final ConfigurationModule configurationModule = session.getConfigurationModule();
         return new ExpressPaymentPresenter(session.getPaymentRepository(),
-            session.getConfigurationModule().getPaymentSettings(),
-            session.getConfigurationModule().getDisabledPaymentMethodRepository(),
-            session.getConfigurationModule().getPayerCostSelectionRepository(),
+            configurationModule.getPaymentSettings(),
+            configurationModule.getDisabledPaymentMethodRepository(),
+            configurationModule.getPayerCostSelectionRepository(),
             session.getDiscountRepository(),
             session.getAmountRepository(),
             session.getInitRepository(),
             session.getAmountConfigurationRepository(),
-            session.getConfigurationModule().getChargeSolver(),
+            configurationModule.getChargeSolver(),
             session.getMercadoPagoESC(),
             session.getProductIdProvider(),
-            new PaymentMethodDrawableItemMapper(getContext(),
-                session.getConfigurationModule().getDisabledPaymentMethodRepository(),
-                session.getConfigurationModule().getChargeSolver()),
+            new PaymentMethodDrawableItemMapper(configurationModule.getChargeSolver(),
+                configurationModule.getDisabledPaymentMethodRepository(),
+                getContext()
+            ),
             ConnectionHelper.getInstance(),
-            session.getCongratsRepository());
+            session.getCongratsRepository(),
+            configurationModule.getPayerComplianceRepository(),
+            session.getSessionIdProvider());
     }
 
     @Override
@@ -518,7 +533,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQ_CODE_DISABLE_DIALOG) {
-            resetPagerIndex();
+            setPagerIndex(0);
         } else if (requestCode == REQ_CODE_CARD_FORM) {
             handleCardFormResult(resultCode);
         } else if (resultCode == Constants.RESULT_ACTION) {
@@ -549,7 +564,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void showPaymentResult(@NonNull final PaymentModel model, @NonNull final PaymentConfiguration paymentConfiguration) {
+    public void showPaymentResult(@NonNull final PaymentModel model,
+        @NonNull final PaymentConfiguration paymentConfiguration) {
         if (getActivity() instanceof PXActivity) {
             ((PXActivity) getActivity()).overrideTransitionIn();
         }
@@ -592,8 +608,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void resetPagerIndex() {
-        paymentMethodPager.setCurrentItem(0);
+    public void setPagerIndex(final int index) {
+        paymentMethodPager.setCurrentItem(index);
     }
 
     @Override
@@ -647,5 +663,52 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             bottomSheet.setVisibility(VISIBLE);
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
+    }
+
+    @Override
+    public void onAction(@NotNull final GenericDialogAction action) {
+        if (action instanceof GenericDialogAction.DeepLinkAction) {
+            startDeepLink(((GenericDialogAction.DeepLinkAction) action).getDeepLink());
+        } else if (action instanceof GenericDialogAction.CustomAction) {
+            presenter.handleGenericDialogAction(((GenericDialogAction.CustomAction) action).getType());
+        }
+    }
+
+    @Override
+    public void showGenericDialog(@NonNull final GenericDialogItem item) {
+        GenericDialog.showDialog(getChildFragmentManager(), item);
+    }
+
+    @Override
+    public void startAddNewCardFlow(final CardFormWithFragmentWrapper cardFormWithFragmentWrapper) {
+        FragmentManager manager;
+        if ((manager = getFragmentManager()) != null) {
+            cardFormWithFragmentWrapper.getCardFormWithFragment()
+                .start(manager, REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
+        }
+    }
+
+    @Override
+    public void startDeepLink(@NonNull final String deepLink) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)));
+        } catch (final ActivityNotFoundException e) {
+            Logger.debug(TAG, e);
+        }
+    }
+
+    @Override
+    public void onDeepLinkReceived() {
+        presenter.handleDeepLink();
+    }
+
+    @Override
+    public void showLoading() {
+        loading.setVisibility(VISIBLE);
+    }
+
+    @Override
+    public void hideLoading() {
+        loading.setVisibility(GONE);
     }
 }

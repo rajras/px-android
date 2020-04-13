@@ -33,13 +33,11 @@ import com.mercadopago.android.px.internal.features.payment_result.viewmodel.Pay
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.ViewUtils;
-import com.mercadopago.android.px.internal.view.BusinessActions;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
-import com.mercadopago.android.px.internal.viewmodel.UserValidationPostPaymentAction;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.exceptions.ApiException;
@@ -108,7 +106,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void configureViews(@NonNull final PaymentResultViewModel model, @NonNull final BusinessActions callback) {
+    public void configureViews(@NonNull final PaymentResultViewModel model,
+        @NonNull final PaymentResultBody.Listener listener) {
         findViewById(R.id.loading).setVisibility(View.GONE);
         final PaymentResultHeader header = findViewById(R.id.header);
         header.setModel(model.headerModel);
@@ -118,9 +117,9 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
             body.setVisibility(View.GONE);
             loadRemedies(model.remediesModel, model.footerModel);
         } else {
-            body.init(model.bodyModel, callback);
+            body.init(model.bodyModel, listener);
             //TODO migrate
-            PaymentResultLegacyRenderer.render(findViewById(R.id.container), callback, model.legacyViewModel);
+            PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.legacyViewModel);
         }
     }
 
@@ -206,11 +205,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     @Override
     public void onUserValidation() {
-        ViewUtils.hideKeyboard(this);
-        final Intent returnIntent = new Intent();
-        new UserValidationPostPaymentAction().addToIntent(returnIntent);
-        setResult(RESULT_ACTION, returnIntent);
-        finish();
+        changePaymentMethod();
     }
 
     @Override
@@ -235,7 +230,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void processBusinessAction(@NonNull final String deepLink) {
+    public void launchDeepLink(@NonNull final String deepLink) {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)));
         } catch (final ActivityNotFoundException e) {
