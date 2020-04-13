@@ -305,7 +305,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         final FragmentManager manager = getFragmentManager();
         final Activity activity = getActivity();
         if (activity != null) {
-            bottomSheet = getActivity().findViewById(R.id.off_methods_fragment);
+            bottomSheet = activity.findViewById(R.id.off_methods_fragment);
             bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
             bottomSheetBehavior.setHideable(true);
             bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
