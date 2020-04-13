@@ -3,7 +3,6 @@ package com.mercadopago.android.px.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import com.google.gson.annotations.SerializedName;
 import com.mercadopago.android.px.model.internal.ExpressPaymentMethod;
 import com.mercadopago.android.px.model.one_tap.CheckoutBehaviour;
 import com.mercadopago.android.px.model.one_tap.SliderDisplayInfo;
@@ -23,7 +22,6 @@ public final class ExpressMetadata implements Parcelable, Serializable, ExpressP
     private final OfflinePaymentTypesMetadata offlineMethods;
     private final BenefitsMetadata benefits;
     private final SliderDisplayInfo displayInfo;
-    @SerializedName("behaviour")
     private final Map<String, CheckoutBehaviour> behaviours;
 
     public static final Creator<ExpressMetadata> CREATOR = new Creator<ExpressMetadata>() {

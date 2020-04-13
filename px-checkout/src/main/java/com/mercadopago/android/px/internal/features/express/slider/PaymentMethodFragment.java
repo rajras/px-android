@@ -75,10 +75,8 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
             bottomDescription.setVisibility(View.INVISIBLE);
             animation.initialize(Arrays.asList(highlightContainer, bottomDescription));
         } else {
-            if(TextUtil.isNotEmpty(model.getBottomDescription().getBackgroundColor())) {
-                view.findViewById(R.id.bottom_description_background)
-                    .setBackgroundColor(Color.parseColor(model.getBottomDescription().getBackgroundColor()));
-            }
+            ViewUtils.setBackgroundColor(view.findViewById(R.id.bottom_description_background),
+                model.getBottomDescription().getBackgroundColor());
             ViewUtils.loadOrHide(View.INVISIBLE, model.getBottomDescription(), bottomDescription);
             view.findViewById(R.id.bottom_description_shadow).setVisibility(View.GONE);
         }
