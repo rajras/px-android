@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.mercadolibre.android.picassodiskcache.PicassoDiskLoader;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
@@ -74,8 +75,8 @@ public final class ViewUtils {
     }
 
     public static void loadOrCallError(final String imgUrl, final ImageView logo, final Callback callback) {
-        if (!TextUtil.isEmpty(imgUrl)) {
-            PicassoLoader.getPicasso()
+        if (!TextUtil.isEmpty(imgUrl) && logo != null) {
+            PicassoDiskLoader.get(logo.getContext())
                 .load(imgUrl)
                 .into(logo, callback);
         } else {
