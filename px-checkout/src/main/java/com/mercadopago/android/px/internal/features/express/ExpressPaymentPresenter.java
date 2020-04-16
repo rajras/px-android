@@ -72,6 +72,7 @@ import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
+import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.events.InstallmentsEventTrack;
 import com.mercadopago.android.px.tracking.internal.events.SwipeOneTapEventTracker;
 import com.mercadopago.android.px.tracking.internal.events.TargetBehaviourEvent;
@@ -443,14 +444,21 @@ import java.util.Set;
         final CheckoutBehaviour behaviour = expressMetadata.getBehaviour(behaviourType);
         final Modal modal = behaviour != null && behaviour.getModal() != null ? modals.get(behaviour.getModal()) : null;
         final String target = behaviour != null ? behaviour.getTarget() : null;
+        final boolean isMethodSuspended = expressMetadata.getStatus().isSuspended();
 
-        if (expressMetadata.getStatus().isSuspended() && modal != null) {
+        if (isMethodSuspended && modal != null) {
             getView().showGenericDialog(
                 new FromModalToGenericDialogItem(actionTypeWrapper.getActionType(), behaviour.getModal()).map(modal));
             return true;
-        } else if (TextUtil.isNotEmpty(target)) {
+        } else if (isMethodSuspended && TextUtil.isNotEmpty(target)) {
             tracker.trackEvent(new TargetBehaviourEvent(new TargetBehaviourTrackData(behaviourType, target)));
             getView().startDeepLink(target);
+            return true;
+        } else if (isMethodSuspended) {
+            // is a friction if the method is suspended and does not have any behaviour to handle
+            FrictionEventTracker
+                .with(OneTapViewTracker.PATH_REVIEW_ONE_TAP_VIEW, FrictionEventTracker.Id.GENERIC,
+                    FrictionEventTracker.Style.CUSTOM_COMPONENT).track();
             return true;
         } else {
             return false;
