@@ -68,7 +68,6 @@ import com.mercadopago.android.px.internal.view.TitlePager;
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
-import com.mercadopago.android.px.internal.viewmodel.RenderMode;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
@@ -90,6 +89,8 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.HIGH_RES;
+import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.LOW_RES;
 
 public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
     InstallmentsAdapter.ItemListener,
@@ -126,7 +127,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private PaymentMethodHeaderView paymentMethodHeaderView;
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
-    @RenderMode private String renderMode;
+    private PaymentMethodFragmentAdapter.RenderMode renderMode;
     private View loading;
 
     private HubAdapter hubAdapter;
@@ -231,7 +232,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
         presenter = createPresenter();
         if (savedInstanceState != null) {
-            renderMode = savedInstanceState.getString(EXTRA_RENDER_MODE);
+            renderMode = (PaymentMethodFragmentAdapter.RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
             presenter.recoverFromBundle(savedInstanceState);
         }
         presenter.attachView(this);
@@ -246,8 +247,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void configureViews(@NonNull final View view) {
-        payButtonFragment =
-            (PayButtonFragment) getFragmentManager().findFragmentByTag(PayButtonFragment.TAG);
+        payButtonFragment = (PayButtonFragment) getFragmentManager().findFragmentByTag(PayButtonFragment.TAG);
         if (payButtonFragment == null) {
             payButtonFragment = PayButtonFragment.newInstance(this);
             getFragmentManager().beginTransaction()
@@ -408,7 +408,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void onSaveInstanceState(@NonNull final Bundle outState) {
-        outState.putString(EXTRA_RENDER_MODE, renderMode);
+        outState.putSerializable(EXTRA_RENDER_MODE, renderMode);
         if (presenter != null) {
             super.onSaveInstanceState(presenter.storeInBundle(outState));
         } else {
@@ -458,8 +458,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             paymentMethodFragmentAdapter = new PaymentMethodFragmentAdapter(getChildFragmentManager());
             if (renderMode == null) {
                 summaryView.setMeasureListener((itemsClipped) -> {
-                    summaryView.setMeasureListener(null);
-                    renderMode = itemsClipped ? RenderMode.LOW_RES : RenderMode.HIGH_RES;
+                    renderMode = itemsClipped ? LOW_RES : HIGH_RES;
                     onRenderModeDecided();
                 });
             } else {
@@ -681,8 +680,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void startAddNewCardFlow(final CardFormWithFragmentWrapper cardFormWithFragmentWrapper) {
-        FragmentManager manager;
-        if ((manager = getFragmentManager()) != null) {
+        final FragmentManager manager = getFragmentManager();
+        if (manager != null) {
             cardFormWithFragmentWrapper.getCardFormWithFragment()
                 .start(manager, REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
         }
