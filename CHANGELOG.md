@@ -1,3 +1,11 @@
+## VERSION 4.40.0
+_16_04_2020_
+* FEATURE - Remote resources for card assets
+* FEATURE - Support for IFPE regulation
+* ENHANCEMENT - Support for Picasso v2.7+
+* FIX - Lowres was not applying correctly
+* FIX - Crash tinting status bar after paying
+
 ## VERSION 4.39.1
 _08_04_2020_
 * FIX - Sec code length null after invalid esc
