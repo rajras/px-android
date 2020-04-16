@@ -23,6 +23,4 @@ class CardFormWithFragmentWrapper(
     fun getCardFormWithFragment() = withAccessToken(privateKey, siteId, flowId)
         .setSessionId(sessionId)
         .setExcludedTypes(excludedPaymentTypes).build()
-
-
 }
