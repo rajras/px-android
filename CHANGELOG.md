@@ -1,3 +1,7 @@
+## VERSION 4.39.2
+_17_04_2020_
+* FIX - Disable pay button in pure offline method node
+
 ## VERSION 4.39.1
 _08_04_2020_
 * FIX - Sec code length null after invalid esc
