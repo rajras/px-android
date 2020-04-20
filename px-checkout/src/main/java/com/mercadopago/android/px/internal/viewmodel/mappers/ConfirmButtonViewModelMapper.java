@@ -16,6 +16,7 @@ public class ConfirmButtonViewModelMapper extends Mapper<ExpressMetadata, Confir
     @Override
     public ConfirmButtonViewModel map(@NonNull final ExpressMetadata val) {
         return new ConfirmButtonViewModel(
-            val.isNewCard() || disabledPaymentMethodRepository.hasPaymentMethodId(val.getCustomOptionId()));
+            val.isNewCard() || val.isOfflineMethods() ||
+                disabledPaymentMethodRepository.hasPaymentMethodId(val.getCustomOptionId()));
     }
 }
