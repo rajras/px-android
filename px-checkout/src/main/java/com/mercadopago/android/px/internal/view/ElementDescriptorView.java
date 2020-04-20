@@ -14,8 +14,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.mercadolibre.android.picassodiskcache.PicassoDiskLoader;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.PicassoLoader;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -129,7 +129,7 @@ public class ElementDescriptorView extends LinearLayout {
             subtitle.setVisibility(GONE);
         }
 
-        final Picasso picasso = PicassoLoader.getPicasso();
+        final Picasso picasso = PicassoDiskLoader.get(getContext());
         final RequestCreator requestCreator;
 
         if (TextUtil.isNotEmpty(model.getUrlIcon())) {

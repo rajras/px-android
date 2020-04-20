@@ -9,11 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.viewmodel.DisableConfiguration;
 import com.mercadopago.android.px.internal.viewmodel.drawables.AccountMoneyDrawableFragmentItem;
-import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 
 public class AccountMoneyFragment extends PaymentMethodFragment<AccountMoneyDrawableFragmentItem> {
 
@@ -34,14 +32,17 @@ public class AccountMoneyFragment extends PaymentMethodFragment<AccountMoneyDraw
     @Override
     public void disable() {
         super.disable();
+        final View view = getView();
         final DisableConfiguration disableConfiguration = new DisableConfiguration(getContext());
-        final ViewGroup card = getView().findViewById(R.id.payment_method);
-        final ImageView background = getView().findViewById(R.id.background);
+        if (view != null) {
+            final ViewGroup card = view.findViewById(R.id.payment_method);
+            final ImageView background = view.findViewById(R.id.background);
 
-        ViewUtils.grayScaleViewGroup(card);
-        background.clearColorFilter();
-        background.setImageResource(0);
-        background.setBackgroundColor(disableConfiguration.getBackgroundColor());
+            ViewUtils.grayScaleViewGroup(card);
+            background.clearColorFilter();
+            background.setImageResource(0);
+            background.setBackgroundColor(disableConfiguration.getBackgroundColor());
+        }
     }
 
     @Override

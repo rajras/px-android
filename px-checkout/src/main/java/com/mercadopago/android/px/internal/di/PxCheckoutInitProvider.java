@@ -9,14 +9,12 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.core.ConnectionHelper;
-import com.mercadopago.android.px.internal.util.PicassoLoader;
 
 public class PxCheckoutInitProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
         Session.initialize(getContext());
-        PicassoLoader.initialize(getContext());
         ConnectionHelper.getInstance().initialize(getContext());
         return false;
     }

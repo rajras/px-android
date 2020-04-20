@@ -30,7 +30,7 @@ public class SecurityCodePage extends PageObject<CheckoutValidator> {
 
     public IdentificationPage enterSecurityCodeForNewCard(final String cvvNumber) {
         Matcher<View> cardSecurityCodeEditTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkCardSecurityCode);
-        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButtonText);
+        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButton);
         onView(cardSecurityCodeEditTextMatcher).perform(typeText(cvvNumber));
         onView(cardNextButtonTextMatcher).perform(click());
         return new IdentificationPage(validator);
@@ -38,7 +38,7 @@ public class SecurityCodePage extends PageObject<CheckoutValidator> {
 
     public ReviewAndConfirmPage enterSecurityCodeForSavedCard(final String cvvNumber) {
         Matcher<View> cardSecurityCodeEditTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkCardSecurityCode);
-        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButtonText);
+        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButton);
         onView(cardSecurityCodeEditTextMatcher).perform(typeText(cvvNumber));
         onView(cardNextButtonTextMatcher).perform(click());
         return new ReviewAndConfirmPage(validator);

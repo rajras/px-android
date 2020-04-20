@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public final class Text implements Parcelable, Serializable {
 
+    public static final Text EMPTY = new Text();
+
     private final String message;
     private final String backgroundColor;
     private final String textColor;
@@ -22,6 +24,13 @@ public final class Text implements Parcelable, Serializable {
             return new Text[size];
         }
     };
+
+    private Text() {
+        message = null;
+        backgroundColor = null;
+        textColor = null;
+        weight = null;
+    }
 
     /* default */ Text(final Parcel in) {
         message = in.readString();

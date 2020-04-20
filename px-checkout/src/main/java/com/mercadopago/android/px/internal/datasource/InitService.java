@@ -129,6 +129,7 @@ public class InitService implements InitRepository {
         final CheckoutFeatures features = new CheckoutFeatures.Builder()
             .setSplit(paymentConfiguration.getPaymentProcessor().supportsSplitPayment(checkoutPreference))
             .setExpress(advancedConfiguration.isExpressPaymentEnabled())
+            .setOdrFlag(true)
             .build();
 
         final InitRequest initRequest = new InitRequest.Builder(paymentSettingRepository.getPublicKey())
@@ -164,6 +165,12 @@ public class InitService implements InitRepository {
                 init().execute(getRefreshCallback(callback));
             }
         };
+    }
+
+    @Override
+    public MPCall<InitResponse> cleanRefresh() {
+        initCache.evict();
+        return init();
     }
 
     /* default */ Callback<InitResponse> getRefreshCallback(@NonNull final Callback<InitResponse> originalCallback) {

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
-import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.BaseFragment;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
@@ -20,6 +19,7 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultActivity;
+import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.internal.viewmodel.drawables.OtherPaymentMethodFragmentItem;
@@ -27,6 +27,8 @@ import com.mercadopago.android.px.model.NewCardMetadata;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PaymentMethodSearchItem;
 import com.mercadopago.android.px.model.internal.Text;
+
+import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
 public class OtherPaymentMethodFragment
     extends BaseFragment<OtherPaymentMethodPresenter, OtherPaymentMethodFragmentItem>
@@ -113,6 +115,10 @@ public class OtherPaymentMethodFragment
         loadSecondaryMessageView(view, secondaryMessage);
         loadImage(view, imageResId);
         view.setOnClickListener(listener);
+        executeIfAccessibilityTalkBackEnable(view.getContext(), () -> {
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            return null;
+        });
     }
 
     @Override
@@ -122,11 +128,13 @@ public class OtherPaymentMethodFragment
         final ViewGroup parent = view != null ? (ViewGroup) view.getParent() : null;
 
         if (presenter != null && parent != null) {
-            parent.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
-            if (isVisibleToUser) {
-                offPaymentMethodView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-                addNewCardView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-            }
+            executeIfAccessibilityTalkBackEnable(parent.getContext(), () -> {
+                int modeForAccessibility = isVisibleToUser ? View.IMPORTANT_FOR_ACCESSIBILITY_YES : View.IMPORTANT_FOR_ACCESSIBILITY_NO;
+                parent.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+                offPaymentMethodView.setImportantForAccessibility(modeForAccessibility);
+                addNewCardView.setImportantForAccessibility(modeForAccessibility);
+                return null;
+            });
         }
     }
 
@@ -146,11 +154,11 @@ public class OtherPaymentMethodFragment
     }
 
     @Override
-    public void startCardForm(@NonNull final CardFormWithFragment cardForm) {
+    public void startCardForm(@NonNull final CardFormWithFragmentWrapper cardFormWithFragmentWrapper) {
         FragmentManager manager;
         if (getParentFragment() != null && (manager = getParentFragment().getFragmentManager()) != null) {
-            cardForm.start(manager, ExpressPaymentFragment.REQ_CODE_CARD_FORM,
-                R.id.one_tap_fragment);
+            cardFormWithFragmentWrapper.getCardFormWithFragment()
+                .start(manager, ExpressPaymentFragment.REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
         }
     }
 

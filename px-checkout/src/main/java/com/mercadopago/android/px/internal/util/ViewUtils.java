@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.mercadolibre.android.picassodiskcache.PicassoDiskLoader;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
@@ -74,8 +75,8 @@ public final class ViewUtils {
     }
 
     public static void loadOrCallError(final String imgUrl, final ImageView logo, final Callback callback) {
-        if (!TextUtil.isEmpty(imgUrl)) {
-            PicassoLoader.getPicasso()
+        if (!TextUtil.isEmpty(imgUrl) && logo != null) {
+            PicassoDiskLoader.get(logo.getContext())
                 .load(imgUrl)
                 .into(logo, callback);
         } else {
@@ -187,19 +188,32 @@ public final class ViewUtils {
 
     public static void setColorInSpannable(@Nullable final String color, final int indexStart, final int indexEnd,
         @NonNull final Spannable spannable) {
-        try {
-            setColorInSpannable(Color.parseColor(color), indexStart, indexEnd, spannable);
-        } catch (final Exception e) {
-            logParseColorError(color);
+        if (TextUtil.isNotEmpty(color)) {
+            try {
+                setColorInSpannable(Color.parseColor(color), indexStart, indexEnd, spannable);
+            } catch (final Exception e) {
+                logParseColorError(color);
+            }
         }
     }
 
-
     public static void setTextColor(@NonNull final TextView textView, @Nullable final String color) {
-        try {
-            textView.setTextColor(Color.parseColor(color));
-        } catch (final Exception e) {
-            logParseColorError(color);
+        if (TextUtil.isNotEmpty(color)) {
+            try {
+                textView.setTextColor(Color.parseColor(color));
+            } catch (final Exception e) {
+                logParseColorError(color);
+            }
+        }
+    }
+
+    public static void setBackgroundColor(@NonNull final View view, @Nullable final String color) {
+        if (TextUtil.isNotEmpty(color)) {
+            try {
+                view.setBackgroundColor(Color.parseColor(color));
+            } catch (final Exception e) {
+                logParseColorError(color);
+            }
         }
     }
 

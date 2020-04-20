@@ -44,7 +44,7 @@ public class SecurityCodeToResultsPage extends PageObject<CheckoutValidator> {
 
     private void enterSecurityCode(final String escNumber) {
         Matcher<View> cardSecurityCodeEditTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkCardSecurityCode);
-        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButtonText);
+        Matcher<View> cardNextButtonTextMatcher = withId(com.mercadopago.android.px.R.id.mpsdkNextButton);
         onView(cardSecurityCodeEditTextMatcher).perform(typeText(escNumber));
         onView(cardNextButtonTextMatcher).perform(click());
     }

@@ -142,9 +142,13 @@ public final class OneTapSamples {
         final CheckoutPreference preference =
             getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 120);
         final PaymentConfiguration paymentConfiguration =
-            PaymentConfigurationUtils.create(new SamplePaymentProcessorNoView(Arrays.asList(
+            new PaymentConfiguration.Builder(new SamplePaymentProcessorNoView(Arrays.asList(
                 IParcelablePaymentDescriptor.with(getGenericPaymentRejected()),
-                IParcelablePaymentDescriptor.with(getGenericPaymentApproved()))));
+                IParcelablePaymentDescriptor.with(getGenericPaymentApproved()))))
+            .addChargeRules(
+                Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
+                    PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
+                .build();
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)

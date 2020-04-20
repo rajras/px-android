@@ -18,9 +18,11 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.animations.BottomSlideAnimationSet;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
+import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import java.util.Arrays;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
@@ -31,13 +33,12 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     private CardView card;
     private BottomSlideAnimationSet animation;
     private boolean focused;
-    private MPTextView highlightText;
+    private MPTextView bottomDescription;
     private Handler handler;
 
     @Override
     protected PaymentMethodPresenter createPresenter() {
         return new PaymentMethodPresenter(
-            Session.getInstance().getConfigurationModule().getDisabledPaymentMethodRepository(),
             Session.getInstance().getConfigurationModule().getPayerCostSelectionRepository(),
             Session.getInstance().getAmountConfigurationRepository(),
             model);
@@ -67,9 +68,18 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     @CallSuper
     public void initializeViews(@NonNull final View view) {
         card = view.findViewById(R.id.payment_method);
-        final View highlightContainer = view.findViewById(R.id.highlight_container);
-        highlightText = view.findViewById(R.id.highlight_text);
-        animation.initialize(Arrays.asList(highlightContainer, highlightText));
+        bottomDescription = view.findViewById(R.id.bottom_description);
+        if (model.shouldHighlightBottomDescription()) {
+            final View highlightContainer = view.findViewById(R.id.bottom_description_container);
+            highlightContainer.setVisibility(View.INVISIBLE);
+            bottomDescription.setVisibility(View.INVISIBLE);
+            animation.initialize(Arrays.asList(highlightContainer, bottomDescription));
+        } else {
+            ViewUtils.setBackgroundColor(view.findViewById(R.id.bottom_description_background),
+                model.getBottomDescription().getBackgroundColor());
+            ViewUtils.loadOrHide(View.INVISIBLE, model.getBottomDescription(), bottomDescription);
+            view.findViewById(R.id.bottom_description_shadow).setVisibility(View.GONE);
+        }
         if (hasFocus()) {
             onFocusIn();
         }
@@ -81,7 +91,7 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
 
     @Override
     public void updateHighlightText(@Nullable final String text) {
-        highlightText.setText(text);
+        bottomDescription.setText(text);
     }
 
     @Override
@@ -123,7 +133,9 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
 
         if (TextUtil.isNotEmpty(description)) {
             setDescriptionForAccessibility(description);
-        } else if (isDisableMethod()) {
+        }
+
+        if (isDisableMethod()) {
             String statusMessage = model.getStatus().getMainMessage().getMessage();
             statusMessage = TextUtil.isNotEmpty(statusMessage) ? statusMessage : TextUtil.EMPTY;
             if (TextUtil.isNotEmpty(statusMessage)) {
@@ -172,17 +184,19 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     }
 
     private boolean shouldAnimate() {
-        return animation != null && TextUtil.isNotEmpty(highlightText.getText());
+        return animation != null && TextUtil.isNotEmpty(bottomDescription.getText());
     }
 
     @Override
     public void disable() {
         final Fragment parentFragment = getParentFragment();
+        final DisabledPaymentMethod disabledPaymentMethod = model.getDisabledPaymentMethod();
+
         if (!(parentFragment instanceof DisabledDetailDialogLauncher)) {
             throw new IllegalStateException(
                 "Parent fragment should implement " + DisabledDetailDialogLauncher.class.getSimpleName());
         }
-        if (model.getDisabledPaymentMethod() == null) {
+        if (disabledPaymentMethod == null) {
             throw new IllegalStateException(
                 "Should have a disabledPaymentMethod to disable");
         }
@@ -190,7 +204,7 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
         card.setOnClickListener(
             v -> DisabledPaymentMethodDetailDialog
                 .showDialog(parentFragment, ((DisabledDetailDialogLauncher) parentFragment).getRequestCode(),
-                    model.getDisabledPaymentMethod().getPaymentStatusDetail(), model.getStatus()));
+                    disabledPaymentMethod.getPaymentStatusDetail(), model.getStatus()));
     }
 
     protected void tintBackground(@NonNull final ImageView background, @NonNull final String color) {
