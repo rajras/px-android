@@ -45,6 +45,17 @@
                     android:scheme="mercadopago"/>
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:path="/one_tap"
+                    android:host="px"
+                    android:scheme="meli"/>
+            </intent-filter>
+
         </activity>
         <activity
             android:name=".internal.features.guessing_card.GuessingCardActivity"
