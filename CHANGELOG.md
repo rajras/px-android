@@ -1,3 +1,7 @@
+## VERSION 4.41.0
+_23_04_2020_
+* ENHANCEMENT - Added meli deeplink to one tap
+
 ## VERSION 4.40.1
 _17_04_2020_
 * FIX - Disable pay button in pure offline method node
