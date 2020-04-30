@@ -51,7 +51,7 @@ class CongratsRepositoryImpl(
                 hasToReturnEmptyResponse || isSuccess -> RemediesResponse.EMPTY
                 remediesCache.containsKey(paymentId) -> remediesCache[paymentId]!!
                 else -> {
-                    getRemedies(payment, paymentResult.paymentData)
+                    getRemedies(payment, paymentResult.paymentData).apply { remediesCache[paymentId] = this }
                 }
             }
             withContext(Dispatchers.Main) {
