@@ -27,6 +27,7 @@ class CongratsRepositoryImpl(
     private val paymentSetting: PaymentSettingRepository, private val platform: String, private val locale: String,
     private val flow: String?, private val userSelectionRepository: UserSelectionRepository,
     private val amountRepository: AmountRepository,
+    private val disabledPaymentMethodRepository : DisabledPaymentMethodRepository,
     private val payerComplianceRepository: PayerComplianceRepository,
     private val escManagerBehaviour: ESCManagerBehaviour) : CongratsRepository {
 
@@ -90,7 +91,7 @@ class CongratsRepositoryImpl(
                         }
                     }
                 }
-            }
+            }.filter { !disabledPaymentMethodRepository.hasPaymentMethodId(it.second) }
 
     private suspend fun loadInitResponse() =
         when (val callbackResult = initService.init().awaitCallback<InitResponse>()) {
