@@ -1,3 +1,8 @@
+## VERSION 4.42.0
+_30_04_2020_
+* FEATURE - New suggested payment method remedy
+* ENHANCEMENT - Tracking session expired friction
+
 ## VERSION 4.41.0
 _23_04_2020_
 * ENHANCEMENT - Added meli deeplink to one tap
