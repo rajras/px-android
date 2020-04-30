@@ -27,6 +27,7 @@ class CongratsRepositoryImpl(
     private val paymentSetting: PaymentSettingRepository, private val platform: String, private val locale: String,
     private val flow: String?, private val userSelectionRepository: UserSelectionRepository,
     private val amountRepository: AmountRepository,
+    private val disabledPaymentMethodRepository : DisabledPaymentMethodRepository,
     private val payerComplianceRepository: PayerComplianceRepository,
     private val escManagerBehaviour: ESCManagerBehaviour) : CongratsRepository {
 
@@ -50,7 +51,7 @@ class CongratsRepositoryImpl(
                 hasToReturnEmptyResponse || isSuccess -> RemediesResponse.EMPTY
                 remediesCache.containsKey(paymentId) -> remediesCache[paymentId]!!
                 else -> {
-                    getRemedies(payment, paymentResult.paymentData).apply { remediesCache[paymentId] = this }
+                    getRemedies(payment, paymentResult.paymentData)
                 }
             }
             withContext(Dispatchers.Main) {
@@ -90,7 +91,7 @@ class CongratsRepositoryImpl(
                         }
                     }
                 }
-            }
+            }.filter { !disabledPaymentMethodRepository.hasPaymentMethodId(it.second) }
 
     private suspend fun loadInitResponse() =
         when (val callbackResult = initService.init().awaitCallback<InitResponse>()) {
