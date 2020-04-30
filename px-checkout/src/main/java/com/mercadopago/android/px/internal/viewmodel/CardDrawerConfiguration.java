@@ -22,7 +22,7 @@ public final class CardDrawerConfiguration implements CardUI, Parcelable, Serial
     private final CardDisplayInfo info;
     @ColorInt private int color;
     @ColorInt private int fontColor;
-    private final DisableConfiguration disableConfiguration;
+    @Nullable private final DisableConfiguration disableConfiguration;
     private boolean disabled;
 
     public static final Creator<CardDrawerConfiguration> CREATOR = new Creator<CardDrawerConfiguration>() {
@@ -38,7 +38,7 @@ public final class CardDrawerConfiguration implements CardUI, Parcelable, Serial
     };
 
     public CardDrawerConfiguration(final CardDisplayInfo info,
-        @NonNull final DisableConfiguration disableConfiguration) {
+        @Nullable final DisableConfiguration disableConfiguration) {
         this.info = info;
         color = Color.parseColor(info.color);
         fontColor = Color.parseColor(info.fontColor);
@@ -106,12 +106,12 @@ public final class CardDrawerConfiguration implements CardUI, Parcelable, Serial
 
     @Override
     public int getCardFontColor() {
-        return disabled ? disableConfiguration.getFontColor() : fontColor;
+        return (disabled && disableConfiguration != null) ? disableConfiguration.getFontColor() : fontColor;
     }
 
     @Override
     public int getCardBackgroundColor() {
-        return disabled ? disableConfiguration.getBackgroundColor() : color;
+        return (disabled && disableConfiguration != null) ? disableConfiguration.getBackgroundColor() : color;
     }
 
     @Override

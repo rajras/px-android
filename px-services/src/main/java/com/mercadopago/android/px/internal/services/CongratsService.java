@@ -33,5 +33,6 @@ public interface CongratsService {
         @Path(value = "payment_id", encoded = true) String paymentId,
         @Header("Accept-Language") String locale,
         @Query("access_token") String accessToken,
+        @Query("one_tap") boolean oneTap,
         @Body RemediesBody body);
 }

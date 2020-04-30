@@ -4,32 +4,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
+    app:layout_constraintHeight_percent="0.25"
     app:layout_constraintBottom_toBottomOf="parent"
-    tools:showIn="@layout/px_fragment_saved_card"
+    tools:showIn="@layout/px_fragment_saved_card_low_res"
+    tools:layout_height="21dp"
     android:orientation="vertical">
 
     <View
         android:id="@+id/bottom_description_shadow"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="@drawable/shadow_top">
-    </View>
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:background="@drawable/shadow_top" />
 
     <FrameLayout
         android:id="@+id/bottom_description_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="16"
         android:background="@color/px_color_highlight">
 
         <com.mercadopago.android.px.internal.view.MPTextView
             android:id="@+id/bottom_description"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/px_xxxxs_margin"
-            android:textAlignment="center"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/px_s_margin"
+            android:layout_marginEnd="@dimen/px_s_margin"
+            android:gravity="center"
             android:textColor="@color/ui_meli_white"
-            android:textSize="@dimen/px_xxxs_text"
+            android:textSize="@dimen/px_xxs_text"
             android:ellipsize="end"
             android:maxLines="1"
             app:customStyle="semi_bold"

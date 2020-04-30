@@ -4,8 +4,6 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
-import com.mercadopago.android.px.internal.core.ConnectionHelper;
-import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
@@ -23,6 +21,7 @@ import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
+import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodDescriptorMapper;
 import com.mercadopago.android.px.mocks.CurrencyStub;
 import com.mercadopago.android.px.mocks.SiteStub;
 import com.mercadopago.android.px.model.AmountConfiguration;
@@ -110,13 +109,7 @@ public class ExpressPaymentPresenterTest {
     private ESCManagerBehaviour escManagerBehaviour;
 
     @Mock
-    private ProductIdProvider productIdProvider;
-
-    @Mock
     private PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper;
-
-    @Mock
-    private ConnectionHelper connectionHelper;
 
     @Mock
     private CongratsRepository congratsRepository;
@@ -150,9 +143,8 @@ public class ExpressPaymentPresenterTest {
         expressPaymentPresenter =
             new ExpressPaymentPresenter(paymentRepository, paymentSettingRepository, disabledPaymentMethodRepository,
                 payerCostSelectionRepository, discountRepository, amountRepository, initRepository,
-                amountConfigurationRepository, chargeRepository, escManagerBehaviour, productIdProvider,
-                paymentMethodDrawableItemMapper, connectionHelper, congratsRepository, payerComplianceRepository,
-                sessionIdProvider);
+                amountConfigurationRepository, chargeRepository, escManagerBehaviour, paymentMethodDrawableItemMapper,
+                congratsRepository, payerComplianceRepository, sessionIdProvider, mock(PaymentMethodDescriptorMapper.class));
 
         verifyAttachView();
     }

@@ -231,6 +231,8 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     }
 
     public interface DisabledDetailDialogLauncher {
-        int getRequestCode();
+        default int getRequestCode() {
+            return 0;
+        }
     }
 }

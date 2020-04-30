@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.viewmodel.mappers;
 
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
+import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.viewmodel.AccountMoneyDescriptorModel;
@@ -12,6 +13,7 @@ import com.mercadopago.android.px.internal.viewmodel.EmptyInstallmentsDescriptor
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.InterestFree;
+import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.internal.Text;
 
@@ -20,13 +22,16 @@ public class PaymentMethodDescriptorMapper extends Mapper<ExpressMetadata, Payme
     @NonNull private final Currency currency;
     @NonNull private final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull private final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
+    @NonNull private final AmountRepository amountRepository;
 
     public PaymentMethodDescriptorMapper(@NonNull final Currency currency,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
-        @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository) {
+        @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
+        @NonNull final AmountRepository amountRepository) {
         this.currency = currency;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
+        this.amountRepository = amountRepository;
     }
 
     @Override
@@ -42,7 +47,8 @@ public class PaymentMethodDescriptorMapper extends Mapper<ExpressMetadata, Payme
             return DebitCardDescriptorModel
                 .createFrom(currency, amountConfigurationRepository.getConfigurationFor(customOptionId));
         } else if (PaymentTypes.isAccountMoney(expressMetadata.getPaymentMethodId())) {
-            return AccountMoneyDescriptorModel.createFrom(expressMetadata.getAccountMoney());
+            return AccountMoneyDescriptorModel.createFrom(expressMetadata.getAccountMoney(), currency,
+                amountRepository.getAmountToPay(expressMetadata.getPaymentTypeId(), (PayerCost) null));
         } else {
             return EmptyInstallmentsDescriptorModel.create();
         }

@@ -3,23 +3,30 @@ package com.mercadopago.android.px.internal.features.payment_result.mappers
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.CvvRemedy
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.HighRiskRemedy
+import com.mercadopago.android.px.internal.features.payment_result.remedies.view.RetryPaymentFragment
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.model.internal.remedies.CvvRemedyResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
 
 internal object PaymentResultRemediesModelMapper : Mapper<RemediesResponse, RemediesModel>() {
-    override fun map(model: RemediesResponse): RemediesModel {
-        return RemediesModel(
-            model.cvv?.let {
-                it.fieldSetting.run {
-                    CvvRemedy.Model(it.message,
-                            title,
-                            hintMessage,
-                            length)
-                }
-            },
-            model.highRisk?.let {
-                HighRiskRemedy.Model(it.title, it.message, it.deepLink)
-            }
-        )
+    override fun map(response: RemediesResponse): RemediesModel {
+        var title = ""
+        val retryPaymentModel = response.suggestedPaymentMethod?.let {
+            title = it.title
+            RetryPaymentFragment.Model(response.cvv?.run { message } ?: it.message, true, getCvvModel(response.cvv))
+        } ?: response.cvv?.let {
+            title = it.title
+            RetryPaymentFragment.Model(it.message, false, getCvvModel(it))
+        }
+        val highRiskModel = response.highRisk?.let {
+            title = it.title
+            HighRiskRemedy.Model(it.title, it.message, it.deepLink)
+        }
+        return RemediesModel(title, retryPaymentModel, highRiskModel)
     }
+
+    private fun getCvvModel(cvvResponse: CvvRemedyResponse?) =
+        cvvResponse?.fieldSetting?.run {
+            CvvRemedy.Model(hintMessage, title, length)
+        }
 }

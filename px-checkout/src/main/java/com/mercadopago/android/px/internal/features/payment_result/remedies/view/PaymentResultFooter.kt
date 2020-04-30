@@ -42,6 +42,14 @@ internal class PaymentResultFooter(context: Context, attrs: AttributeSet?, defSt
         payButtonContainer.visibility = if (model.showPayButton) View.VISIBLE else View.GONE
     }
 
+    fun hideQuietButton() {
+        quietButton.visibility = View.GONE
+    }
+
+    fun showQuietButton() {
+        quietButton.visibility = View.VISIBLE
+    }
+
     private fun applyButtonConfig(button: MeliButton, buttonModel: RemedyButton?,
         listener: (action: RemedyButton.Action) -> Unit) {
         with(button) {

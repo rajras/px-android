@@ -8,10 +8,12 @@ import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.core.ProductIdProvider
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
+import com.mercadopago.android.px.internal.repository.CongratsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.util.ApiUtil
 import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.IPaymentDescriptor
@@ -30,6 +32,7 @@ internal class PayButtonViewModel(
     private var paymentService: PaymentRepository,
     private var productIdProvider: ProductIdProvider,
     private var connectionHelper: ConnectionHelper,
+    private var congratsRepository: CongratsRepository,
     paymentSettingRepository: PaymentSettingRepository) : BaseViewModel(), PayButton.ViewModel {
 
     private var confirmTrackerData: ConfirmData? = null
@@ -122,7 +125,12 @@ internal class PayButtonViewModel(
     }
 
     override fun onPaymentFinished(payment: IPaymentDescriptor) {
-        stateUILiveData.value = UIProgress.ButtonLoadingFinished(ExplodeDecoratorMapper().map(payment))
+        congratsRepository.getPostPaymentData(payment, paymentService.createPaymentResult(payment),
+            object : CongratsRepository.PostPaymentCallback {
+                override fun handleResult(paymentModel: PaymentModel) {
+                    stateUILiveData.value = UIProgress.ButtonLoadingFinished(ExplodeDecoratorMapper().map(paymentModel))
+                }
+            })
     }
 
     override fun onRecoverPaymentEscInvalid(recovery: PaymentRecovery) {

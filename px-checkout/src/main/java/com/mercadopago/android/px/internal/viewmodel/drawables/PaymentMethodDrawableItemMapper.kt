@@ -13,10 +13,10 @@ import java.util.*
 
 class PaymentMethodDrawableItemMapper(
     private val chargeRepository: ChargeRepository,
-    private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository,
-    context: Context) : NonNullMapper<ExpressMetadata?, DrawableFragmentItem?>() {
+    private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository? = null,
+    context: Context? = null) : NonNullMapper<ExpressMetadata?, DrawableFragmentItem?>() {
 
-    private val disableConfiguration = DisableConfiguration(context)
+    private val disableConfiguration = context?.let { DisableConfiguration(it) }
     private var customSearchItems: List<CustomSearchItem> = Collections.emptyList()
 
     override fun map(expressMetadata: ExpressMetadata): DrawableFragmentItem? {
@@ -44,7 +44,7 @@ class PaymentMethodDrawableItemMapper(
         return DrawableFragmentItem.Parameters(
             customOptionId, expressMetadata.status, expressMetadata.displayInfo?.bottomDescription, charge?.message,
             expressMetadata.benefits?.reimbursement,
-            disabledPaymentMethodRepository.getDisabledPaymentMethod(customOptionId), description, issuerName)
+            disabledPaymentMethodRepository?.getDisabledPaymentMethod(customOptionId), description, issuerName)
     }
 
     fun setCustomSearchItems(items: List<CustomSearchItem>) {

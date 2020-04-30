@@ -52,11 +52,11 @@ public class PaymentResultHeaderModelMapper extends Mapper<PaymentModel, Payment
 
         return new PaymentResultHeader.Model.Builder()
             .setDynamicHeight(!hasBodyComponent)
-            .setBackground(viewModel.getBackgroundResId())
+            .setBackground(remediesModel.hasRemedies() ? RemediesModel.DECORATOR.resColor : viewModel.getBackgroundResId())
             .setIconImage(getIconImage(paymentResult))
             .setIconUrl(getIconUrl(paymentResult))
             .setBadgeImage(getBadgeImage(paymentResult, viewModel))
-            .setTitle(new GenericLocalized(remediesModel.getTitle() != null ? remediesModel.getTitle() :
+            .setTitle(new GenericLocalized(remediesModel.hasRemedies() ? remediesModel.getTitle() :
                 getInstructionsTitle(), viewModel.getTitleResId()))
             .setLabel(new GenericLocalized(null, DEFAULT_LABEL))
             .build();
@@ -96,7 +96,9 @@ public class PaymentResultHeaderModelMapper extends Mapper<PaymentModel, Payment
 
     private int getBadgeImage(@NonNull final PaymentResult paymentResult,
         @NonNull final PaymentResultViewModel viewModel) {
-        if (hasCustomizedBadge(paymentResult)) {
+        if (remediesModel.hasRemedies()) {
+            return RemediesModel.DECORATOR.badge;
+        } else if (hasCustomizedBadge(paymentResult)) {
             final String badge = getPreferenceBadge(paymentResult);
             switch (badge) {
             case Badge.CHECK_BADGE_IMAGE:

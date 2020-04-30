@@ -65,7 +65,7 @@ public interface ExpressPayment {
 
         void updateBottomSheetStatus(final boolean hasToExpand);
 
-        void showPaymentResult(@NonNull final PaymentModel model, @NonNull final PaymentConfiguration paymentConfiguration);
+        void showPaymentResult(@NonNull final PaymentModel model);
 
         void showBusinessResult(@NonNull final BusinessPaymentModel model);
 

@@ -14,7 +14,6 @@ class FromExpressMetadataToPaymentConfiguration(
 ) : Mapper<ExpressMetadata, PaymentConfiguration>() {
 
     override fun map(expressMetadata: ExpressMetadata): PaymentConfiguration {
-
         var payerCost: PayerCost? = null
 
         val customOptionId = expressMetadata.customOptionId

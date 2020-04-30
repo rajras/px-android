@@ -32,6 +32,14 @@ internal class TokenCreationWrapper private constructor(builder: Builder) {
         reason = builder.reason!!
     }
 
+    suspend fun createToken(cvv: String): Token {
+        return if (escManagerBehaviour.isESCEnabled) {
+            createTokenWithEsc(cvv)
+        } else {
+            createTokenWithoutEsc(cvv)
+        }
+    }
+
     suspend fun createTokenWithEsc(cvv: String): Token {
         return if (card != null) {
             SavedESCCardToken.createWithSecurityCode(card.id, cvv).run {
@@ -140,7 +148,10 @@ internal class TokenCreationWrapper private constructor(builder: Builder) {
         var reason: Reason? = Reason.NO_REASON
             private set
 
-        fun with(card: Card) = apply { this.card = card }
+        fun with(card: Card) = apply {
+            this.card = card
+            this.paymentMethod = card.paymentMethod
+        }
         fun with(token: Token) = apply { this.token = token }
         fun with(paymentMethod: PaymentMethod) = apply { this.paymentMethod = paymentMethod }
         fun with(paymentRecovery: PaymentRecovery) = apply {

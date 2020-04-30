@@ -444,9 +444,10 @@ public final class Session extends ApplicationModule implements AmountComponent 
                 RetrofitUtil.getRetrofitClient(applicationContext).create(CongratsService.class);
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             congratsRepository =
-                new CongratsRepositoryImpl(congratsService, paymentSettings, getPlatform(applicationContext),
+                new CongratsRepositoryImpl(congratsService, getInitRepository(),paymentSettings, getPlatform(applicationContext),
                     LocaleUtil.getLanguage(getApplicationContext()), MPTracker.getInstance().getFlowName(),
-                    configurationModule.getUserSelectionRepository(), configurationModule.getPayerComplianceRepository());
+                    configurationModule.getUserSelectionRepository(), amountRepository, configurationModule.getPayerComplianceRepository(),
+                    getMercadoPagoESC());
         }
         return congratsRepository;
     }

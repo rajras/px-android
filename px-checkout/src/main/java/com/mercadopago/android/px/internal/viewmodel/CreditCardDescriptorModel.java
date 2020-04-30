@@ -19,6 +19,7 @@ import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.InterestFree;
 import com.mercadopago.android.px.model.PayerCost;
+import com.mercadopago.android.px.model.Split;
 import com.mercadopago.android.px.model.internal.Text;
 import java.math.BigDecimal;
 
@@ -51,6 +52,10 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         this.installmentsRightHeader = installmentsRightHeader;
         this.interestFree = interestFree;
         this.amountConfiguration = amountConfiguration;
+        final Split splitConfig = amountConfiguration.getSplitConfiguration();
+        if (splitConfig != null) {
+            userWantToSplit = splitConfig.defaultEnabled;
+        }
     }
 
     @Override

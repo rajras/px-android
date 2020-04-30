@@ -208,8 +208,11 @@ import java.util.Set;
 
     @Override
     public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        getView().hideConfirmButton();
-        getView().finishLoading(explodeDecoratorMapper.map(payment));
+        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
+            paymentModel -> {
+                getView().hideConfirmButton();
+                getView().finishLoading(explodeDecoratorMapper.map(paymentModel));
+            });
     }
 
     @Override

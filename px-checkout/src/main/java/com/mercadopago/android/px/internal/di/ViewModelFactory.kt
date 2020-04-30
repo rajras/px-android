@@ -12,6 +12,7 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
             return PayButtonViewModel(Session.getInstance().paymentRepository,
                 Session.getInstance().productIdProvider,
                 ConnectionHelper.instance,
+                Session.getInstance().congratsRepository,
                 Session.getInstance().configurationModule.paymentSettings) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

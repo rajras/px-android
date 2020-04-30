@@ -10,7 +10,7 @@ import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentI
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodFragmentDrawer;
 import com.mercadopago.android.px.internal.viewmodel.drawables.SavedCardDrawableFragmentItem;
 
-/* default */ class PaymentMethodLowResDrawer implements PaymentMethodFragmentDrawer {
+public class PaymentMethodLowResDrawer implements PaymentMethodFragmentDrawer {
 
     @Override
     public Fragment draw(@NonNull final DrawableFragmentItem drawableFragmentItem) {

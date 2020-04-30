@@ -5,13 +5,14 @@ import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 
 public interface PaymentResultContract {
 
     interface View extends MvpView {
 
-        void configureViews(@NonNull final PaymentResultViewModel model,
+        void configureViews(@NonNull final PaymentResultViewModel model, @NonNull final PaymentModel paymentModel,
             @NonNull final PaymentResultBody.Listener listener);
 
         void showApiExceptionError(@NonNull final ApiException exception, @NonNull final String requestOrigin);

@@ -203,7 +203,7 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
             session.getDiscountRepository(),
             session.getProductIdProvider(),
             model.getPaymentTypes().isEmpty() ? TextUtil.EMPTY : model.getPaymentTypes().get(0).getId(),
-            session.getInitRepository());
+            session.getInitRepository(), session.getCongratsRepository());
     }
 
     @Override

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.mercadopago.android.px.internal.view.MPTextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ui_3m"
+        android:layout_marginEnd="@dimen/ui_3m"
+        android:layout_marginBottom="@dimen/ui_3m"
+        android:lineSpacingExtra="@dimen/ui_linespacing_large"
+        android:textColor="@color/px_payment_result_component_subtitle"
+        android:textSize="@dimen/px_s_text"
+        tools:hint="Código de seguridad"
+        tools:text="Vuelve a ingresarlo para confirmar el pago" />
+
+    <FrameLayout
+        android:id="@+id/card_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.mercadopago.android.px.internal.view.MPTextView
+        android:id="@+id/payment_method_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:layout_marginStart="@dimen/ui_3_5m"
+        android:layout_marginEnd="@dimen/ui_3_5m"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:customStyle="semi_bold"
+        android:textSize="@dimen/px_s_text"
+        android:text="@string/px_total_to_pay" />
+
+    <com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView
+        android:id="@+id/payment_method_descriptor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:layout_marginStart="@dimen/ui_3_5m"
+        android:layout_marginEnd="@dimen/ui_3_5m"
+        android:layout_marginBottom="@dimen/ui_3m"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:textSize="@dimen/px_s_text"
+        tools:text="1x $1200 CFT: 0,00%" />
+
+    <com.mercadopago.android.px.internal.features.payment_result.remedies.view.CvvRemedy
+        android:id="@+id/cvv_remedy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

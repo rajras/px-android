@@ -7,6 +7,7 @@ import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
+import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
@@ -47,6 +48,7 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     private ProductIdProvider productIdProvider;
     @NonNull private final String defaultPaymentTypeId;
     @Nullable OfflineMethodsCompliance payerCompliance;
+    @NonNull private final CongratsRepository congratsRepository;
 
     private OfflineMethodItem selectedItem;
 
@@ -56,7 +58,8 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
         @NonNull final DiscountRepository discountRepository,
         @NonNull final ProductIdProvider productIdProvider,
         @NonNull final String defaultPaymentTypeId,
-        @NonNull final InitRepository initRepository) {
+        @NonNull final InitRepository initRepository,
+        @NonNull final CongratsRepository congratsRepository) {
         this.paymentRepository = paymentRepository;
         this.paymentSettingRepository = paymentSettingRepository;
         this.amountRepository = amountRepository;
@@ -64,6 +67,7 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
         this.productIdProvider = productIdProvider;
         this.defaultPaymentTypeId = defaultPaymentTypeId;
         this.initRepository = initRepository;
+        this.congratsRepository = congratsRepository;
 
         payButtonViewModel = new PayButtonViewModelMapper().map(
             paymentSettingRepository.getAdvancedConfiguration().getCustomStringConfiguration());
@@ -198,7 +202,8 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
 
     @Override
     public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        getView().finishLoading(explodeDecoratorMapper.map(payment));
+        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
+            paymentModel -> getView().finishLoading(explodeDecoratorMapper.map(paymentModel)));
     }
 
     @Override

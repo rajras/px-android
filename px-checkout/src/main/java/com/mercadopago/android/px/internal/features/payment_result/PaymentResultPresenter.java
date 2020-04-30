@@ -69,8 +69,12 @@ import java.util.List;
     private List<String> getRemedies(@NonNull final RemediesResponse remedies) {
         final List<String> remedyList = new ArrayList<>();
 
-        if (remedies.getCvv() != null) {
+        if (remedies.getSuggestedPaymentMethod() != null) {
+            remedyList.add(RemedyType.PAYMENT_METHOD_SUGGESTION.getType());
+        } else if (remedies.getCvv() != null) {
             remedyList.add(RemedyType.CVV_REQUEST.getType());
+        } else if (remedies.getHighRisk() != null) {
+            remedyList.add(RemedyType.KYC_REQUEST.getType());
         }
         return remedyList;
     }
@@ -163,7 +167,7 @@ import java.util.List;
     private void configureView(@Nullable final Instruction instruction) {
         final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, instruction)
             .map(paymentModel);
-        getView().configureViews(viewModel, this);
+        getView().configureViews(viewModel, paymentModel, this);
         getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
     }
 

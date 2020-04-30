@@ -34,7 +34,7 @@ interface PayButton {
     }
 
     interface OnReadyForPaymentCallback {
-        fun call(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData?)
+        fun call(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData? = null)
     }
 
     interface OnEnqueueResolvedCallback {

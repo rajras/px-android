@@ -14,6 +14,7 @@ import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.PayerCost;
+import com.mercadopago.android.px.model.Split;
 
 /**
  * Model used to instantiate PaymentMethodDescriptorView for payment methods with payer costs. This model is used for
@@ -34,6 +35,10 @@ public final class DebitCardDescriptorModel extends PaymentMethodDescriptorView.
         @NonNull final AmountConfiguration amountConfiguration) {
         this.currency = currency;
         this.amountConfiguration = amountConfiguration;
+        final Split splitConfig = amountConfiguration.getSplitConfiguration();
+        if (splitConfig != null) {
+            userWantToSplit = splitConfig.defaultEnabled;
+        }
     }
 
     @Override
@@ -54,11 +59,10 @@ public final class DebitCardDescriptorModel extends PaymentMethodDescriptorView.
             .into(textView)
             .toSpannable();
 
-        final AmountLabeledFormatter amountLabeledFormatter =
-            new AmountLabeledFormatter(spannableStringBuilder, context)
-                .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_black))
-                .withSemiBoldStyle();
-        amountLabeledFormatter.apply(amount);
+        new AmountLabeledFormatter(spannableStringBuilder, context)
+            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_black))
+            .withSemiBoldStyle()
+            .apply(amount);
     }
 
     @NonNull

@@ -8,8 +8,6 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BasePresenter;
-import com.mercadopago.android.px.internal.core.ConnectionHelper;
-import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
@@ -92,7 +90,6 @@ import java.util.Set;
 
     private static final String BUNDLE_STATE_SPLIT_PREF = "state_split_pref";
     private static final String BUNDLE_STATE_CURRENT_PM_INDEX = "state_current_pm_index";
-    private static final String BUNDLE_STATE_CURRENT_PAYMENT_CONFIGURATION = "state_current_payment_configuration";
     private static final String BUNDLE_STATE_OTHER_PM_CLICKABLE = "state_other_pm_clickable";
 
     @NonNull private final PaymentRepository paymentRepository;
@@ -102,12 +99,11 @@ import java.util.Set;
     @NonNull private final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull private final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
     @NonNull private final ChargeRepository chargeRepository;
-    @NonNull private final ProductIdProvider productIdProvider;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
-    @NonNull private final ConnectionHelper connectionHelper;
     @NonNull private final CongratsRepository congratsRepository;
     @NonNull private final PayerComplianceRepository payerComplianceRepository;
     @NonNull private final SessionIdProvider sessionIdProvider;
+    @NonNull private final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper;
     @Nullable private Runnable unattendedEvent;
     @NonNull /* default */ final InitRepository initRepository;
     private final PayerCostSelectionRepository payerCostSelectionRepository;
@@ -119,7 +115,6 @@ import java.util.Set;
     /* default */ Map<String, Modal> modals; //FIXME remove.
     /* default */ PayerComplianceWrapper payerCompliance; //FIXME remove.
     /* default */ int paymentMethodIndex;
-    /* default */ PaymentConfiguration currentPaymentConfiguration;
     /* default */ ActionTypeWrapper actionTypeWrapper;
 
     /* default */ ExpressPaymentPresenter(@NonNull final PaymentRepository paymentRepository,
@@ -132,12 +127,11 @@ import java.util.Set;
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
         @NonNull final ChargeRepository chargeRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour,
-        @NonNull final ProductIdProvider productIdProvider,
         @NonNull final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper,
-        @NonNull final ConnectionHelper connectionHelper,
         @NonNull final CongratsRepository congratsRepository,
         @NonNull final PayerComplianceRepository payerComplianceRepository,
-        @NonNull final SessionIdProvider sessionIdProvider) {
+        @NonNull final SessionIdProvider sessionIdProvider,
+        @NonNull final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper) {
 
         this.paymentRepository = paymentRepository;
         this.paymentSettingRepository = paymentSettingRepository;
@@ -149,12 +143,11 @@ import java.util.Set;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.chargeRepository = chargeRepository;
         this.escManagerBehaviour = escManagerBehaviour;
-        this.productIdProvider = productIdProvider;
         this.paymentMethodDrawableItemMapper = paymentMethodDrawableItemMapper;
-        this.connectionHelper = connectionHelper;
         this.congratsRepository = congratsRepository;
         this.payerComplianceRepository = payerComplianceRepository;
         this.sessionIdProvider = sessionIdProvider;
+        this.paymentMethodDescriptorMapper = paymentMethodDescriptorMapper;
 
         splitSelectionState = new SplitSelectionState();
     }
@@ -176,8 +169,7 @@ import java.util.Set;
                 chargeRepository).map(new ArrayList<>(expressMetadataList));
 
         final List<PaymentMethodDescriptorView.Model> paymentModels =
-            new PaymentMethodDescriptorMapper(paymentSettingRepository.getCurrency(),
-                amountConfigurationRepository, disabledPaymentMethodRepository).map(expressMetadataList);
+            paymentMethodDescriptorMapper.map(expressMetadataList);
 
         final List<SplitPaymentHeaderAdapter.Model> splitHeaderModels =
             new SplitHeaderMapper(paymentSettingRepository.getCurrency(), amountConfigurationRepository)
@@ -231,7 +223,6 @@ import java.util.Set;
         splitSelectionState = bundle.getParcelable(BUNDLE_STATE_SPLIT_PREF);
         paymentMethodIndex = bundle.getInt(BUNDLE_STATE_CURRENT_PM_INDEX);
         otherPaymentMethodClickable = bundle.getBoolean(BUNDLE_STATE_OTHER_PM_CLICKABLE);
-        currentPaymentConfiguration = bundle.getParcelable(BUNDLE_STATE_CURRENT_PAYMENT_CONFIGURATION);
     }
 
     @NonNull
@@ -240,7 +231,6 @@ import java.util.Set;
         bundle.putParcelable(BUNDLE_STATE_SPLIT_PREF, splitSelectionState);
         bundle.putInt(BUNDLE_STATE_CURRENT_PM_INDEX, paymentMethodIndex);
         bundle.putBoolean(BUNDLE_STATE_OTHER_PM_CLICKABLE, otherPaymentMethodClickable);
-        bundle.putParcelable(BUNDLE_STATE_CURRENT_PAYMENT_CONFIGURATION, currentPaymentConfiguration);
         return bundle;
     }
 
@@ -468,15 +458,15 @@ import java.util.Set;
     private void requireCurrentConfiguration(@NonNull PayButton.OnReadyForPaymentCallback callback) {
         final ExpressMetadata expressMetadata = getCurrentExpressMetadata();
 
-        currentPaymentConfiguration = new FromExpressMetadataToPaymentConfiguration(amountConfigurationRepository,
-            splitSelectionState, payerCostSelectionRepository).map(expressMetadata);
+        final PaymentConfiguration configuration = new FromExpressMetadataToPaymentConfiguration(
+            amountConfigurationRepository, splitSelectionState, payerCostSelectionRepository).map(expressMetadata);
 
         final ConfirmData confirmTrackerData = new ConfirmData(ConfirmEvent.ReviewType.ONE_TAP, paymentMethodIndex,
             new FromSelectedExpressMetadataToAvailableMethods(escManagerBehaviour.getESCCardIds(),
-                currentPaymentConfiguration.getPayerCost(), currentPaymentConfiguration.getSplitPayment())
+                configuration.getPayerCost(), configuration.getSplitPayment())
                 .map(expressMetadata));
 
-        callback.call(currentPaymentConfiguration, confirmTrackerData);
+        callback.call(configuration, confirmTrackerData);
     }
 
     @Override
@@ -505,7 +495,7 @@ import java.util.Set;
                 .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
                 .build();
         final PaymentModel paymentModel = new PaymentModel(paymentResult, currency);
-        getView().showPaymentResult(paymentModel, currentPaymentConfiguration);
+        getView().showPaymentResult(paymentModel);
     }
 
     @Override
@@ -514,7 +504,7 @@ import java.util.Set;
             model -> model.process(new PaymentModelHandler() {
                 @Override
                 public void visit(@NonNull final PaymentModel paymentModel) {
-                    getView().showPaymentResult(paymentModel, currentPaymentConfiguration);
+                    getView().showPaymentResult(paymentModel);
                 }
 
                 @Override

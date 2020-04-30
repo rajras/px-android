@@ -25,8 +25,8 @@ import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.PXActivity;
-import com.mercadopago.android.px.internal.core.ConnectionHelper;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
+import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
@@ -70,7 +70,6 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
-import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -80,7 +79,6 @@ import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
-import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import java.util.Arrays;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -395,15 +393,11 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getAmountConfigurationRepository(),
             configurationModule.getChargeSolver(),
             session.getMercadoPagoESC(),
-            session.getProductIdProvider(),
-            new PaymentMethodDrawableItemMapper(configurationModule.getChargeSolver(),
-                configurationModule.getDisabledPaymentMethodRepository(),
-                getContext()
-            ),
-            ConnectionHelper.getInstance(),
+            MapperProvider.INSTANCE.getPaymentMethodDrawableItemMapper(getContext()),
             session.getCongratsRepository(),
             configurationModule.getPayerComplianceRepository(),
-            session.getSessionIdProvider());
+            session.getSessionIdProvider(),
+            MapperProvider.INSTANCE.getPaymentMethodDescriptorMapper());
     }
 
     @Override
@@ -563,12 +557,11 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void showPaymentResult(@NonNull final PaymentModel model,
-        @NonNull final PaymentConfiguration paymentConfiguration) {
+    public void showPaymentResult(@NonNull final PaymentModel model) {
         if (getActivity() instanceof PXActivity) {
             ((PXActivity) getActivity()).overrideTransitionIn();
         }
-        PaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS, model, paymentConfiguration);
+        PaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS, model);
     }
 
     @Override

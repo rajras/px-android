@@ -32,7 +32,7 @@ public final class OneTapSamples {
     private static final String ONE_TAP_PAYER_1_ACCESS_TOKEN =
         "APP_USR-7092-122619-fc2376471063df48cf0c9fcd26e00729-506902649";
     private static final String ONE_TAP_PAYER_2_ACCESS_TOKEN =
-        "APP_USR-3456261032857473-073011-c49291f53879f65accfaf28764e55f3e-340764447";
+        "APP_USR-3456261032857473-041712-e7b4da1d2a8589b70d824adb97137ce6-340764447";
     private static final String ONE_TAP_PAYER_3_ACCESS_TOKEN =
         "TEST-244508097630521-031308-7b8b58d617aec50b3e528ca98606b116__LC_LA__-150216849";
     private static final String ONE_TAP_PAYER_4_ACCESS_TOKEN =
@@ -140,7 +140,7 @@ public final class OneTapSamples {
     // It should suggest one tap with account money
     private static MercadoPagoCheckout.Builder startOneTapWithAccountMoneyNoCards() {
         final CheckoutPreference preference =
-            getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 120);
+            getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
             new PaymentConfiguration.Builder(new SamplePaymentProcessorNoView(Arrays.asList(
                 IParcelablePaymentDescriptor.with(getGenericPaymentRejected()),
@@ -177,7 +177,7 @@ public final class OneTapSamples {
         return new MercadoPagoCheckout.Builder(ONE_TAP_MERCHANT_PUBLIC_KEY, preference,
             PaymentConfigurationUtils
                 .create(samplePaymentProcessor))
-            .setPrivateKey(ONE_TAP_PAYER_2_ACCESS_TOKEN)
+            .setPrivateKey("TEST-6078012834542635-021214-8e2e9ba8965f606aaac13d1272ec9adb-72477140")
             .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(true).build());
     }
 
@@ -519,7 +519,7 @@ public final class OneTapSamples {
             PaymentConfigurationUtils.create(new SamplePaymentProcessorNoView(payment));
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
-            .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
+            .setPrivateKey("TEST-6078012834542635-021214-8e2e9ba8965f606aaac13d1272ec9adb-72477140")
             .setAdvancedConfiguration(
                 new AdvancedConfiguration.Builder().setProductId(PRODUCT_ID).setExpressPaymentEnable(true)
                     .build());

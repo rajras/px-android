@@ -38,5 +38,4 @@ class ConnectionHelper {
         @JvmStatic
         val instance by lazy { ConnectionHelper() }
     }
-
 }

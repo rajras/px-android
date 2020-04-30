@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.content.Context;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -79,6 +80,11 @@ public class PaymentMethodDescriptorView extends ConstraintLayout {
 
         protected String getAccessibilityContentDescription(@NonNull final Context context) {
             return TextUtil.EMPTY;
+        }
+
+        @CallSuper
+        public void formatForRemedy() {
+            setSplit(false);
         }
     }
 }

@@ -1,11 +1,10 @@
 package com.mercadopago.android.px.internal.datasource
 
+import com.mercadopago.android.px.addons.ESCManagerBehaviour
+import com.mercadopago.android.px.internal.features.payment_result.remedies.AlternativePayerPaymentMethodsMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesBodyMapper
-import com.mercadopago.android.px.internal.repository.CongratsRepository
+import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
-import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.services.CongratsService
 import com.mercadopago.android.px.internal.util.StatusHelper
 import com.mercadopago.android.px.internal.util.TextUtil
@@ -13,25 +12,30 @@ import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.internal.CongratsResponse
+import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
 import com.mercadopago.android.px.services.BuildConfig
+import com.mercadopago.android.px.internal.services.Response
+import com.mercadopago.android.px.internal.services.awaitCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class CongratsRepositoryImpl(
-    private val congratsService: CongratsService, private val paymentSetting: PaymentSettingRepository,
-    private val platform: String, private val locale: String, private val flow: String?,
-    private val userSelectionRepository: UserSelectionRepository,
-    private val payerComplianceRepository: PayerComplianceRepository) : CongratsRepository {
+    private val congratsService: CongratsService, private val initService: InitRepository,
+    private val paymentSetting: PaymentSettingRepository, private val platform: String, private val locale: String,
+    private val flow: String?, private val userSelectionRepository: UserSelectionRepository,
+    private val amountRepository: AmountRepository,
+    private val payerComplianceRepository: PayerComplianceRepository,
+    private val escManagerBehaviour: ESCManagerBehaviour) : CongratsRepository {
 
     private val paymentRewardCache = HashMap<String, CongratsResponse>()
     private val remediesCache = HashMap<String, RemediesResponse>()
     private val privateKey = paymentSetting.privateKey
 
     override fun getPostPaymentData(payment: IPaymentDescriptor, paymentResult: PaymentResult,
-                                    callback: PostPaymentCallback) {
+        callback: PostPaymentCallback) {
         val hasAccessToken = TextUtil.isNotEmpty(privateKey)
         val hasToReturnEmptyResponse = !hasAccessToken
         val isSuccess = StatusHelper.isSuccess(payment)
@@ -45,7 +49,9 @@ class CongratsRepositoryImpl(
             val remediesResponse = when {
                 hasToReturnEmptyResponse || isSuccess -> RemediesResponse.EMPTY
                 remediesCache.containsKey(paymentId) -> remediesCache[paymentId]!!
-                else -> getRemedies(payment, paymentResult.paymentData).apply { remediesCache[paymentId] = this }
+                else -> {
+                    getRemedies(payment, paymentResult.paymentData).apply { remediesCache[paymentId] = this }
+                }
             }
             withContext(Dispatchers.Main) {
                 handleResult(payment, paymentResult, paymentReward, remediesResponse, paymentSetting.currency, callback)
@@ -71,12 +77,50 @@ class CongratsRepositoryImpl(
             CongratsResponse.EMPTY
         }
 
+    private fun getPayerPaymentMethods(response: InitResponse?) =
+        mutableListOf<Triple<SecurityCode?, String, CustomSearchItem>>()
+            .also { mapPayerPaymentMethods ->
+                response?.run {
+                    customSearchItems.forEach { customSearchItem ->
+                        express.find { it.customOptionId == customSearchItem.id }?.let { expressMetadata ->
+                            mapPayerPaymentMethods.add(
+                                Triple(getCardById(customSearchItem.id)?.securityCode, expressMetadata.customOptionId,
+                                    customSearchItem)
+                            )
+                        }
+                    }
+                }
+            }
+
+    private suspend fun loadInitResponse() =
+        when (val callbackResult = initService.init().awaitCallback<InitResponse>()) {
+            is Response.Success<*> -> callbackResult.result as InitResponse
+            is Response.Failure<*> -> null
+        }
+
     private suspend fun getRemedies(payment: IPaymentDescriptor, paymentData: PaymentData) =
         try {
-            val body = RemediesBodyMapper(userSelectionRepository).map(paymentData)
+            val initResponse = loadInitResponse()
+            val payerPaymentMethods = getPayerPaymentMethods(initResponse)
+            val hasOneTap = initResponse?.hasExpressCheckoutMetadata() ?: false
+            val customOptionId = paymentData.token?.cardId ?: paymentData.paymentMethod.id
+            val escCardIds = escManagerBehaviour.escCardIds
+            val body = RemediesBodyMapper(
+                userSelectionRepository,
+                amountRepository,
+                customOptionId,
+                escCardIds.contains(customOptionId),
+                AlternativePayerPaymentMethodsMapper(escCardIds).map(payerPaymentMethods.filter { it.second != customOptionId })
+            ).map(paymentData)
+            val response = congratsService.getRemedies(
+                BuildConfig.API_ENVIRONMENT_NEW,
+                payment.id.toString(),
+                locale,
+                privateKey,
+                hasOneTap,
+                body
+            ).await()
 
-            val response = congratsService.getRemedies(BuildConfig.API_ENVIRONMENT_NEW, payment.id.toString(),
-                locale, privateKey, body).await()
             if (response.isSuccessful) {
                 response.body()!!
             } else {
@@ -87,7 +131,7 @@ class CongratsRepositoryImpl(
         }
 
     private fun handleResult(payment: IPaymentDescriptor, paymentResult: PaymentResult, congratsResponse: CongratsResponse,
-                             remedies: RemediesResponse, currency: Currency, callback: PostPaymentCallback) {
+        remedies: RemediesResponse, currency: Currency, callback: PostPaymentCallback) {
         payment.process(object : IPaymentDescriptorHandler {
             override fun visit(payment: IPaymentDescriptor) {
                 callback.handleResult(PaymentModel(payment, paymentResult, congratsResponse, remedies, currency))

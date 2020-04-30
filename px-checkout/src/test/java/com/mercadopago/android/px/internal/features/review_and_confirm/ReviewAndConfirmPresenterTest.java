@@ -6,8 +6,8 @@ import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
-import com.mercadopago.android.px.internal.datasource.CongratsRepositoryImpl;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
+import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -24,6 +24,7 @@ import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.model.internal.remedies.RemediesResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 import java.util.Collections;
@@ -35,7 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -44,11 +45,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReviewAndConfirmPresenterTest {
 
-    @Mock
-    private ReviewAndConfirm.View view;
+    @Mock private ReviewAndConfirm.View view;
 
-    @Mock
-    private PaymentRepository paymentRepository;
+    @Mock private PaymentRepository paymentRepository;
 
     private ReviewAndConfirmPresenter reviewAndConfirmPresenter;
 
@@ -58,7 +57,7 @@ public class ReviewAndConfirmPresenterTest {
 
     @Mock private UserSelectionRepository userSelectionRepository;
 
-    @Mock private CongratsRepositoryImpl paymentRewardRepository;
+    @Mock private CongratsRepository congratsRepository;
 
     @Mock private PaymentMethod paymentMethod;
 
@@ -67,8 +66,7 @@ public class ReviewAndConfirmPresenterTest {
     @Mock private DynamicDialogConfiguration dynamicDialogConfiguration;
     @Mock private DiscountRepository discountRepository;
 
-    @Mock
-    private ProductIdProvider productIdProvider;
+    @Mock private ProductIdProvider productIdProvider;
 
     @Before
     public void setUp() {
@@ -79,7 +77,7 @@ public class ReviewAndConfirmPresenterTest {
         when(userSelectionRepository.getPaymentMethod()).thenReturn(paymentMethod);
         reviewAndConfirmPresenter =
             new ReviewAndConfirmPresenter(paymentRepository, discountRepository, paymentSettingRepository,
-                userSelectionRepository, paymentRewardRepository, escManagerBehaviour, productIdProvider);
+                userSelectionRepository, congratsRepository, escManagerBehaviour, productIdProvider);
 
         verifyAttachView();
     }
@@ -284,11 +282,11 @@ public class ReviewAndConfirmPresenterTest {
         final Payment payment = mock(Payment.class);
         when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(payment.getPaymentStatusDetail()).thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
+        processPostPaymentData(payment);
 
         reviewAndConfirmPresenter.onPaymentFinished(payment);
 
         verifyPaymentFinished();
-        verifyNoMoreInteractions(view);
     }
 
     @Test
@@ -297,27 +295,28 @@ public class ReviewAndConfirmPresenterTest {
         when(genericPayment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(genericPayment.getPaymentStatusDetail())
             .thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
+        processPostPaymentData(genericPayment);
 
         reviewAndConfirmPresenter.onPaymentFinished(genericPayment);
 
         verifyPaymentFinished();
-        verifyNoMoreInteractions(view);
     }
 
     @Test
     public void whenBusinessPaymentFinishedThenFinishLoadingWithExplodeDecorator() {
         final BusinessPayment businessPayment = mock(BusinessPayment.class);
         when(businessPayment.getDecorator()).thenReturn(BusinessPayment.Decorator.APPROVED);
+        processPostPaymentData(businessPayment);
 
         reviewAndConfirmPresenter.onPaymentFinished(businessPayment);
 
         verifyPaymentFinished();
-        verifyNoMoreInteractions(view);
     }
 
     private void verifyPaymentFinished() {
         verify(view).hideConfirmButton();
         verify(view).finishLoading(any(ExplodeDecorator.class));
+        verifyNoMoreInteractions(view);
     }
 
     private void verifyPaymentExplodingCompatible() {
@@ -342,10 +341,7 @@ public class ReviewAndConfirmPresenterTest {
     }
 
     private void whenIPaymentAndAnimationIsFinishedThenShowResult(final IPaymentDescriptor payment) {
-        final PaymentResult paymentResult = mock(PaymentResult.class);
-        when(paymentRepository.getPayment()).thenReturn(payment);
-        when(paymentRepository.createPaymentResult(payment)).thenReturn(paymentResult);
-        doCallRealMethod().when(paymentRewardRepository).getPostPaymentData(any(), any(), any());
+        processPostPaymentData(payment);
 
         reviewAndConfirmPresenter.hasFinishPaymentAnimation();
 
@@ -354,5 +350,18 @@ public class ReviewAndConfirmPresenterTest {
         verify(paymentRepository).createPaymentResult(payment);
         verifyNoMoreInteractions(view);
         verifyNoMoreInteractions(paymentRepository);
+    }
+
+    private void processPostPaymentData(final IPaymentDescriptor payment) {
+        final PaymentModel paymentModel = mock(PaymentModel.class);
+        when(paymentModel.getPayment()).thenReturn(payment);
+        when(paymentModel.getRemedies()).thenReturn(mock(RemediesResponse.class));
+        final PaymentResult paymentResult = mock(PaymentResult.class);
+        when(paymentRepository.getPayment()).thenReturn(payment);
+        when(paymentRepository.createPaymentResult(payment)).thenReturn(paymentResult);
+        doAnswer(invocation -> {
+            ((CongratsRepository.PostPaymentCallback) invocation.getArgument(2)).handleResult(paymentModel);
+            return null;
+        }).when(congratsRepository).getPostPaymentData(any(), any(), any());
     }
 }
