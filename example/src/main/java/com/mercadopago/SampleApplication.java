@@ -4,6 +4,7 @@ import android.app.Application;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.mercadopago.android.px.addons.FakeEscManagerBehaviourImpl;
+import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl;
 import com.mercadopago.android.px.addons.PXBehaviourConfigurer;
 import com.mercadopago.android.px.internal.util.HttpClientUtil;
 import com.squareup.leakcanary.LeakCanary;
@@ -33,6 +34,9 @@ public class SampleApplication extends Application {
 
         HttpClientUtil.setCustomClient(customClient);
 
-        new PXBehaviourConfigurer().with(new FakeEscManagerBehaviourImpl()).configure();
+        new PXBehaviourConfigurer()
+            .with(new FakeEscManagerBehaviourImpl())
+            .with(new FakeLocaleBehaviourImpl())
+            .configure();
     }
 }
