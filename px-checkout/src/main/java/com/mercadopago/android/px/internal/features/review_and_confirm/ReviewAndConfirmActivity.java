@@ -47,6 +47,7 @@ import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.view.ComponentManager;
 import com.mercadopago.android.px.internal.view.LinkableTextComponent;
@@ -237,7 +238,7 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
             }
         });
 
-        if (linkableText != null) {
+        if (linkableText != null && TextUtil.isNotEmpty(linkableText.getText())) {
             final LinkableTextComponent linkableTextComponent = new LinkableTextComponent(linkableText);
             floatingLayout.addView(linkableTextComponent.render(floatingLayout), 0);
         }
