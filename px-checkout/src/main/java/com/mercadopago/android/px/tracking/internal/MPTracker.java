@@ -2,10 +2,12 @@ package com.mercadopago.android.px.tracking.internal;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.internal.core.FlowIdProvider;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.model.CheckoutType;
 import com.mercadopago.android.px.model.Event;
-import com.mercadopago.android.px.model.internal.Experiment;
 import com.mercadopago.android.px.model.ScreenViewEvent;
+import com.mercadopago.android.px.model.internal.Experiment;
 import com.mercadopago.android.px.tracking.PXEventListener;
 import com.mercadopago.android.px.tracking.PXTrackingListener;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -40,10 +42,6 @@ public final class MPTracker {
      * Added in 4.3.0 version - temporal replacement for tracking additional params.
      */
     @Nullable private Map<String, ?> flowDetail;
-    /**
-     * Added in 4.3.0 version - temporal replacement for tracking additional params.
-     */
-    @Nullable private String flowName;
 
     @Nullable private String sessionId;
 
@@ -55,6 +53,8 @@ public final class MPTracker {
 
     @NonNull private List<Experiment> experiments = new ArrayList<>();
 
+    @NonNull private FlowIdProvider flowIdProvider = Session.getInstance().getFlowIdProvider();
+
     private MPTracker() {
         // do nothing
     }
@@ -64,15 +64,6 @@ public final class MPTracker {
             trackerInstance = new MPTracker();
         }
         return trackerInstance;
-    }
-
-    /**
-     * @return flow name configured when listener is attached to MPTracker see {@link com.mercadopago.android.px.tracking.PXTracker#setListener(PXTrackingListener,
-     * Map, String)}.
-     */
-    @Nullable
-    public String getFlowName() {
-        return flowName;
     }
 
     /**
@@ -103,15 +94,6 @@ public final class MPTracker {
      */
     public void setFlowDetail(@NonNull final Map<String, ?> flowDetail) {
         this.flowDetail = flowDetail;
-    }
-
-    /**
-     * Set a name to identify the flow in your app that opens the checkout.
-     *
-     * @param flowName The name that identifies your flow
-     */
-    public void setFlowName(@Nullable final String flowName) {
-        this.flowName = flowName;
     }
 
     /**
@@ -197,7 +179,7 @@ public final class MPTracker {
             final Object o = data.get(ATTR_EXTRA_INFO);
             try {
                 final Map<String, Object> value = (Map<String, Object>) o;
-                value.put(ATTR_FLOW_NAME, flowName);
+                value.put(ATTR_FLOW_NAME, flowIdProvider.getFlowId());
                 value.put(ATTR_SESSION_ID, sessionId);
                 value.put(ATTR_SESSION_TIME, getSecondsAfterInit());
                 value.put(ATTR_CHECKOUT_TYPE, checkoutType);
@@ -211,7 +193,7 @@ public final class MPTracker {
 
     private void addAdditionalFlowInfo(@NonNull final Map<String, Object> data) {
         data.put(ATTR_FLOW_DETAIL, flowDetail);
-        data.put(ATTR_FLOW_NAME, flowName);
+        data.put(ATTR_FLOW_NAME, flowIdProvider.getFlowId());
         data.put(ATTR_SESSION_ID, sessionId);
         data.put(ATTR_SESSION_TIME, getSecondsAfterInit());
         data.put(ATTR_CHECKOUT_TYPE, checkoutType);

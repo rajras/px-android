@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.core;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.util.RetrofitUtil;
 import java.io.File;
 import retrofit2.Retrofit;
@@ -41,6 +42,16 @@ public class ApplicationModule implements PreferenceComponent {
     @NonNull
     public ProductIdProvider newProductIdProvider(@NonNull final String productId) {
         return new ProductIdProvider(getSharedPreferences(), productId);
+    }
+
+    @NonNull
+    public FlowIdProvider getFlowIdProvider() {
+        return new FlowIdProvider(applicationContext);
+    }
+
+    @NonNull
+    public FlowIdProvider newFlowIdProvider(@Nullable final String flowId) {
+        return new FlowIdProvider(applicationContext, flowId);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.core.ConnectivityStateInterceptor;
+import com.mercadopago.android.px.internal.core.FlowIdInterceptor;
 import com.mercadopago.android.px.internal.core.PlatformInterceptor;
 import com.mercadopago.android.px.internal.core.ProductIdInterceptor;
 import com.mercadopago.android.px.internal.core.RequestIdInterceptor;
@@ -90,6 +91,7 @@ public final class HttpClientUtil {
             baseClient.addInterceptor(new ProductIdInterceptor(context));
             baseClient.addInterceptor(new ScreenDensityInterceptor(context));
             baseClient.addInterceptor(new PlatformInterceptor(context));
+            baseClient.addInterceptor(new FlowIdInterceptor(context));
         }
 
         baseClient.addInterceptor(new RequestIdInterceptor());

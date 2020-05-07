@@ -50,7 +50,7 @@ public final class CardAssociationSession extends ApplicationModule {
     public ESCManagerBehaviour getMercadoPagoESC() {
         //noinspection ConstantConditions
         return BehaviourProvider
-            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), MPTracker.getInstance().getFlowName());
+            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), getFlowIdProvider().getFlowId());
     }
 
     @NonNull

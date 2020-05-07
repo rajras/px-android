@@ -397,6 +397,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getCongratsRepository(),
             configurationModule.getPayerComplianceRepository(),
             session.getSessionIdProvider(),
+            session.getFlowIdProvider(),
             MapperProvider.INSTANCE.getPaymentMethodDescriptorMapper());
     }
 

@@ -12,17 +12,17 @@ public final class ScreenDensityInterceptor implements Interceptor {
 
     private static final String HEADER_KEY = "X-Density";
 
-    @NonNull private final Context context;
+    @NonNull private final String density;
 
     public ScreenDensityInterceptor(@NonNull final Context context) {
-        this.context = context.getApplicationContext();
+        density = getDensityName(context);
     }
 
     @Override
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final Request originalRequest = chain.request();
         final Request request = originalRequest.newBuilder()
-            .header(HEADER_KEY, getDensityName(context))
+            .header(HEADER_KEY, density)
             .build();
         return chain.proceed(request);
     }
