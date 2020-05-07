@@ -8,6 +8,7 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BasePresenter;
+import com.mercadopago.android.px.internal.core.FlowIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
@@ -103,6 +104,7 @@ import java.util.Set;
     @NonNull private final CongratsRepository congratsRepository;
     @NonNull private final PayerComplianceRepository payerComplianceRepository;
     @NonNull private final SessionIdProvider sessionIdProvider;
+    @NonNull private final FlowIdProvider flowIdProvider;
     @NonNull private final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper;
     @Nullable private Runnable unattendedEvent;
     @NonNull /* default */ final InitRepository initRepository;
@@ -131,6 +133,7 @@ import java.util.Set;
         @NonNull final CongratsRepository congratsRepository,
         @NonNull final PayerComplianceRepository payerComplianceRepository,
         @NonNull final SessionIdProvider sessionIdProvider,
+        @NonNull final FlowIdProvider flowIdProvider,
         @NonNull final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper) {
 
         this.paymentRepository = paymentRepository;
@@ -147,6 +150,7 @@ import java.util.Set;
         this.congratsRepository = congratsRepository;
         this.payerComplianceRepository = payerComplianceRepository;
         this.sessionIdProvider = sessionIdProvider;
+        this.flowIdProvider = flowIdProvider;
         this.paymentMethodDescriptorMapper = paymentMethodDescriptorMapper;
 
         splitSelectionState = new SplitSelectionState();
@@ -479,7 +483,7 @@ import java.util.Set;
         case ActionType.ADD_NEW_CARD:
             getView().setPagerIndex(actionTypeWrapper.getIndexToReturn());
             getView().startAddNewCardFlow(
-                new CardFormWithFragmentWrapper(paymentSettingRepository, sessionIdProvider, MPTracker.getInstance()));
+                new CardFormWithFragmentWrapper(paymentSettingRepository, sessionIdProvider, flowIdProvider));
             break;
         default: // do nothing
         }

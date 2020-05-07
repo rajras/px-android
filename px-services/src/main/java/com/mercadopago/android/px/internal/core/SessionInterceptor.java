@@ -11,17 +11,17 @@ public final class SessionInterceptor implements Interceptor {
 
     private static final String SESSION_ID_HEADER = "X-Session-Id";
 
-    @NonNull private final Context context;
+    @NonNull private final SessionIdProvider sessionIdProvider;
 
     public SessionInterceptor(@NonNull final Context context) {
-        this.context = context.getApplicationContext();
+        sessionIdProvider = new ApplicationModule(context).getSessionIdProvider();
     }
 
     @Override
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final Request originalRequest = chain.request();
         final Request request = originalRequest.newBuilder()
-            .header(SESSION_ID_HEADER, new ApplicationModule(context).getSessionIdProvider().getSessionId())
+            .header(SESSION_ID_HEADER, sessionIdProvider.getSessionId())
             .build();
         return chain.proceed(request);
     }

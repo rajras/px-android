@@ -3,12 +3,12 @@ package com.mercadopago.android.px.internal.datasource;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
+import com.mercadopago.android.px.internal.core.FlowIdProvider;
 import com.mercadopago.android.px.internal.datasource.cache.Cache;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
@@ -45,7 +45,7 @@ public class InitService implements InitRepository {
     @NonNull /* default */ DisabledPaymentMethodRepository disabledPaymentMethodRepository;
     @NonNull /* default */ final Cache<InitResponse> initCache;
     @NonNull /* default */ final List<OnChangedListener> listeners = new ArrayList<>();
-    @Nullable private final String flow;
+    @NonNull private final FlowIdProvider flowIdProvider;
     /* default */ int refreshRetriesAvailable = MAX_REFRESH_RETRIES;
     /* default */ Handler retryHandler;
 
@@ -53,14 +53,15 @@ public class InitService implements InitRepository {
         @NonNull final ExperimentsRepository experimentsRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour, @NonNull final CheckoutService checkoutService,
-        @NonNull final String language, @Nullable final String flow, @NonNull final Cache<InitResponse> initCache) {
+        @NonNull final String language, @NonNull final FlowIdProvider flowIdProvider,
+        @NonNull final Cache<InitResponse> initCache) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.experimentsRepository = experimentsRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.escManagerBehaviour = escManagerBehaviour;
         this.checkoutService = checkoutService;
         this.language = language;
-        this.flow = flow;
+        this.flowIdProvider = flowIdProvider;
         this.initCache = initCache;
     }
 
@@ -138,7 +139,7 @@ public class InitService implements InitRepository {
             .setDiscountParamsConfiguration(discountParamsConfiguration)
             .setCheckoutFeatures(features)
             .setCheckoutPreference(checkoutPreference)
-            .setFlow(flow)
+            .setFlow(flowIdProvider.getFlowId())
             .build();
 
         final String preferenceId = paymentSettingRepository.getCheckoutPreferenceId();

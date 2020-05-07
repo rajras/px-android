@@ -11,17 +11,17 @@ public final class ProductIdInterceptor implements Interceptor {
 
     private static final String HEADER_KEY = "X-Product-Id";
 
-    @NonNull private final Context context;
+    @NonNull private final ProductIdProvider productIdProvider;
 
     public ProductIdInterceptor(@NonNull final Context context) {
-        this.context = context.getApplicationContext();
+        productIdProvider = new ApplicationModule(context).getProductIdProvider();
     }
 
     @Override
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final Request originalRequest = chain.request();
         final Request request = originalRequest.newBuilder()
-            .header(HEADER_KEY, new ApplicationModule(context).getProductIdProvider().getProductId())
+            .header(HEADER_KEY, productIdProvider.getProductId())
             .build();
         return chain.proceed(request);
     }

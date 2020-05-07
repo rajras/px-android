@@ -54,7 +54,8 @@ public class OtherPaymentMethodFragment
             final ConfigurationModule module = Session.getInstance().getConfigurationModule();
             return new OtherPaymentMethodPresenter(
                 module.getPaymentSettings(),
-                module.getSessionIdProvider());
+                module.getSessionIdProvider(),
+                module.getFlowIdProvider());
         }
     }
 

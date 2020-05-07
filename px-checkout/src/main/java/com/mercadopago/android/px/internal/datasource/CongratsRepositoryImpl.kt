@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource
 
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
+import com.mercadopago.android.px.internal.core.FlowIdProvider
 import com.mercadopago.android.px.internal.features.payment_result.remedies.AlternativePayerPaymentMethodsMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesBodyMapper
 import com.mercadopago.android.px.internal.repository.*
@@ -25,7 +26,7 @@ import kotlinx.coroutines.withContext
 class CongratsRepositoryImpl(
     private val congratsService: CongratsService, private val initService: InitRepository,
     private val paymentSetting: PaymentSettingRepository, private val platform: String, private val locale: String,
-    private val flow: String?, private val userSelectionRepository: UserSelectionRepository,
+    private val flowIdProvider: FlowIdProvider, private val userSelectionRepository: UserSelectionRepository,
     private val amountRepository: AmountRepository,
     private val disabledPaymentMethodRepository : DisabledPaymentMethodRepository,
     private val payerComplianceRepository: PayerComplianceRepository,
@@ -68,7 +69,7 @@ class CongratsRepositoryImpl(
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
             val response = congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, locale, privateKey,
                 joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-                joinedPaymentMethodsIds, flow).await()
+                joinedPaymentMethodsIds, flowIdProvider.flowId).await()
             if (response.isSuccessful) {
                 response.body()!!
             } else {

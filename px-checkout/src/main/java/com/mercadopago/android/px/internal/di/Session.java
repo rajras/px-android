@@ -208,7 +208,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
             initRepository = new InitService(paymentSettings, getExperimentsRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(), getMercadoPagoESC(),
                 RetrofitUtil.getRetrofitClient(getApplicationContext()).create(CheckoutService.class),
-                LocaleUtil.getLanguage(getApplicationContext()), MPTracker.getInstance().getFlowName(), getInitCache());
+                LocaleUtil.getLanguage(getApplicationContext()), getFlowIdProvider(), getInitCache());
         }
         return initRepository;
     }
@@ -240,7 +240,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public ESCManagerBehaviour getMercadoPagoESC() {
         //noinspection ConstantConditions
         return BehaviourProvider
-            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), MPTracker.getInstance().getFlowName());
+            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), getFlowIdProvider().getFlowId());
     }
 
     @NonNull
@@ -445,8 +445,9 @@ public final class Session extends ApplicationModule implements AmountComponent 
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             congratsRepository =
                 new CongratsRepositoryImpl(congratsService, getInitRepository(),paymentSettings, getPlatform(applicationContext),
-                    LocaleUtil.getLanguage(getApplicationContext()), MPTracker.getInstance().getFlowName(),
-                    configurationModule.getUserSelectionRepository(), amountRepository, configurationModule.getDisabledPaymentMethodRepository(), configurationModule.getPayerComplianceRepository(),
+                    LocaleUtil.getLanguage(getApplicationContext()), getFlowIdProvider(),
+                    configurationModule.getUserSelectionRepository(), amountRepository,
+                    configurationModule.getDisabledPaymentMethodRepository(), configurationModule.getPayerComplianceRepository(),
                     getMercadoPagoESC());
         }
         return congratsRepository;
