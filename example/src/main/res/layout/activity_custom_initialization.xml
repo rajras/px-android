@@ -6,31 +6,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    tools:context="com.mercadopago.CustomInitializationActivity">
+    tools:context="com.mercadopago.android.px.feature.custom_initialize.CustomInitializationActivity">
 
-    <android.support.design.widget.TextInputEditText
-        android:id="@+id/publicKeyInput"
+    <AutoCompleteTextView
+        android:id="@+id/localeInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_public_key"
+        android:hint="@string/hint_locale"
+        android:inputType="text"
+        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <android.support.design.widget.TextInputEditText
+    <AutoCompleteTextView
+        android:id="@+id/publicKeyInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_public_key"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/localeInput"/>
+
+    <AutoCompleteTextView
         android:id="@+id/preferenceIdInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_preference_id"
+        android:inputType="text"
+        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/publicKeyInput"/>
 
-    <android.support.design.widget.TextInputEditText
+    <AutoCompleteTextView
         android:id="@+id/accessTokenInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_access_token"
+        android:inputType="text"
+        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/preferenceIdInput"/>
