@@ -1,3 +1,10 @@
+## VERSION 4.43.0
+_07_05_2020_
+* ENHANCEMENT - Flow id header
+* ENHANCEMENT - Fake locale behaviour on sample app
+* FIX - Avoid summary refresh with empty charges
+* FIX - Empty view on review and confirm
+
 ## VERSION 4.42.0
 _30_04_2020_
 * FEATURE - New suggested payment method remedy
