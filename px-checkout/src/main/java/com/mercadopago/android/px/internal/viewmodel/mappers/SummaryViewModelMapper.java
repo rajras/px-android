@@ -5,6 +5,7 @@ import android.support.v4.util.Pair;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.ChargeRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
+import com.mercadopago.android.px.internal.util.ChargeRuleHelper;
 import com.mercadopago.android.px.internal.view.AmountDescriptorView;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.view.SummaryDetailDescriptorFactory;
@@ -47,8 +48,9 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
     @Override
     protected Pair<DiscountConfigurationModel, PaymentTypeChargeRule> getKey(
         @NonNull final ExpressPaymentMethod expressPaymentMethod) {
+        final PaymentTypeChargeRule chargeRule = chargeRepository.getChargeRule(expressPaymentMethod.getPaymentTypeId());
         return new Pair<>(discountRepository.getConfigurationFor(expressPaymentMethod.getCustomOptionId()),
-            chargeRepository.getChargeRule(expressPaymentMethod.getPaymentTypeId()));
+            ChargeRuleHelper.isHighlightCharge(chargeRule) ? null : chargeRule);
     }
 
     @Override
