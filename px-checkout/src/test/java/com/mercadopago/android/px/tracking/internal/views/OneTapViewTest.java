@@ -1,6 +1,8 @@
 package com.mercadopago.android.px.tracking.internal.views;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.internal.core.FlowIdProvider;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
@@ -14,13 +16,17 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(Session.class)
+@RunWith(PowerMockRunner.class)
 public class OneTapViewTest {
 
     private static final String EXPECTED_PATH = "/px_checkout/review/one_tap";
@@ -40,6 +46,10 @@ public class OneTapViewTest {
 
     @Test
     public void verifyListenerCalled() {
+        final Session session = mock(Session.class);
+        PowerMockito.mockStatic(Session.class);
+        when(Session.getInstance()).thenReturn(session);
+        when(session.getFlowIdProvider()).thenReturn(mock(FlowIdProvider.class));
         MPTracker.getInstance().hasExpressCheckout(true);
 
         final PXTrackingListener listener = mock(PXTrackingListener.class);

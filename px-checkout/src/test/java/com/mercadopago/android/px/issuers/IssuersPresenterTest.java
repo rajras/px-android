@@ -12,6 +12,7 @@ import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import java.util.ArrayList;
@@ -20,7 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +34,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class IssuersPresenterTest {
 
     @Mock
@@ -43,6 +47,8 @@ public class IssuersPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         presenter = getPresenter();
     }
 
@@ -50,7 +56,7 @@ public class IssuersPresenterTest {
     private IssuersPresenter getBasePresenter(
         final IssuersActivityView view, final boolean comesFromStorageFlow) {
         final PaymentMethod paymentMethod = PaymentMethodStub.VISA_CREDIT.get();
-        IssuersPresenter presenter = new IssuersPresenter(issuersRepository, paymentMethod, comesFromStorageFlow);
+        final IssuersPresenter presenter = new IssuersPresenter(issuersRepository, paymentMethod, comesFromStorageFlow);
         presenter.attachView(view);
         return presenter;
     }

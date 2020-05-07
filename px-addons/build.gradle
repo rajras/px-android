@@ -6,8 +6,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 dependencies {
+    testImplementation "org.powermock:powermock-module-junit4:$power_mock"
+    testImplementation "org.powermock:powermock-api-mockito2:$power_mock"
+
     implementation "com.android.support:appcompat-v7:$support_library_version"
-    testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
