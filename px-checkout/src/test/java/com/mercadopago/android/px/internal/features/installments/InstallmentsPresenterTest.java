@@ -20,6 +20,7 @@ import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.SummaryAmount;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.ReflectionArgumentMatchers;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
@@ -31,7 +32,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -39,7 +42,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class InstallmentsPresenterTest {
 
     private InstallmentsPresenter presenter;
@@ -58,6 +62,8 @@ public class InstallmentsPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         when(paymentSettingRepository.getSite()).thenReturn(Sites.ARGENTINA);
         when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
         when(advancedConfiguration.isAmountRowEnabled()).thenReturn(true);

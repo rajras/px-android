@@ -1,16 +1,22 @@
 package com.mercadopago.android.px.internal.features.bank_deal_detail;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class BankDealDetailPresenterTest {
     private BankDealDetailPresenter presenter;
 
@@ -18,6 +24,8 @@ public class BankDealDetailPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         presenter = getPresenter();
     }
 
@@ -48,5 +56,4 @@ public class BankDealDetailPresenterTest {
         verify(view).hideLogo();
         verifyNoMoreInteractions(view);
     }
-
 }

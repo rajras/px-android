@@ -4,6 +4,7 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
+import com.mercadopago.android.px.internal.core.FlowIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
@@ -34,6 +35,7 @@ import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +44,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -54,7 +58,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class ExpressPaymentPresenterTest {
 
     @Mock
@@ -120,10 +125,15 @@ public class ExpressPaymentPresenterTest {
     @Mock
     private SessionIdProvider sessionIdProvider;
 
+    @Mock
+    private FlowIdProvider flowIdProvider;
+
     private ExpressPaymentPresenter expressPaymentPresenter;
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         //This is needed for the presenter constructor
         final CheckoutPreference preference = mock(CheckoutPreference.class);
         when(preference.getItems()).thenReturn(Collections.singletonList(mock(Item.class)));
@@ -144,7 +154,8 @@ public class ExpressPaymentPresenterTest {
             new ExpressPaymentPresenter(paymentRepository, paymentSettingRepository, disabledPaymentMethodRepository,
                 payerCostSelectionRepository, discountRepository, amountRepository, initRepository,
                 amountConfigurationRepository, chargeRepository, escManagerBehaviour, paymentMethodDrawableItemMapper,
-                congratsRepository, payerComplianceRepository, sessionIdProvider, mock(PaymentMethodDescriptorMapper.class));
+                congratsRepository, payerComplianceRepository, sessionIdProvider, flowIdProvider,
+                mock(PaymentMethodDescriptorMapper.class));
 
         verifyAttachView();
     }

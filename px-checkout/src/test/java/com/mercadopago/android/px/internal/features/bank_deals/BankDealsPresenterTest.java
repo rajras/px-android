@@ -7,6 +7,7 @@ import com.mercadopago.android.px.mocks.BankDealsUtils;
 import com.mercadopago.android.px.model.BankDeal;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import java.util.List;
@@ -14,7 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -24,7 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class BankDealsPresenterTest {
 
     private BankDealsPresenter presenter;
@@ -34,6 +38,8 @@ public class BankDealsPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         presenter = getPresenter();
     }
 

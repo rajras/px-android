@@ -31,6 +31,7 @@ import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.preferences.PaymentPreference;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.ReflectionArgumentMatchers;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
@@ -42,7 +43,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +58,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class PaymentVaultPresenterTest {
 
     private PaymentVaultPresenter presenter;
@@ -77,6 +81,8 @@ public class PaymentVaultPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         when(checkoutPreference.getTotalAmount()).thenReturn(new BigDecimal(100));
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
