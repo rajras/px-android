@@ -22,7 +22,7 @@
         <activity
             android:name="com.mercadopago.SelectCheckoutActivity"
             android:label="@string/title_activity_checkout_example" />
-        <activity android:name="com.mercadopago.CustomInitializationActivity" />
+        <activity android:name="com.mercadopago.android.px.feature.custom_initialize.CustomInitializationActivity" />
         <activity android:name="com.mercadopago.FakeKycActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
