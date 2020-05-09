@@ -28,12 +28,12 @@ import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActi
 import com.mercadopago.android.px.internal.util.FragmentUtil
 import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
-import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.model.Reason
+import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 class PayButtonFragment : Fragment(), PayButton.View {
 
@@ -71,10 +71,10 @@ class PayButtonFragment : Fragment(), PayButton.View {
         viewModel.buttonTextLiveData.observe(viewLifecycleOwner,
             Observer { buttonConfig -> button.text = buttonConfig!!.getButtonText(this.context!!) })
         viewModel.cvvRequiredLiveData.observe(viewLifecycleOwner,
-            Observer { p -> showSecurityCodeScreen(p!!.first, p.second) })
+            Observer { pair -> pair?.let { showSecurityCodeScreen(it.first, it.second) } })
         viewModel.recoverRequiredLiveData.observe(viewLifecycleOwner,
-            Observer { r -> showSecurityCodeForRecovery(r!!) })
-        viewModel.stateUILiveData.observe(viewLifecycleOwner, Observer { s -> onStateUIChanged(s!!) })
+            Observer { recovery -> recovery?.let { showSecurityCodeForRecovery(it) } })
+        viewModel.stateUILiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onStateUIChanged(it) } })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -143,7 +143,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
         } else if (resultCode == Constants.RESULT_ACTION) {
             handleAction(data)
         } else if (resultCode == Constants.RESULT_PAYMENT) {
-            viewModel.onPaymentFinished(PaymentProcessorActivity.getPayment(data))
+            viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
             viewModel.onRecoverPaymentEscInvalid(PaymentProcessorActivity.getPaymentRecovery(data)!!)
         } else {

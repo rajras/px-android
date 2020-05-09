@@ -288,9 +288,9 @@ public class ReviewAndConfirmPresenterTest {
         final Payment payment = mock(Payment.class);
         when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(payment.getPaymentStatusDetail()).thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
-        processPostPaymentData(payment);
+        final PaymentModel paymentModel = processPostPaymentData(payment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(payment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -301,9 +301,9 @@ public class ReviewAndConfirmPresenterTest {
         when(genericPayment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(genericPayment.getPaymentStatusDetail())
             .thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
-        processPostPaymentData(genericPayment);
+        final PaymentModel paymentModel = processPostPaymentData(genericPayment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(genericPayment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -312,9 +312,9 @@ public class ReviewAndConfirmPresenterTest {
     public void whenBusinessPaymentFinishedThenFinishLoadingWithExplodeDecorator() {
         final BusinessPayment businessPayment = mock(BusinessPayment.class);
         when(businessPayment.getDecorator()).thenReturn(BusinessPayment.Decorator.APPROVED);
-        processPostPaymentData(businessPayment);
+        final PaymentModel paymentModel = processPostPaymentData(businessPayment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(businessPayment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -358,7 +358,7 @@ public class ReviewAndConfirmPresenterTest {
         verifyNoMoreInteractions(paymentRepository);
     }
 
-    private void processPostPaymentData(final IPaymentDescriptor payment) {
+    private PaymentModel processPostPaymentData(final IPaymentDescriptor payment) {
         final PaymentModel paymentModel = mock(PaymentModel.class);
         when(paymentModel.getPayment()).thenReturn(payment);
         when(paymentModel.getRemedies()).thenReturn(mock(RemediesResponse.class));
@@ -369,5 +369,6 @@ public class ReviewAndConfirmPresenterTest {
             ((CongratsRepository.PostPaymentCallback) invocation.getArgument(2)).handleResult(paymentModel);
             return null;
         }).when(congratsRepository).getPostPaymentData(any(), any(), any());
+        return paymentModel;
     }
 }

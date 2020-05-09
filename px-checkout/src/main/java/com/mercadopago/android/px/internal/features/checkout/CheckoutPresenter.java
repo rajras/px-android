@@ -365,26 +365,21 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
     }
 
     @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        if(!state.isExpressCheckout) {
-            congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-                this::handleResult);
+    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
+        if (!state.isExpressCheckout) {
+            getView().hideProgress();
+            paymentModel.process(new PaymentModelHandler() {
+                @Override
+                public void visit(@NonNull final PaymentModel paymentModel) {
+                    getView().showPaymentResult(paymentModel);
+                }
+
+                @Override
+                public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                    getView().showBusinessResult(businessPaymentModel);
+                }
+            });
         }
-    }
-
-    private void handleResult(@NonNull final PaymentModel paymentModel) {
-        getView().hideProgress();
-        paymentModel.process(new PaymentModelHandler() {
-            @Override
-            public void visit(@NonNull final PaymentModel paymentModel) {
-                getView().showPaymentResult(paymentModel);
-            }
-
-            @Override
-            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                getView().showBusinessResult(businessPaymentModel);
-            }
-        });
     }
 
     @Override

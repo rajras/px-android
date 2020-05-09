@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,11 +20,11 @@ import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.GenericPayment;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
-import com.mercadopago.android.px.model.IPaymentDescriptorHandler;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentRecovery;
@@ -71,16 +70,16 @@ public final class PaymentProcessorActivity extends PXActivity
     }
 
     @NonNull
-    public static IPaymentDescriptor getPayment(final Intent intent) {
-        IPaymentDescriptor payment = null;
+    public static PaymentModel getPaymentModel(final Intent intent) {
+        PaymentModel paymentModel = null;
         if (intent.hasExtra(EXTRA_PAYMENT)) {
             //noinspection ConstantConditions
-            payment = (IPaymentDescriptor) intent.getExtras().get(EXTRA_PAYMENT);
+            paymentModel = (PaymentModel) intent.getExtras().get(EXTRA_PAYMENT);
         }
-        if (payment == null) {
-            throw new IllegalStateException("No payment passed to process");
+        if (paymentModel == null) {
+            throw new IllegalStateException("No paymentModel passed to process");
         }
-        return payment;
+        return paymentModel;
     }
 
     @Nullable
@@ -177,23 +176,11 @@ public final class PaymentProcessorActivity extends PXActivity
             }
 
             @Override
-            public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
+            public void onPostPayment(@NonNull final PaymentModel paymentModel) {
                 final Intent intent = new Intent();
-                payment.process(new IPaymentDescriptorHandler() {
-                    @Override
-                    public void visit(@NonNull final IPaymentDescriptor payment) {
-                        intent.putExtra(EXTRA_PAYMENT, (Parcelable) IParcelablePaymentDescriptor.with(payment));
-                        setResult(RESULT_PAYMENT, intent);
-                        finish();
-                    }
-
-                    @Override
-                    public void visit(@NonNull final BusinessPayment businessPayment) {
-                        intent.putExtra(EXTRA_PAYMENT, (Parcelable) businessPayment);
-                        setResult(RESULT_PAYMENT, intent);
-                        finish();
-                    }
-                });
+                intent.putExtra(EXTRA_PAYMENT, paymentModel);
+                setResult(RESULT_PAYMENT, intent);
+                finish();
             }
 
             @Override

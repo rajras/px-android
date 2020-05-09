@@ -3,12 +3,13 @@ package com.mercadopago.android.px.internal.callbacks;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
-import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.IPayment;
@@ -26,10 +27,13 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import kotlin.Pair;
 
 public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler {
 
+    //TODO Remove handler when all views use PayButton or LiveData
     @Nullable private WeakReference<PaymentServiceHandler> handler;
+    @NonNull private final PaymentServiceEventHandler eventHandler;
     @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final InstructionsRepository instructionsRepository;
     @NonNull private final CongratsRepository congratsRepository;
@@ -55,16 +59,16 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
                         .enqueue(new Callback<List<Instruction>>() {
                             @Override
                             public void success(final List<Instruction> instructions) {
-                                addAndProcess(new PaymentMessage(payment));
+                                onPostPayment(payment, paymentResult);
                             }
 
                             @Override
                             public void failure(final ApiException apiException) {
-                                addAndProcess(new PaymentMessage(payment));
+                                onPostPayment(payment, paymentResult);
                             }
                         });
                 } else {
-                    addAndProcess(new PaymentMessage(payment));
+                    onPostPayment(payment, paymentResult);
                 }
             }
         }
@@ -75,7 +79,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             paymentRepository.storePayment(businessPayment);
             final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
             disabledPaymentMethodRepository.handleDisableablePayment(paymentResult);
-            addAndProcess(new BusinessPaymentMessage(businessPayment));
+            onPostPayment(businessPayment, paymentResult);
         }
     };
 
@@ -92,7 +96,12 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         this.instructionsRepository = instructionsRepository;
         this.congratsRepository = congratsRepository;
         this.userSelectionRepository = userSelectionRepository;
+        eventHandler = new PaymentServiceEventHandler();
         messages = new LinkedList<>();
+    }
+
+    public PaymentServiceEventHandler getObservableEvents() {
+        return eventHandler;
     }
 
     public void setHandler(@Nullable final PaymentServiceHandler handler) {
@@ -132,13 +141,17 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
     @Override
     public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        if (handler != null) {
-            congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-                paymentModel -> {
-                    // TODO remove - v5 when paymentTypeId is mandatory for payments
-                    payment.process(getHandler());
-                });
-        }
+        // TODO remove - v5 when paymentTypeId is mandatory for payments
+        payment.process(getHandler());
+    }
+
+    private void onPostPayment(@NonNull final IPaymentDescriptor payment, @NonNull final PaymentResult paymentResult) {
+        congratsRepository.getPostPaymentData(payment, paymentResult, this::onPostPayment);
+    }
+
+    @Override
+    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
+        addAndProcess(new PostPaymentMessage(paymentModel));
     }
 
     /* default */
@@ -174,20 +187,18 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     }
 
     public void processMessages() {
-        //Can't process if handler is null.
-        if (handler != null) {
-            final PaymentServiceHandler currentHandler = handler.get();
-            while (!messages.isEmpty() && currentHandler != null) {
-                final Message polledMessage = messages.poll();
-                polledMessage.processMessage(currentHandler);
-            }
+        final PaymentServiceHandler currentHandler = handler != null ? handler.get() : null;
+        while (!messages.isEmpty()) {
+            final Message polledMessage = messages.poll();
+            polledMessage.processMessage(currentHandler, eventHandler);
         }
     }
 
     //region messages
 
     private interface Message {
-        void processMessage(@NonNull final PaymentServiceHandler handler);
+        void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler);
     }
 
     private static class CVVRequiredMessage implements Message {
@@ -201,8 +212,12 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
 
         @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onCvvRequired(card, reason);
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onCvvRequired(card, reason);
+            }
+            eventHandler.getRequireCvvLiveData().setValue(new Event<>(new Pair<>(card, reason)));
         }
     }
 
@@ -215,22 +230,30 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
 
         @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onRecoverPaymentEscInvalid(recovery);
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onRecoverPaymentEscInvalid(recovery);
+            }
+            eventHandler.getRecoverInvalidEscLiveData().setValue(new Event<>(recovery));
         }
     }
 
-    private static class PaymentMessage implements Message {
+    private static class PostPaymentMessage implements Message {
 
-        @NonNull private final IPaymentDescriptor payment;
+        @NonNull private final PaymentModel paymentModel;
 
-        /* default */ PaymentMessage(@NonNull final IPaymentDescriptor payment) {
-            this.payment = payment;
+        /* default */ PostPaymentMessage(@NonNull final PaymentModel paymentModel) {
+            this.paymentModel = paymentModel;
         }
 
         @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onPaymentFinished(payment);
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onPostPayment(paymentModel);
+            }
+            eventHandler.getPaymentFinishedLiveData().setValue(new Event<>(paymentModel));
         }
     }
 
@@ -243,29 +266,23 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
 
         @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onPaymentError(error);
-        }
-    }
-
-    private static class BusinessPaymentMessage implements Message {
-        @NonNull private final BusinessPayment businessPayment;
-
-        /* default */ BusinessPaymentMessage(
-            @NonNull final BusinessPayment businessPayment) {
-            this.businessPayment = businessPayment;
-        }
-
-        @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onPaymentFinished(businessPayment);
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onPaymentError(error);
+            }
+            eventHandler.getPaymentErrorLiveData().setValue(new Event<>((error)));
         }
     }
 
     private static class VisualPaymentMessage implements Message {
         @Override
-        public void processMessage(@NonNull final PaymentServiceHandler handler) {
-            handler.onVisualPayment();
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @NonNull final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onVisualPayment();
+            }
+            eventHandler.getVisualPaymentLiveData().setValue(new Event<>(null));
         }
     }
 
