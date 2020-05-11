@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.features.business_result;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.model.ExitAction;
 
+import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUSTOM_EXIT;
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.getSafeIntent;
 
@@ -30,6 +32,13 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
 
     private static final String TAG = BusinessPaymentResultActivity.class.getSimpleName();
     private static final String EXTRA_BUSINESS_PAYMENT_MODEL = "extra_business_payment_model";
+
+    public static void startWithForwardResult(@NonNull final Activity activity, @NonNull final BusinessPaymentModel model) {
+        final Intent intent = new Intent(activity, BusinessPaymentResultActivity.class);
+        intent.putExtra(EXTRA_BUSINESS_PAYMENT_MODEL, model);
+        intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
+        activity.startActivity(intent);
+    }
 
     public static void start(@NonNull final Fragment fragment, final int requestCode,
         @NonNull final BusinessPaymentModel model) {
