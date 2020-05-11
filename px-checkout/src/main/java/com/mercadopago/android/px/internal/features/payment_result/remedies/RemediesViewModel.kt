@@ -7,17 +7,17 @@ import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
+import com.mercadopago.android.px.internal.services.Response
+import com.mercadopago.android.px.internal.services.awaitCallback
 import com.mercadopago.android.px.internal.util.CVVRecoveryWrapper
 import com.mercadopago.android.px.internal.util.TokenCreationWrapper
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.model.PayerCost
+import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
-import com.mercadopago.android.px.internal.services.Response
-import com.mercadopago.android.px.internal.services.awaitCallback
-import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 import com.mercadopago.android.px.tracking.internal.events.RemedyEvent
 import com.mercadopago.android.px.tracking.internal.model.RemedyTrackData
@@ -25,8 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.Exception
-import java.util.*
 
 internal class RemediesViewModel(
     private val remediesModel: RemediesModel,
@@ -70,11 +68,6 @@ internal class RemediesViewModel(
             }
         }
     }
-
-    private fun getExtraInfoTrackForPaymentMethodSuggestion() = mapOf(
-        "payment_method_type" to methodIds.typeId,
-        "payment_method_id" to methodIds.methodId
-    )
 
     override fun onPayButtonPressed(callback: PayButton.OnEnqueueResolvedCallback) {
         if (isSilverBullet) {
@@ -133,7 +126,7 @@ internal class RemediesViewModel(
 
     private fun startPayment(callback: PayButton.OnEnqueueResolvedCallback) {
         RemedyEvent(RemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION.getType(),
-            getExtraInfoTrackForPaymentMethodSuggestion())).track()
+            remediesModel.trackingData)).track()
         paymentSettingRepository.clearToken()
         remediesModel.retryPayment?.cvvModel?.let {
             CoroutineScope(Dispatchers.IO).launch {
@@ -159,7 +152,7 @@ internal class RemediesViewModel(
                 .recoverWithCVV(cvv)?.let {
                     paymentSettingRepository.configure(it)
                     withContext(Dispatchers.Main) {
-                        RemedyEvent(RemedyTrackData(RemedyType.CVV_REQUEST.getType(), Collections.emptyMap())).track()
+                        RemedyEvent(RemedyTrackData(RemedyType.CVV_REQUEST.getType(), remediesModel.trackingData)).track()
                         callback.success()
                     }
                 } ?: withContext(Dispatchers.Main) {
@@ -181,7 +174,7 @@ internal class RemediesViewModel(
         when(action) {
             RemedyButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod
             RemedyButton.Action.KYC -> remediesModel.highRisk?.let {
-                RemedyEvent(RemedyTrackData(RemedyType.KYC_REQUEST.getType(), Collections.emptyMap())).track()
+                RemedyEvent(RemedyTrackData(RemedyType.KYC_REQUEST.getType(), remediesModel.trackingData)).track()
                 remedyState.value = RemedyState.GoToKyc(it.deepLink)
             }
             else -> TODO()
