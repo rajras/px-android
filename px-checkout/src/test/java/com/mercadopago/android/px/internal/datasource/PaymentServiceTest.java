@@ -256,6 +256,7 @@ public class PaymentServiceTest {
         final InitResponse initResponse = InitResponseStub.FULL.get();
         when(initRepository.init()).thenReturn(new StubSuccessMpCall<>(initResponse));
         when(node.getPaymentMethodId()).thenReturn(PaymentMethods.ARGENTINA.VISA);
+        when(node.getPaymentTypeId()).thenReturn(PaymentTypes.CREDIT_CARD);
         when(node.isCard()).thenReturn(true);
         when(node.getCustomOptionId()).thenReturn(cardId);
         return initResponse.getCardById(cardId);

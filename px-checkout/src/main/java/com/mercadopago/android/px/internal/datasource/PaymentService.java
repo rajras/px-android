@@ -22,7 +22,6 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
-import com.mercadopago.android.px.internal.util.PaymentMethodHelper;
 import com.mercadopago.android.px.internal.util.TokenErrorWrapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
@@ -50,6 +49,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import kotlin.Pair;
 
 public class PaymentService implements PaymentRepository {
 
@@ -161,38 +161,16 @@ public class PaymentService implements PaymentRepository {
     }
 
     /**
-     * This method presets the payment method only for payments with offline methods.
-     */
-    @Override
-    public void startExpressPaymentWithOffMethod(@NonNull final String paymentMethodId,
-        @NonNull final String paymentTypeId) {
-        initRepository.init().enqueue(new Callback<InitResponse>() {
-            @Override
-            public void success(final InitResponse initResponse) {
-                userSelectionRepository.select(PaymentMethodHelper
-                    .assembleOfflinePaymentMethod(initResponse.getPaymentMethods(), paymentMethodId,
-                        paymentTypeId), null);
-                startPayment();
-            }
-
-            @Override
-            public void failure(final ApiException apiException) {
-                throw new IllegalStateException("empty payment methods");
-            }
-        });
-    }
-
-    /**
      * This method presets all user information ahead before the payment is processed.
      */
     @Override
     public void startExpressPayment(@NonNull final PaymentConfiguration configuration) {
-
+        handlerWrapper.createTransactionLiveData();
         initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
-                final PaymentMethod paymentMethod =
-                    new PaymentMethodMapper(initResponse).map(configuration.getPaymentMethodId());
+                Pair<String, String> pair = new Pair<>(configuration.getPaymentMethodId(), configuration.getPaymentTypeId());
+                final PaymentMethod paymentMethod = new PaymentMethodMapper(initResponse).map(pair);
                 userSelectionRepository.select(paymentMethod, null);
                 if (PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId())) {
                     // cards

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
@@ -47,11 +46,11 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = Session.getInstance().viewModelModule.get(this, PayButtonViewModel::class.java)
 
         when {
             targetFragment is PayButton.Handler -> viewModel.attach(targetFragment as PayButton.Handler)
+            parentFragment is PayButton.Handler ->viewModel.attach(parentFragment as PayButton.Handler)
             context is PayButton.Handler -> viewModel.attach(context as PayButton.Handler)
             else -> throw IllegalStateException("Parent should implement ${PayButton.Handler::class.java.simpleName}")
         }
@@ -171,17 +170,14 @@ class PayButtonFragment : Fragment(), PayButton.View {
         viewModel.detach()
     }
 
-    private val parentFragmentManager: FragmentManager
-        get() = activity!!.supportFragmentManager
-
     override fun onDestroy() {
-        FragmentUtil.removeFragment(parentFragmentManager, ExplodingFragment.TAG)
+        FragmentUtil.removeFragment(childFragmentManager, ExplodingFragment.TAG)
         super.onDestroy()
     }
 
     private fun finishLoading(params: ExplodeDecorator) {
-        FragmentUtil.getFragmentByTag(parentFragmentManager, ExplodingFragment.TAG, ExplodingFragment::class.java)
-            ?.finishLoading(params)
+        childFragmentManager.findFragmentByTag(ExplodingFragment.TAG)
+            ?.let { (it as ExplodingFragment).finishLoading(params)  }
             ?: viewModel.hasFinishPaymentAnimation()
     }
 
@@ -191,18 +187,17 @@ class PayButtonFragment : Fragment(), PayButton.View {
             val explodeParams = ExplodingFragment.getParams(button,
                 buttonConfig.getButtonProgressText(context!!), paymentTimeout)
             val explodingFragment = ExplodingFragment.newInstance(explodeParams)
-            explodingFragment.setTargetFragment(this, 0)
-            parentFragmentManager.beginTransaction()
-                .add(android.R.id.content, explodingFragment, ExplodingFragment.TAG)
+            childFragmentManager.beginTransaction()
+                .add(R.id.exploding_frame, explodingFragment, ExplodingFragment.TAG)
                 .commitNowAllowingStateLoss()
         }
     }
 
     private fun cancelLoading() {
         showConfirmButton()
-        val fragment = parentFragmentManager.findFragmentByTag(ExplodingFragment.TAG) as ExplodingFragment?
+        val fragment = childFragmentManager.findFragmentByTag(ExplodingFragment.TAG) as ExplodingFragment?
         if (fragment != null && fragment.isAdded && fragment.hasFinished()) {
-            parentFragmentManager
+            childFragmentManager
                 .beginTransaction()
                 .remove(fragment)
                 .commitNowAllowingStateLoss()
@@ -236,7 +231,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
     }
 
     override fun isExploding(): Boolean {
-        return FragmentUtil.isFragmentVisible(parentFragmentManager, ExplodingFragment.TAG)
+        return FragmentUtil.isFragmentVisible(childFragmentManager, ExplodingFragment.TAG)
     }
 
     companion object {
@@ -245,8 +240,5 @@ class PayButtonFragment : Fragment(), PayButton.View {
         private const val REQ_CODE_PAYMENT_PROCESSOR = 302
         private const val REQ_CODE_BIOMETRICS = 303
         private const val EXTRA_STATE = "extra_state"
-
-        @JvmStatic
-        fun newInstance(targetFragment: Fragment) = PayButtonFragment().apply { setTargetFragment(targetFragment, 0) }
     }
 }

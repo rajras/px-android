@@ -43,8 +43,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void startPaymentRecoveryFlow(final PaymentRecovery paymentRecovery);
 
-        void showPaymentProcessor();
-
         void showPaymentProcessorWithAnimation();
 
         boolean isActive();
@@ -65,10 +63,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void showReviewAndConfirmAndRecoverPayment(final boolean isUniquePaymentMethod,
             @NonNull final PostPaymentAction postPaymentAction);
-
-        void startPayment();
-
-        void showCheckoutExceptionError(final CheckoutPreferenceException checkoutPreferenceException);
 
         void showFailureRecoveryError();
     }
@@ -107,6 +101,10 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
         void exitWithCode(final int resCode);
 
         boolean isUniquePaymentMethod();
+
+        void onPostPayment(@NonNull PaymentModel paymentModel);
+
+        void onRecoverPaymentEscInvalid(PaymentRecovery recovery);
 
         //TODO separate with better navigation when we have a proper driver.
         void onChangePaymentMethodFromReviewAndConfirm();

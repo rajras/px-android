@@ -91,12 +91,9 @@ import static com.mercadopago.android.px.internal.features.express.slider.Paymen
 import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.LOW_RES;
 
 public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
-    InstallmentsAdapter.ItemListener,
-    SplitPaymentHeaderAdapter.SplitListener,
-    PaymentMethodFragment.DisabledDetailDialogLauncher,
-    OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener,
-    OfflineMethodsFragment.SheetHandler, TitlePagerAdapter.InstallmentChanged,
-    PayButton.Handler, GenericDialog.Listener {
+    InstallmentsAdapter.ItemListener, SplitPaymentHeaderAdapter.SplitListener,
+    PaymentMethodFragment.DisabledDetailDialogLauncher, OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener,
+    TitlePagerAdapter.InstallmentChanged, PayButton.Handler, GenericDialog.Listener {
 
     private static final String TAG = ExpressPaymentFragment.class.getSimpleName();
     public static final String TAG_OFFLINE_METHODS_FRAGMENT = "TAG_OFFLINE_METHODS_FRAGMENT";
@@ -144,27 +141,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void setSheetHideable(final boolean isHideable) {
-        bottomSheetBehavior.setHideable(isHideable);
-    }
-
-    @Override
     public void prePayment(@NotNull final PayButton.OnReadyForPaymentCallback callback) {
         presenter.handlePrePaymentAction(callback);
     }
 
     @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        presenter.onPaymentFinished(payment);
-    }
-
-    @Override
-    public void onPaymentError(@NonNull final MercadoPagoError error) {
-        if (error.isPaymentProcessing()) {
-            presenter.onPaymentProcessingError(error);
-        } else if (getActivity() != null) {
-            ((CheckoutActivity) getActivity()).presenter.onPaymentError(error);
-        }
+    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
+        presenter.onPaymentFinished(paymentModel);
     }
 
     public interface CallBack {
@@ -245,12 +228,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void configureViews(@NonNull final View view) {
-        payButtonFragment = (PayButtonFragment) getFragmentManager().findFragmentByTag(PayButtonFragment.TAG);
-        if (payButtonFragment == null) {
-            payButtonFragment = PayButtonFragment.newInstance(this);
-            getFragmentManager().beginTransaction()
-                .replace(R.id.pay_button, payButtonFragment, PayButtonFragment.TAG).commitAllowingStateLoss();
-        }
+        payButtonFragment = (PayButtonFragment) getChildFragmentManager().findFragmentById(R.id.pay_button);
         payButtonContainer = view.findViewById(R.id.pay_button);
         splitPaymentView = view.findViewById(R.id.labeledSwitch);
         summaryView = view.findViewById(R.id.summary_view);
@@ -375,7 +353,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         final FragmentManager manager = getFragmentManager();
         if (manager != null) {
             manager.unregisterFragmentLifecycleCallbacks(fragmentLifecycleCallbacks);
-            manager.beginTransaction().remove(payButtonFragment).commitAllowingStateLoss();
         }
         super.onDestroyView();
     }

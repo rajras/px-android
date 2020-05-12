@@ -1,18 +1,18 @@
 package com.mercadopago.android.px.internal.features.checkout;
 
 import android.support.annotation.NonNull;
+
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.features.Constants;
+import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
-import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.mocks.ApiExceptionStubs;
 import com.mercadopago.android.px.mocks.InitResponseStub;
@@ -28,16 +28,16 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.preferences.PaymentPreference;
-import com.mercadopago.android.px.tracking.internal.model.Reason;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
 
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceOneItem;
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceOneItemAndPayer;
@@ -303,13 +303,6 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void whenCardFlowResponseHasRecoverableTokenProcessThenCreatePaymentInOneTap() {
-        when(paymentRepository.hasRecoverablePayment()).thenReturn(true);
-        presenter.onCardFlowResponse();
-        verify(checkoutView).startPayment();
-    }
-
-    @Test
     public void whenCardFlowResponseHasNotRecoverableTokenProcessAndThereIsNoAvailableHooksThenShowReviewAndConfirmIfPaymentProcessorShouldNotSkipUserConfirmation() {
         final PaymentConfiguration paymentConfiguration = mock(PaymentConfiguration.class);
         final SplitPaymentProcessor paymentProcessor = mock(SplitPaymentProcessor.class);
@@ -493,41 +486,6 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void whenPaymentErrorIsPaymentProcessingThenShowPaymentResult() {
-        final MercadoPagoError mercadoPagoError = mock(MercadoPagoError.class);
-        when(mercadoPagoError.isPaymentProcessing()).thenReturn(true);
-        when(paymentRepository.getPaymentDataList()).thenReturn(mock(List.class));
-        presenter.onPaymentError(mercadoPagoError);
-
-        verify(checkoutView).hideProgress();
-        verify(checkoutView).showPaymentResult(any(PaymentModel.class));
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenPaymentErrorIsInternalServerErrorThenShowError() {
-        final MercadoPagoError mercadoPagoError = mock(MercadoPagoError.class);
-        when(mercadoPagoError.isInternalServerError()).thenReturn(true);
-
-        presenter.onPaymentError(mercadoPagoError);
-
-        verify(checkoutView).hideProgress();
-        verify(checkoutView).showError(any(MercadoPagoError.class));
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenMercadoPagoErrorIsNotInternalServerErrorOrPaymentProcessingThenShowError() {
-        final MercadoPagoError mercadoPagoError = mock(MercadoPagoError.class);
-
-        presenter.onPaymentError(mercadoPagoError);
-
-        verify(checkoutView).hideProgress();
-        verify(checkoutView).showError(any(MercadoPagoError.class));
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
     public void whenTerminalErrorThenCancelCheckout() {
         final MercadoPagoError mercadoPagoError = mock(MercadoPagoError.class);
         presenter.onTerminalError(mercadoPagoError);
@@ -595,21 +553,6 @@ public class CheckoutPresenterTest {
     public void whenExitWithCodeThenExitCheckout() {
         presenter.exitWithCode(CUSTOM_RESULT_CODE);
         verify(checkoutView).exitCheckout(CUSTOM_RESULT_CODE);
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenCvvRequiredThenShowSavedCardFlow() {
-        final Card card = mock(Card.class);
-        presenter.onCvvRequired(card, mock(Reason.class));
-        verify(checkoutView).showSavedCardFlow(card);
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenVisualPaymentConfiguredThenShowPaymentProcessor() {
-        presenter.onVisualPayment();
-        verify(checkoutView).showPaymentProcessor();
         verifyNoMoreInteractions(checkoutView);
     }
 

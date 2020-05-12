@@ -39,7 +39,6 @@ import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import org.jetbrains.annotations.NotNull;
@@ -245,13 +244,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void onPaymentFinished(@NotNull final IPaymentDescriptor payment) {
-        remediesFragment.onPaymentFinished(payment);
-    }
-
-    @Override
-    public void onPaymentError(@NotNull final MercadoPagoError error) {
-        //TODO add snackbar
+    public void onPaymentFinished(@NotNull final PaymentModel paymentModel) {
+        remediesFragment.onPaymentFinished(paymentModel);
     }
 
     @Override

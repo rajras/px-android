@@ -11,4 +11,9 @@
         android:layout_height="wrap_content"
         android:text="@string/px_pay" />
 
+    <FrameLayout
+        android:id="@+id/exploding_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+
 </FrameLayout>
