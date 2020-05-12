@@ -19,12 +19,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ScrollView;
+
 import com.mercadolibre.android.ui.widgets.MeliSnackbar;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.extensions.BaseExtensionsKt;
+import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.payment_result.components.PaymentResultLegacyRenderer;
@@ -36,11 +38,14 @@ import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
+import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
+import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+
 import org.jetbrains.annotations.NotNull;
 
 import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
@@ -271,7 +276,18 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     @Override
     public void showResult(@NotNull final PaymentModel paymentModel) {
-        PaymentResultActivity.startWithForwardResult(this, paymentModel);
-        finish();
+        paymentModel.process(new PaymentModelHandler() {
+            @Override
+            public void visit(@NotNull final PaymentModel paymentModel) {
+                PaymentResultActivity.startWithForwardResult(PaymentResultActivity.this, paymentModel);
+                finish();
+            }
+
+            @Override
+            public void visit(@NotNull final BusinessPaymentModel businessPaymentModel) {
+                BusinessPaymentResultActivity.startWithForwardResult(PaymentResultActivity.this, businessPaymentModel);
+                finish();
+            }
+        });
     }
 }

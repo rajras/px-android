@@ -22,7 +22,7 @@ internal object PaymentResultRemediesModelMapper : Mapper<RemediesResponse, Reme
             title = it.title
             HighRiskRemedy.Model(it.title, it.message, it.deepLink)
         }
-        return RemediesModel(title, retryPaymentModel, highRiskModel)
+        return RemediesModel(title, retryPaymentModel, highRiskModel, response.trackingData)
     }
 
     private fun getCvvModel(cvvResponse: CvvRemedyResponse?) =
