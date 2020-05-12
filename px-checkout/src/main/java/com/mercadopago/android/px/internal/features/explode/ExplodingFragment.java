@@ -111,7 +111,8 @@ public class ExplodingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
         final Bundle savedInstanceState) {
-        rootView = (ViewGroup) inflater.inflate(R.layout.px_fragment_exploding, container, false);
+        ViewGroup view = getActivity().findViewById(android.R.id.content);
+        rootView = (ViewGroup) inflater.inflate(R.layout.px_fragment_exploding, view);
         circle = rootView.findViewById(R.id.cho_loading_buy_circular);
         icon = rootView.findViewById(R.id.cho_loading_buy_icon);
         reveal = rootView.findViewById(R.id.cho_loading_buy_reveal);
@@ -141,7 +142,14 @@ public class ExplodingFragment extends Fragment {
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(maxLoadingTime).start();
 
-        return rootView;
+        return null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        ViewGroup view = getActivity().findViewById(android.R.id.content);
+        view.removeViewAt(view.getChildCount()-1);
+        super.onDestroyView();
     }
 
     @Override
@@ -368,8 +376,9 @@ public class ExplodingFragment extends Fragment {
         if (context instanceof ExplodingAnimationListener) {
             listener = (ExplodingAnimationListener) context;
         } else if (getTargetFragment() != null) {
-            final Fragment fragment = getTargetFragment();
-            listener = (ExplodingAnimationListener) fragment;
+            listener = (ExplodingAnimationListener) getTargetFragment();
+        } else if (getParentFragment() != null) {
+            listener = (ExplodingAnimationListener) getParentFragment();
         }
     }
 

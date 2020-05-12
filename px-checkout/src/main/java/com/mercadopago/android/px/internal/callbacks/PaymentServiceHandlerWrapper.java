@@ -33,7 +33,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
     //TODO Remove handler when all views use PayButton or LiveData
     @Nullable private WeakReference<PaymentServiceHandler> handler;
-    @NonNull private final PaymentServiceEventHandler eventHandler;
+    private PaymentServiceEventHandler eventHandler;
     @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final InstructionsRepository instructionsRepository;
     @NonNull private final CongratsRepository congratsRepository;
@@ -96,12 +96,15 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         this.instructionsRepository = instructionsRepository;
         this.congratsRepository = congratsRepository;
         this.userSelectionRepository = userSelectionRepository;
-        eventHandler = new PaymentServiceEventHandler();
         messages = new LinkedList<>();
     }
 
     public PaymentServiceEventHandler getObservableEvents() {
         return eventHandler;
+    }
+
+    public void createTransactionLiveData() {
+        eventHandler = new PaymentServiceEventHandler();
     }
 
     public void setHandler(@Nullable final PaymentServiceHandler handler) {
@@ -213,11 +216,13 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
-            @NonNull final PaymentServiceEventHandler eventHandler) {
+            @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
                 handler.onCvvRequired(card, reason);
             }
-            eventHandler.getRequireCvvLiveData().setValue(new Event<>(new Pair<>(card, reason)));
+            if(eventHandler != null) {
+                eventHandler.getRequireCvvLiveData().setValue(new Event<>(new Pair<>(card, reason)));
+            }
         }
     }
 
@@ -231,11 +236,13 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
-            @NonNull final PaymentServiceEventHandler eventHandler) {
+            @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
                 handler.onRecoverPaymentEscInvalid(recovery);
             }
-            eventHandler.getRecoverInvalidEscLiveData().setValue(new Event<>(recovery));
+            if(eventHandler != null) {
+                eventHandler.getRecoverInvalidEscLiveData().setValue(new Event<>(recovery));
+            }
         }
     }
 
@@ -249,11 +256,13 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
-            @NonNull final PaymentServiceEventHandler eventHandler) {
+            @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
                 handler.onPostPayment(paymentModel);
             }
-            eventHandler.getPaymentFinishedLiveData().setValue(new Event<>(paymentModel));
+            if(eventHandler != null) {
+                eventHandler.getPaymentFinishedLiveData().setValue(new Event<>(paymentModel));
+            }
         }
     }
 
@@ -267,22 +276,26 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
 
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
-            @NonNull final PaymentServiceEventHandler eventHandler) {
+            @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
                 handler.onPaymentError(error);
             }
-            eventHandler.getPaymentErrorLiveData().setValue(new Event<>((error)));
+            if(eventHandler != null) {
+                eventHandler.getPaymentErrorLiveData().setValue(new Event<>((error)));
+            }
         }
     }
 
     private static class VisualPaymentMessage implements Message {
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
-            @NonNull final PaymentServiceEventHandler eventHandler) {
+            @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
                 handler.onVisualPayment();
             }
-            eventHandler.getVisualPaymentLiveData().setValue(new Event<>(null));
+            if(eventHandler != null) {
+                eventHandler.getVisualPaymentLiveData().setValue(new Event<>(null));
+            }
         }
     }
 

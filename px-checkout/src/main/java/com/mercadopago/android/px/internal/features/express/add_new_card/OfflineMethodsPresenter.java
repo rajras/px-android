@@ -2,42 +2,38 @@ package com.mercadopago.android.px.internal.features.express.add_new_card;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.addons.model.SecurityValidationData;
+
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper;
+import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
-import com.mercadopago.android.px.internal.util.ApiUtil;
-import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
+import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
+import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper;
-import com.mercadopago.android.px.model.Card;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.OfflineMethodsCompliance;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.Payer;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.ApiException;
-import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.model.exceptions.NoConnectivityException;
 import com.mercadopago.android.px.model.internal.InitResponse;
+import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
-import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
-import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.events.KnowYourCustomerFlowEvent;
-import com.mercadopago.android.px.tracking.internal.model.Reason;
+import com.mercadopago.android.px.tracking.internal.model.ConfirmData;
 import com.mercadopago.android.px.tracking.internal.views.OfflineMethodsViewTracker;
-import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker;
 
-class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsView> implements OfflineMethods.Actions {
+class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsView> implements
+    OfflineMethods.Actions {
 
     @NonNull private final PaymentRepository paymentRepository;
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
@@ -77,25 +73,9 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     }
 
     @Override
-    public void detachView() {
-        onViewPaused();
-        super.detachView();
-    }
-
-    @Override
     public void attachView(final OfflineMethods.OffMethodsView view) {
         super.attachView(view);
         initPresenter();
-    }
-
-    @Override
-    public void onViewResumed() {
-        paymentRepository.attach(this);
-    }
-
-    @Override
-    public void onViewPaused() {
-        paymentRepository.detach(this);
     }
 
     @Override
@@ -135,8 +115,7 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
         throw new IllegalStateException("off methods missing compliance");
     }
 
-    @Override
-    public void startSecuredPayment() {
+    public void handlePrePaymentAction(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         if (payerCompliance != null) {
             if (selectedItem.isAdditionalInfoNeeded() && payerCompliance.isCompliant()) {
                 completePayerInformation();
@@ -146,9 +125,17 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
                 return;
             }
         }
+        requireCurrentConfiguration(callback);
+    }
 
-        final SecurityValidationData data = SecurityValidationDataFactory.create(productIdProvider);
-        getView().startSecurityValidation(data);
+    private void requireCurrentConfiguration(PayButton.OnReadyForPaymentCallback callback) {
+        final String paymentMethodId = selectedItem.getPaymentMethodId() != null ? selectedItem.getPaymentMethodId() : TextUtil.EMPTY;
+        final String paymentTypeId = selectedItem.getPaymentTypeId() != null ? selectedItem.getPaymentTypeId() : TextUtil.EMPTY;
+        ConfirmData confirmData = ConfirmData.from(paymentTypeId, paymentMethodId,
+            payerCompliance == null || payerCompliance.isCompliant(), selectedItem.isAdditionalInfoNeeded());
+        PaymentConfiguration paymentConfiguration = new PaymentConfiguration(paymentMethodId, paymentTypeId,
+            paymentMethodId, false, false, null);
+        callback.call(paymentConfiguration, confirmData);
     }
 
     private void completePayerInformation() {
@@ -168,82 +155,18 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     }
 
     @Override
-    public void startPayment() {
-        refreshExplodingState();
+    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
+        paymentModel.process(new PaymentModelHandler() {
+            @Override
+            public void visit(@NonNull final PaymentModel paymentModel) {
+                getView().showPaymentResult(paymentModel);
+            }
 
-        ConfirmEvent
-            .from(selectedItem.getPaymentTypeId(), selectedItem.getPaymentMethodId(), payerCompliance.isCompliant(),
-                selectedItem.isAdditionalInfoNeeded()).track();
-
-        //noinspection ConstantConditions
-        paymentRepository
-            .startExpressPaymentWithOffMethod(selectedItem.getPaymentMethodId(), selectedItem.getPaymentTypeId());
-    }
-
-    @Override
-    public void trackSecurityFriction() {
-        // TODO Review ID
-        FrictionEventTracker
-            .with(OneTapViewTracker.PATH_REVIEW_ONE_TAP_VIEW, FrictionEventTracker.Id.GENERIC,
-                FrictionEventTracker.Style.CUSTOM_COMPONENT).track();
-    }
-
-    private void refreshExplodingState() {
-        if (paymentRepository.isExplodingAnimationCompatible()) {
-            getView().startLoadingButton(paymentRepository.getPaymentTimeout(), payButtonViewModel);
-        }
-    }
-
-    public void hasFinishPaymentAnimation() {
-        final IPaymentDescriptor payment = paymentRepository.getPayment();
-        if (payment != null) {
-            getView().showPaymentResult(payment);
-        }
-    }
-
-    @Override
-    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
-        getView().finishLoading(explodeDecoratorMapper.map(paymentModel));
-    }
-
-    @Override
-    public void onPaymentError(@NonNull final MercadoPagoError error) {
-        getView().cancelLoading();
-        if (error.isInternalServerError() || error.isNoConnectivityError()) {
-            FrictionEventTracker.with(OneTapViewTracker.PATH_REVIEW_ONE_TAP_VIEW,
-                FrictionEventTracker.Id.GENERIC, FrictionEventTracker.Style.CUSTOM_COMPONENT,
-                error)
-                .track();
-            getView().showErrorSnackBar(error);
-        } else {
-            getView().showErrorScreen(error);
-        }
-    }
-
-    @Override
-    public void onCvvRequired(@NonNull final Card card, @NonNull final Reason reason) {
-        // do nothing
-    }
-
-    @Override
-    public void onVisualPayment() {
-        getView().showPaymentProcessor();
-    }
-
-    @Override
-    public void onRecoverPaymentEscInvalid(final PaymentRecovery recovery) {
-        // do nothing
-    }
-
-    public void manageNoConnection() {
-        final NoConnectivityException exception = new NoConnectivityException();
-        final ApiException apiException = ApiUtil.getApiException(exception);
-        final MercadoPagoError mercadoPagoError = new MercadoPagoError(apiException, null);
-        FrictionEventTracker.with(OneTapViewTracker.PATH_REVIEW_ONE_TAP_VIEW,
-            FrictionEventTracker.Id.GENERIC, FrictionEventTracker.Style.CUSTOM_COMPONENT,
-            mercadoPagoError)
-            .track();
-        getView().showErrorSnackBar(mercadoPagoError);
+            @Override
+            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                getView().showBusinessResult(businessPaymentModel);
+            }
+        });
     }
 
     public void trackOfflineMethodsView(final OfflinePaymentTypesMetadata model) {

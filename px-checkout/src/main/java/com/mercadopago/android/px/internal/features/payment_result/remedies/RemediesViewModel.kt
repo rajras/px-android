@@ -55,7 +55,7 @@ internal class RemediesViewModel(
                 if (isCard) {
                     card = initResponse.getCardById(customOptionId)
                 }
-                paymentConfiguration = PaymentConfiguration(methodIds.methodId, customOptionId, isCard, false,
+                paymentConfiguration = PaymentConfiguration(methodIds.methodId, methodIds.typeId, customOptionId, isCard, false,
                     getPayerCost(customOptionId, paymentModel))
                 withContext(Dispatchers.Main) {
                     remediesModel.retryPayment?.let {
@@ -161,13 +161,8 @@ internal class RemediesViewModel(
         }
     }
 
-    fun onPaymentFinished(payment: IPaymentDescriptor) {
-        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-            object : PostPaymentCallback {
-                override fun handleResult(paymentModel: PaymentModel) {
-                    remedyState.value = RemedyState.ShowResult(paymentModel)
-                }
-            })
+    fun onPaymentFinished(paymentModel: PaymentModel) {
+        remedyState.value = RemedyState.ShowResult(paymentModel)
     }
 
     override fun onButtonPressed(action: RemedyButton.Action) {

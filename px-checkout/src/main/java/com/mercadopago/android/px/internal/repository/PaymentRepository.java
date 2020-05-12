@@ -20,8 +20,6 @@ public interface PaymentRepository {
 
     void startExpressPayment(@NonNull final PaymentConfiguration paymentConfiguration);
 
-    void startExpressPaymentWithOffMethod(@NonNull final String paymentMethodId, @NonNull final String paymentTypeId);
-
     boolean isExplodingAnimationCompatible();
 
     @NonNull

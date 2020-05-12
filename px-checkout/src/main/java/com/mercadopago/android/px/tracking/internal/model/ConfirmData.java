@@ -5,6 +5,9 @@ import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SuppressWarnings("unused")
 @Keep
 public class ConfirmData extends AvailableMethod {
@@ -23,6 +26,13 @@ public class ConfirmData extends AvailableMethod {
             return new ConfirmData[size];
         }
     };
+
+    public static ConfirmData from(String paymentTypeId, String paymentMethodId, boolean isCompliant, boolean hasAdditionalInfoNeeded) {
+        final Map<String, Object> extraInfo = new HashMap<>();
+        extraInfo.put("has_payer_information", isCompliant);
+        extraInfo.put("additional_information_needed", hasAdditionalInfoNeeded);
+        return new ConfirmData(ConfirmEvent.ReviewType.ONE_TAP, new AvailableMethod(paymentMethodId, paymentTypeId, extraInfo));
+    }
 
     public ConfirmData(@NonNull final ConfirmEvent.ReviewType reviewType, final int paymentMethodSelectedIndex,
         @NonNull final AvailableMethod availableMethod) {

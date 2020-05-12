@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ScrollView;
+
 import com.mercadolibre.android.ui.widgets.MeliSnackbar;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
@@ -42,9 +43,9 @@ import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaym
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+
 import org.jetbrains.annotations.NotNull;
 
 import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
@@ -248,13 +249,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void onPaymentFinished(@NotNull final IPaymentDescriptor payment) {
-        remediesFragment.onPaymentFinished(payment);
-    }
-
-    @Override
-    public void onPaymentError(@NotNull final MercadoPagoError error) {
-        //TODO add snackbar
+    public void onPaymentFinished(@NotNull final PaymentModel paymentModel) {
+        remediesFragment.onPaymentFinished(paymentModel);
     }
 
     @Override

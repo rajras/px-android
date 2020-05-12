@@ -80,8 +80,8 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
         viewModel.onPayButtonPressed(callback)
     }
 
-    override fun onPaymentFinished(payment: IPaymentDescriptor) {
-        viewModel.onPaymentFinished(payment)
+    override fun onPaymentFinished(paymentModel: PaymentModel) {
+        viewModel.onPaymentFinished(paymentModel)
     }
 
     override fun onLoudButtonClicked(action: RemedyButton.Action) {

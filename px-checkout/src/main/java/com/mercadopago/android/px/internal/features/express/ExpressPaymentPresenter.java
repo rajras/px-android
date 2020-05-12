@@ -490,33 +490,18 @@ import java.util.Set;
     }
 
     @Override
-    public void onPaymentProcessingError(@NonNull final MercadoPagoError error) {
-        final Currency currency = paymentSettingRepository.getCurrency();
-        final PaymentResult paymentResult =
-            new PaymentResult.Builder()
-                .setPaymentData(paymentRepository.getPaymentDataList())
-                .setPaymentStatus(Payment.StatusCodes.STATUS_IN_PROCESS)
-                .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
-                .build();
-        final PaymentModel paymentModel = new PaymentModel(paymentResult, currency);
-        getView().showPaymentResult(paymentModel);
-    }
+    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
+        paymentModel.process(new PaymentModelHandler() {
+            @Override
+            public void visit(@NonNull final PaymentModel paymentModel) {
+                getView().showPaymentResult(paymentModel);
+            }
 
-    @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-            model -> model.process(new PaymentModelHandler() {
-                @Override
-                public void visit(@NonNull final PaymentModel paymentModel) {
-                    getView().showPaymentResult(paymentModel);
-                }
-
-                @Override
-                public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                    getView().showBusinessResult(businessPaymentModel);
-                }
-            })
-        );
+            @Override
+            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                getView().showBusinessResult(businessPaymentModel);
+            }
+        });
     }
 
     /* default */ void resetState(@NonNull final InitResponse initResponse) {

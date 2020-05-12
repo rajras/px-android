@@ -6,6 +6,7 @@ import com.mercadopago.android.px.model.PayerCost
 
 data class PaymentConfiguration(
     val paymentMethodId: String,
+    val paymentTypeId: String,
     val customOptionId: String,
     val isCard: Boolean,
     val splitPayment: Boolean,
@@ -14,12 +15,14 @@ data class PaymentConfiguration(
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readString()!!,
+        parcel.readString()!!,
         parcel.readByte() != 0.toByte(),
         parcel.readByte() != 0.toByte(),
         parcel.readParcelable(PayerCost::class.java.classLoader))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(paymentMethodId)
+        parcel.writeString(paymentTypeId)
         parcel.writeString(customOptionId)
         parcel.writeByte(if (isCard) 1 else 0)
         parcel.writeByte(if (splitPayment) 1 else 0)

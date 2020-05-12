@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.R;
@@ -35,8 +36,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentRecovery;
-import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
-import com.mercadopago.android.px.model.exceptions.ExceptionHandler;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.SessionFrictionEventTracker;
 
@@ -273,21 +272,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    public void startPayment() {
-        final FragmentManager supportFragmentManager = getSupportFragmentManager();
-        final Fragment fragment = supportFragmentManager.findFragmentByTag(PayButtonFragment.TAG);
-        if (fragment instanceof PayButtonFragment) {
-            ((PayButtonFragment) fragment).stimulate();
-        }
-    }
-
-    @Override
-    public void showCheckoutExceptionError(final CheckoutPreferenceException checkoutPreferenceException) {
-        final String message = ExceptionHandler.getErrorMessage(this, checkoutPreferenceException);
-        showError(MercadoPagoError.createNotRecoverable(message));
-    }
-
-    @Override
     public void showFailureRecoveryError() {
         showError(MercadoPagoError.createNotRecoverable(getString(R.string.px_error_failure_recovery_not_defined)));
     }
@@ -492,12 +476,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     public void showProgress() {
         ViewUtils.showProgressLayout(this);
-    }
-
-    @Override
-    public void showPaymentProcessor() {
-        overrideTransitionWithNoAnimation();
-        PaymentProcessorActivity.start(this, REQ_PAYMENT_PROCESSOR);
     }
 
     @Override
