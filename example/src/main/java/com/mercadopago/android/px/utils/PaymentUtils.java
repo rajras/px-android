@@ -34,7 +34,7 @@ public final class PaymentUtils {
     public static GenericPayment getGenericPaymentRejected() {
         return new GenericPayment.Builder(
             Payment.StatusCodes.STATUS_REJECTED,
-            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_HIGH_RISK
-        ).setPaymentId(123L).createGenericPayment();
+            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_BAD_FILLED_SECURITY_CODE
+        ).setPaymentId(6101162949L).createGenericPayment();
     }
 }

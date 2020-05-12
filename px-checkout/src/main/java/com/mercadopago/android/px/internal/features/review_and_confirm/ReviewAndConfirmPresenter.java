@@ -207,12 +207,9 @@ import java.util.Set;
     }
 
     @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-            paymentModel -> {
-                getView().hideConfirmButton();
-                getView().finishLoading(explodeDecoratorMapper.map(paymentModel));
-            });
+    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
+        getView().hideConfirmButton();
+        getView().finishLoading(explodeDecoratorMapper.map(paymentModel));
     }
 
     @Override

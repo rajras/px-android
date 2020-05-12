@@ -360,7 +360,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
 
     private void handlePayment(final Intent data) {
         showProgress();
-        presenter.onPaymentFinished(PaymentProcessorActivity.getPayment(data));
+        presenter.onPostPayment(PaymentProcessorActivity.getPaymentModel(data));
     }
 
     private void handleCancel() {

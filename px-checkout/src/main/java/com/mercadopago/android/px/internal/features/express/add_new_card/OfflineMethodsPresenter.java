@@ -16,6 +16,7 @@ import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel;
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -201,9 +202,8 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     }
 
     @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-            paymentModel -> getView().finishLoading(explodeDecoratorMapper.map(paymentModel)));
+    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
+        getView().finishLoading(explodeDecoratorMapper.map(paymentModel));
     }
 
     @Override

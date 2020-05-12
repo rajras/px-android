@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.repository;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
+import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PaymentData;
@@ -12,6 +13,8 @@ import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import java.util.List;
 
 public interface PaymentRepository {
+
+    PaymentServiceEventHandler getObservableEvents();
 
     void startPayment();
 
