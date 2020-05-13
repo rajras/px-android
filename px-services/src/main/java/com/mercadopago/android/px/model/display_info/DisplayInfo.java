@@ -2,6 +2,8 @@ package com.mercadopago.android.px.model.display_info;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import com.mercadopago.android.px.model.CvvInfo;
 import com.mercadopago.android.px.model.internal.Text;
 import java.io.Serializable;
 
@@ -10,6 +12,8 @@ public final class DisplayInfo implements Parcelable, Serializable {
     private final LinkableText termsAndConditions;
     private final ResultInfo resultInfo;
     private final Text description;
+    @Nullable private CvvInfo cvvInfo;
+
 
     public LinkableText getTermsAndConditions() {
         return termsAndConditions;
@@ -23,11 +27,16 @@ public final class DisplayInfo implements Parcelable, Serializable {
         return description;
     }
 
+    public CvvInfo getCvvInfo() {
+        return cvvInfo;
+    }
+
     @SuppressWarnings("WeakerAccess")
     protected DisplayInfo(final Parcel in) {
         termsAndConditions = in.readParcelable(LinkableText.class.getClassLoader());
         resultInfo = in.readParcelable(ResultInfo.class.getClassLoader());
         description = in.readParcelable(Text.class.getClassLoader());
+        cvvInfo = in.readParcelable(CvvInfo.class.getClassLoader());
     }
 
     @Override
@@ -35,6 +44,7 @@ public final class DisplayInfo implements Parcelable, Serializable {
         dest.writeParcelable(termsAndConditions, flags);
         dest.writeParcelable(resultInfo, flags);
         dest.writeParcelable(description, flags);
+        dest.writeParcelable(cvvInfo, flags);
     }
 
 

@@ -23,6 +23,7 @@ public final class Card implements CardInformation {
     private String lastFourDigits;
     private PaymentMethod paymentMethod;
     private SecurityCode securityCode;
+    private CvvInfo cvvInfo;
     private String escStatus;
 
     @Deprecated
@@ -155,6 +156,14 @@ public final class Card implements CardInformation {
         return securityCode != null ? securityCode.getCardLocation() : CARD_DEFAULT_SECURITY_CODE_LOCATION;
     }
 
+    public CvvInfo getCvvInfo() {
+        return cvvInfo;
+    }
+
+    public void setCvvInfo(final CvvInfo cvvInfo) {
+        this.cvvInfo = cvvInfo;
+    }
+
     public void setEscStatus(final String status) {
         this.escStatus = status;
     }
@@ -179,6 +188,7 @@ public final class Card implements CardInformation {
             ", lastFourDigits='" + lastFourDigits + '\'' +
             ", paymentMethod=" + paymentMethod +
             ", securityCode=" + securityCode +
+            ",securityMessage=" + cvvInfo +
             ", escStatus=" + escStatus +
             '}';
     }

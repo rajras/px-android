@@ -100,6 +100,10 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         return paymentMethod;
     }
 
+    public boolean showCvvInfo() {
+        return card.getCvvInfo() != null;
+    }
+
     public Token getToken() {
         return token;
     }
@@ -374,7 +378,9 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     public void setSecurityCodeCardType() {
-        if (getSecurityCodeLocation().equals(CardView.CARD_SIDE_BACK)) {
+        if (getCard().getCvvInfo() != null) {
+            getView().showUrlSecurityCodeCardView(getCard().getCvvInfo().getImageUrl());
+        } else if (getSecurityCodeLocation().equals(CardView.CARD_SIDE_BACK)) {
             getView().showBackSecurityCodeCardView();
         } else {
             getView().showFrontSecurityCodeCardView();

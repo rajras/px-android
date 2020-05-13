@@ -143,7 +143,6 @@ public final class OneTapSamples {
             getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
             new PaymentConfiguration.Builder(new SamplePaymentProcessorNoView(Arrays.asList(
-                IParcelablePaymentDescriptor.with(getGenericPaymentRejected()),
                 IParcelablePaymentDescriptor.with(getGenericPaymentApproved()))))
             .addChargeRules(
                 Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
@@ -151,7 +150,7 @@ public final class OneTapSamples {
                 .build();
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
-            .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
+            .setPrivateKey("APP_USR-1945000207238192-051312-93aa90d1978a6275a856af223310337c-560269140")
             .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(true).build());
     }
 
@@ -386,7 +385,7 @@ public final class OneTapSamples {
             .setId("1234")
             .build();
         items.add(item);
-        return new CheckoutPreference.Builder(Sites.ARGENTINA,
+        return new CheckoutPreference.Builder(Sites.BRASIL,
             PAYER_EMAIL_DUMMY, items)
             .addExcludedPaymentTypes(excludedPaymentTypes)
             .build();
