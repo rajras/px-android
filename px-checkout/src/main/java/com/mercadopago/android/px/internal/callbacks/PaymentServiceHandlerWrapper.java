@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import kotlin.Pair;
+import kotlin.Unit;
 
 public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler {
 
@@ -294,7 +295,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
                 handler.onVisualPayment();
             }
             if(eventHandler != null) {
-                eventHandler.getVisualPaymentLiveData().setValue(new Event<>(null));
+                eventHandler.getVisualPaymentLiveData().setValue(new Event<>(Unit.INSTANCE));
             }
         }
     }
