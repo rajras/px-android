@@ -50,7 +50,7 @@ public final class MercadoPagoCheckout {
     @NonNull
     private final TrackingConfiguration trackingConfiguration;
 
-    /* default */ boolean prefetch = false;
+    /* default */ PrefetchService prefetch;
 
     /* default */ MercadoPagoCheckout(final Builder builder) {
         publicKey = builder.publicKey;
@@ -81,10 +81,11 @@ public final class MercadoPagoCheckout {
         final int requestCode) {
 
         final Session session = Session.getInstance();
-
-        if (!prefetch) {
-            session.init(this);
+        session.init(this);
+        if (prefetch != null && prefetch.getInitResponse() != null) {
+            session.getInitRepository().configure(prefetch.getInitResponse());
         }
+        PrefetchService.onCheckoutStarted();
 
         MPTracker.getInstance().initializeSessionTime();
         new InitEvent(session.getConfigurationModule().getPaymentSettings()).track();
