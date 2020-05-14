@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -42,6 +43,7 @@ import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.PaymentMethod;
+import com.mercadopago.android.px.model.CvvInfo;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
@@ -49,6 +51,7 @@ import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.ExceptionHandler;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
+import com.squareup.picasso.Callback;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
@@ -228,6 +231,15 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     private void loadViews() {
+        if (!presenter.shouldShowCvvInfo()) {
+            showCvv();
+        } else {
+            showCustomView();
+        }
+        presenter.setSecurityCodeCardType();
+    }
+
+    private void showCvv() {
         mCardView = new CardView(this);
         final String lastFourDigits = presenter.getCardInfo().getLastFourDigits();
         mCardView.setSize(CardRepresentationModes.BIG_SIZE);
@@ -241,7 +253,6 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         mCardView.draw(CardView.CARD_SIDE_FRONT);
         mCardView.drawFullCard();
         mCardView.drawEditingSecurityCode("");
-        presenter.setSecurityCodeCardType();
 
         executeIfAccessibilityTalkBackEnable(this, () -> {
             mCardContainer.setContentDescription(new SpannableStringBuilder()
@@ -252,6 +263,15 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
                 .append(lastFourDigits));
             return null;
         });
+    }
+
+    private void showCustomView() {
+        final CvvInfo cvvInfo = presenter.getCvvInfo();
+        final View view = LayoutInflater.from(this).inflate(R.layout.px_cvv_info, mCardContainer, true);
+
+        final MPTextView title = view.findViewById(R.id.title);
+        title.setText(cvvInfo.getTitle());
+        ViewUtils.loadOrGone(cvvInfo.getMessage(), view.findViewById(R.id.message));
     }
 
     private void setSecurityCodeCardColorFilter() {
@@ -288,6 +308,11 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     @Override
+    public void showUrlSecurityCodeCardView(@Nullable final String securityCodeUrl) {
+        ViewUtils.loadOrCallError(securityCodeUrl, mSecurityCodeCardIcon, new Callback.EmptyCallback());
+    }
+
+    @Override
     public void showStandardErrorMessage() {
         final String standardErrorMessage = getString(R.string.px_standard_error_message);
         showError(MercadoPagoError.createNotRecoverable(standardErrorMessage), TextUtil.EMPTY);
@@ -315,8 +340,10 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
                 @Override
                 public void saveSecurityCode(final CharSequence s) {
                     presenter.saveSecurityCode(s.toString());
-                    mCardView.setSecurityCodeLocation(presenter.getSecurityCodeLocation());
-                    mCardView.drawEditingSecurityCode(s.toString());
+                    if (mCardView != null) {
+                        mCardView.setSecurityCodeLocation(presenter.getSecurityCodeLocation());
+                        mCardView.drawEditingSecurityCode(s.toString());
+                    }
                 }
 
                 @Override

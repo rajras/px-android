@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.features;
 
+import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
@@ -31,6 +32,8 @@ public interface SecurityCodeActivityView extends MvpView {
     void showBackSecurityCodeCardView();
 
     void showFrontSecurityCodeCardView();
+
+    void showUrlSecurityCodeCardView(@Nullable final String securityCodeUrl);
 
     void showStandardErrorMessage();
 }

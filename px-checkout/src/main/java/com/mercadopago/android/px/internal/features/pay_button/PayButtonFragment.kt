@@ -152,7 +152,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
     private fun handleAction(data: Intent?) {
         data?.extras?.let {
-            PostPaymentAction.fromBundle(data.extras!!).execute(object : PostPaymentAction.ActionController {
+            PostPaymentAction.fromBundle(it).execute(object : PostPaymentAction.ActionController {
                 override fun recoverPayment(postPaymentAction: PostPaymentAction) {
                     cancelLoading()
                     viewModel.recoverPayment()
