@@ -14,7 +14,8 @@ public class PxCheckoutInitProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Session.initialize(getContext());
+        NetworkModule.initialize(getContext());
+        Session.initialize(getContext(), NetworkModule.INSTANCE);
         ConnectionHelper.getInstance().initialize(getContext());
         return false;
     }

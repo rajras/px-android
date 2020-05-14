@@ -6,18 +6,26 @@ class FlowIdProvider(context: Context) {
 
     private val sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
 
-    internal constructor(context: Context, flowId: String?): this(context) {
+    private var internalFlowId: String? = null
+    val flowId: String
+        get() {
+            if (internalFlowId == null) {
+                internalFlowId = sharedPreferences.getString(PREF_FLOW_ID, DEFAULT_FLOW)
+            }
+            return internalFlowId!!
+        }
+
+    fun configure(flowId: String?) {
         if (flowId.isNullOrEmpty()) {
             clear()
         } else {
+            internalFlowId = flowId
             sharedPreferences.edit().putString(PREF_FLOW_ID, flowId).apply()
         }
     }
 
-    val flowId: String
-        get() = sharedPreferences.getString(PREF_FLOW_ID, DEFAULT_FLOW)!!
-
-    private fun clear() {
+    fun clear() {
+        internalFlowId = DEFAULT_FLOW
         sharedPreferences.edit().clear().apply()
     }
 

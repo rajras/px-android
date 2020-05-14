@@ -3,6 +3,7 @@ package com.mercadopago.android.px.tracking.internal;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.core.FlowIdProvider;
+import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.model.CheckoutType;
 import com.mercadopago.android.px.model.Event;
@@ -53,7 +54,7 @@ public final class MPTracker {
 
     @NonNull private List<Experiment> experiments = new ArrayList<>();
 
-    @NonNull private FlowIdProvider flowIdProvider = Session.getInstance().getFlowIdProvider();
+    @NonNull private FlowIdProvider flowIdProvider = Session.getInstance().getNetworkModule().getFlowIdProvider();
 
     private MPTracker() {
         // do nothing

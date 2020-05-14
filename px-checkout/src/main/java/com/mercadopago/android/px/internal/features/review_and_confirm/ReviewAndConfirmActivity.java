@@ -28,6 +28,7 @@ import com.mercadopago.android.px.configuration.ReviewAndConfirmConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
+import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
@@ -133,7 +134,7 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
             session.getConfigurationModule().getUserSelectionRepository(),
             session.getCongratsRepository(),
             session.getMercadoPagoESC(),
-            session.getProductIdProvider());
+            session.getNetworkModule().getProductIdProvider());
         presenter.attachView(this);
 
         if (savedInstanceState == null) {

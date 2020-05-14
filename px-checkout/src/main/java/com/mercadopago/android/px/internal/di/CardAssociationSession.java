@@ -14,7 +14,6 @@ import com.mercadopago.android.px.internal.services.CardService;
 import com.mercadopago.android.px.internal.services.GatewayService;
 import com.mercadopago.android.px.internal.util.RetrofitUtil;
 import com.mercadopago.android.px.model.Device;
-import com.mercadopago.android.px.tracking.internal.MPTracker;
 
 public final class CardAssociationSession extends ApplicationModule {
 
@@ -23,9 +22,11 @@ public final class CardAssociationSession extends ApplicationModule {
      * never leaking.
      */
     @SuppressLint("StaticFieldLeak") private static CardAssociationSession instance;
+    private final NetworkModule networkModule;
 
     private CardAssociationSession(@NonNull final Context context) {
         super(context.getApplicationContext());
+        networkModule = NetworkModule.INSTANCE;
     }
 
     public static CardAssociationSession getCardAssociationSession(final Context context) {
@@ -37,12 +38,12 @@ public final class CardAssociationSession extends ApplicationModule {
 
     @NonNull
     public CardAssociationService getCardAssociationService() {
-        return new CardAssociationService(getRetrofitClient().create(CardService.class));
+        return new CardAssociationService(networkModule.getRetrofitClient().create(CardService.class));
     }
 
     @NonNull
     public CardPaymentMethodRepository getCardPaymentMethodRepository() {
-        return new CardPaymentMethodService(getRetrofitClient().create(
+        return new CardPaymentMethodService(networkModule.getRetrofitClient().create(
             com.mercadopago.android.px.internal.services.PaymentService.class));
     }
 
@@ -50,7 +51,8 @@ public final class CardAssociationSession extends ApplicationModule {
     public ESCManagerBehaviour getMercadoPagoESC() {
         //noinspection ConstantConditions
         return BehaviourProvider
-            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), getFlowIdProvider().getFlowId());
+            .getEscManagerBehaviour(networkModule.getSessionIdProvider().getSessionId(),
+                networkModule.getFlowIdProvider().getFlowId());
     }
 
     @NonNull
