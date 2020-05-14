@@ -143,6 +143,7 @@ public final class OneTapSamples {
             getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
             new PaymentConfiguration.Builder(new SamplePaymentProcessorNoView(Arrays.asList(
+                IParcelablePaymentDescriptor.with(getGenericPaymentRejected()),
                 IParcelablePaymentDescriptor.with(getGenericPaymentApproved()))))
             .addChargeRules(
                 Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
