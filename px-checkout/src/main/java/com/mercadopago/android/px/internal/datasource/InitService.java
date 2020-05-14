@@ -148,7 +148,7 @@ public class InitService implements InitRepository {
                 .checkout(API_ENVIRONMENT_NEW, preferenceId, language, paymentSettingRepository.getPrivateKey(),
                     JsonUtil.getMapFromObject(initRequest));
         } else {
-            return checkoutService.checkout(API_ENVIRONMENT_NEW, "pt-BR", paymentSettingRepository.getPrivateKey(),
+            return checkoutService.checkout(API_ENVIRONMENT_NEW, language, paymentSettingRepository.getPrivateKey(),
                 JsonUtil.getMapFromObject(initRequest));
         }
     }
