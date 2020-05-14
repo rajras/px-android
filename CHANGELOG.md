@@ -1,3 +1,11 @@
+## VERSION 4.44.0
+_14_05_2020_
+* FEATURE - Support for Caixa virtual payment method
+* ENHANCEMENT - Pay button fragment refactor
+* ENHANCEMENT - Remedy tracking data from backend
+* FIX - Double init crashes with lazy init
+* FIX - Business congrats not showing after remedy
+
 ## VERSION 4.43.0
 _07_05_2020_
 * ENHANCEMENT - Flow id header
