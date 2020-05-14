@@ -139,9 +139,8 @@ public final class OneTapSamples {
 
     // It should suggest one tap with account money
     private static MercadoPagoCheckout.Builder startOneTapWithAccountMoneyNoCards() {
-        final Collection<String> excludedPaymentTypes = new ArrayList<>();
         final CheckoutPreference preference =
-            getCheckoutPreferenceWithPayerEmail(excludedPaymentTypes, 12000);
+            getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
             new PaymentConfiguration.Builder(new SamplePaymentProcessorNoView(Arrays.asList(
                 IParcelablePaymentDescriptor.with(getGenericPaymentApproved()))))
@@ -152,7 +151,7 @@ public final class OneTapSamples {
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey("APP_USR-1945000207238192-051412-f71535ff2fc0194e5c78ed59c12aff73-560269140")
-            .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(false).build());
+            .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(true).build());
     }
 
     // It should suggest one tap with account money
