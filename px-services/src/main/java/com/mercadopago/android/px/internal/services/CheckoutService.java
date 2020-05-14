@@ -26,10 +26,6 @@ public interface CheckoutService {
         @Query("access_token") String privateKey,
         @Body Map<String, Object> body);
 
-    //"http://www.mocky.io/v2/5eb5760d3100008d556995fd"
-    @POST("http://www.mocky.io/v2/5eba99f13600007e00f7e164")
-    MPCall<InitResponse> checkout();
-
     @POST("{environment}/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
     MPCall<InitResponse> checkout(
         @Path(value = "environment", encoded = true) String environment,
