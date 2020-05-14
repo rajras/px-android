@@ -29,6 +29,7 @@ import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
 import com.mercadopago.android.px.internal.datasource.PaymentMethodsService;
 import com.mercadopago.android.px.internal.datasource.PaymentService;
 import com.mercadopago.android.px.internal.datasource.PluginService;
+import com.mercadopago.android.px.internal.datasource.PrefetchInitService;
 import com.mercadopago.android.px.internal.datasource.SummaryAmountService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.datasource.cache.Cache;
@@ -131,17 +132,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         // delete old data.
         clear();
 
-        //Favoring product id in discount params because that one is surely custom if exists
-        final String deprecatedProductId =
-            mercadoPagoCheckout.getAdvancedConfiguration().getDiscountParamsConfiguration().getProductId();
-        final String productId = TextUtil.isNotEmpty(deprecatedProductId) ? deprecatedProductId
-            : mercadoPagoCheckout.getAdvancedConfiguration().getProductId();
-        final SessionIdProvider sessionIdProvider =
-            newSessionProvider(mercadoPagoCheckout.getTrackingConfiguration().getSessionId());
-        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
-        MPTracker.getInstance().setSecurityEnabled(BehaviourProvider.getSecurityBehaviour()
-            .isSecurityEnabled(new SecurityValidationData.Builder(productId).build()));
-        newProductIdProvider(productId);
+        initIds(mercadoPagoCheckout);
 
         // Store persistent paymentSetting
         final ConfigurationModule configurationModule = getConfigurationModule();
@@ -458,5 +449,25 @@ public final class Session extends ApplicationModule implements AmountComponent 
             viewModelModule = new ViewModelModule();
         }
         return viewModelModule;
+    }
+
+    public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
+        return new PrefetchInitService(checkout,
+            RetrofitUtil.getRetrofitClient(getApplicationContext()).create(CheckoutService.class),
+            LocaleUtil.getLanguage(getApplicationContext()), getMercadoPagoESC(), getFlowIdProvider());
+    }
+
+    public void initIds(@NonNull final MercadoPagoCheckout checkout) {
+        //Favoring product id in discount params because that one is surely custom if exists
+        final String deprecatedProductId =
+            checkout.getAdvancedConfiguration().getDiscountParamsConfiguration().getProductId();
+        final String productId = TextUtil.isNotEmpty(deprecatedProductId) ? deprecatedProductId
+            : checkout.getAdvancedConfiguration().getProductId();
+        final SessionIdProvider sessionIdProvider =
+            newSessionProvider(checkout.getTrackingConfiguration().getSessionId());
+        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
+        MPTracker.getInstance().setSecurityEnabled(BehaviourProvider.getSecurityBehaviour()
+            .isSecurityEnabled(new SecurityValidationData.Builder(productId).build()));
+        newProductIdProvider(productId);
     }
 }

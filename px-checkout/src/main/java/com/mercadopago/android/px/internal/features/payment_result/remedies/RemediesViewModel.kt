@@ -6,14 +6,12 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour
 import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.repository.*
-import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
 import com.mercadopago.android.px.internal.services.Response
 import com.mercadopago.android.px.internal.services.awaitCallback
 import com.mercadopago.android.px.internal.util.CVVRecoveryWrapper
 import com.mercadopago.android.px.internal.util.TokenCreationWrapper
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.Card
-import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.model.PayerCost
 import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.internal.InitResponse

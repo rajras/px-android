@@ -26,7 +26,6 @@ public abstract class CheckoutLazyInit {
      * @param context your app context.
      */
     public final void fetch(final Context context) {
-        cancel();
         final MercadoPagoCheckout checkout = builder.build();
         prefetchService = new PrefetchService(checkout, Session.getInstance(), this);
         prefetchService.prefetch();
