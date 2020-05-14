@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.datasource;
 
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,6 +40,7 @@ import com.mercadopago.android.px.tracking.internal.model.Reason;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -60,6 +62,9 @@ public class PaymentServiceTest {
     private static final String CARD_ID_ESC_APPROVED = "122232111";
     private static final String CARD_ID_ESC_REJECTED = "113210123";
     private static final String CARD_ID_ESC_NOT_AVAILABLE = "113210124";
+
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Mock private PaymentServiceHandler handler;
     @Mock private PluginRepository pluginRepository;
@@ -251,6 +256,7 @@ public class PaymentServiceTest {
         final InitResponse initResponse = InitResponseStub.FULL.get();
         when(initRepository.init()).thenReturn(new StubSuccessMpCall<>(initResponse));
         when(node.getPaymentMethodId()).thenReturn(PaymentMethods.ARGENTINA.VISA);
+        when(node.getPaymentTypeId()).thenReturn(PaymentTypes.CREDIT_CARD);
         when(node.isCard()).thenReturn(true);
         when(node.getCustomOptionId()).thenReturn(cardId);
         return initResponse.getCardById(cardId);

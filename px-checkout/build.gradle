@@ -18,8 +18,8 @@ android {
 dependencies {
     androidTestImplementation project(':testlib')
 
-    testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.powermock:powermock-api-mockito2:$power_mock"
+    testImplementation "org.powermock:powermock-module-junit4:$power_mock"
 
     implementation "com.android.support:multidex:$multidex"
     implementation "com.android.support:cardview-v7:$support_library_version"
@@ -58,4 +58,5 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     implementation "android.arch.lifecycle:livedata-core:$lifecycle_version"
     implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
+    testImplementation "android.arch.core:core-testing:$lifecycle_version"
 }

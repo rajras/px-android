@@ -2,10 +2,10 @@ package com.mercadopago.android.px.internal.features.checkout;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.navigation.DefaultPaymentMethodDriver;
 import com.mercadopago.android.px.internal.navigation.OnChangePaymentMethodDriver;
@@ -23,21 +23,17 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Cause;
-import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
-import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
-import com.mercadopago.android.px.tracking.internal.model.Reason;
+
 import java.util.List;
 
-public class CheckoutPresenter extends BasePresenter<Checkout.View> implements PaymentServiceHandler,
-    PostPaymentAction.ActionController, Checkout.Actions {
+public class CheckoutPresenter extends BasePresenter<Checkout.View> implements PostPaymentAction.ActionController, Checkout.Actions {
 
     @NonNull /* default */ final CheckoutStateModel state;
     @NonNull /* default */ final PaymentRepository paymentRepository;
@@ -167,26 +163,6 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
         return paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor().shouldSkipUserConfirmation();
     }
 
-    private void resolvePaymentFailure(final MercadoPagoError mercadoPagoError) {
-        if (mercadoPagoError != null && mercadoPagoError.isPaymentProcessing()) {
-            final Currency currency = paymentSettingRepository.getCurrency();
-            final PaymentResult paymentResult =
-                new PaymentResult.Builder()
-                    .setPaymentData(paymentRepository.getPaymentDataList())
-                    .setPaymentStatus(Payment.StatusCodes.STATUS_IN_PROCESS)
-                    .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
-                    .build();
-            final PaymentModel paymentModel = new PaymentModel(paymentResult, currency);
-            getView().showPaymentResult(paymentModel);
-        } else if (mercadoPagoError != null && mercadoPagoError.isInternalServerError()) {
-            setFailureRecovery(() -> getView().startPayment());
-            getView().showError(mercadoPagoError);
-        } else {
-            // Strange that mercadoPagoError can be nullable here, but it was like this
-            getView().showError(mercadoPagoError);
-        }
-    }
-
     @Override
     public void onPaymentMethodSelectionError(final MercadoPagoError mercadoPagoError) {
         getView().cancelCheckout(mercadoPagoError);
@@ -221,9 +197,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
 
     @Override
     public void onCardFlowResponse() {
-        if (paymentRepository.hasRecoverablePayment()) {
-            getView().startPayment();
-        } else {
+        if (!paymentRepository.hasRecoverablePayment()) {
             onPaymentMethodSelected();
         }
     }
@@ -355,47 +329,21 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
     }
 
     @Override
-    public void onCvvRequired(@NonNull final Card card, @NonNull final Reason reason) {
-        getView().showSavedCardFlow(card);
-    }
+    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
+        if (!state.isExpressCheckout) {
+            getView().hideProgress();
+            paymentModel.process(new PaymentModelHandler() {
+                @Override
+                public void visit(@NonNull final PaymentModel paymentModel) {
+                    getView().showPaymentResult(paymentModel);
+                }
 
-    @Override
-    public void onVisualPayment() {
-        getView().showPaymentProcessor();
-    }
-
-    @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        if(!state.isExpressCheckout) {
-            congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-                this::handleResult);
+                @Override
+                public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                    getView().showBusinessResult(businessPaymentModel);
+                }
+            });
         }
-    }
-
-    private void handleResult(@NonNull final PaymentModel paymentModel) {
-        getView().hideProgress();
-        paymentModel.process(new PaymentModelHandler() {
-            @Override
-            public void visit(@NonNull final PaymentModel paymentModel) {
-                getView().showPaymentResult(paymentModel);
-            }
-
-            @Override
-            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                getView().showBusinessResult(businessPaymentModel);
-            }
-        });
-    }
-
-    @Override
-    public void onPaymentError(@NonNull final MercadoPagoError error) {
-        getView().hideProgress();
-        recoverCreatePayment(error);
-    }
-
-    private void recoverCreatePayment(final MercadoPagoError error) {
-        setFailureRecovery(() -> getView().startPayment());
-        resolvePaymentFailure(error);
     }
 
     @Override

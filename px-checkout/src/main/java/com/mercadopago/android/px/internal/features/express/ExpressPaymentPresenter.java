@@ -50,17 +50,12 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.SplitHeaderMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryInfoMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryViewModelMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
-import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PayerCost;
-import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
-import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.ApiException;
-import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.FromExpressMetadataToPaymentConfiguration;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.model.internal.Modal;
@@ -69,7 +64,6 @@ import com.mercadopago.android.px.model.internal.SummaryInfo;
 import com.mercadopago.android.px.model.one_tap.CheckoutBehaviour;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
-import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.events.InstallmentsEventTrack;
@@ -490,33 +484,18 @@ import java.util.Set;
     }
 
     @Override
-    public void onPaymentProcessingError(@NonNull final MercadoPagoError error) {
-        final Currency currency = paymentSettingRepository.getCurrency();
-        final PaymentResult paymentResult =
-            new PaymentResult.Builder()
-                .setPaymentData(paymentRepository.getPaymentDataList())
-                .setPaymentStatus(Payment.StatusCodes.STATUS_IN_PROCESS)
-                .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
-                .build();
-        final PaymentModel paymentModel = new PaymentModel(paymentResult, currency);
-        getView().showPaymentResult(paymentModel);
-    }
+    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
+        paymentModel.process(new PaymentModelHandler() {
+            @Override
+            public void visit(@NonNull final PaymentModel paymentModel) {
+                getView().showPaymentResult(paymentModel);
+            }
 
-    @Override
-    public void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {
-        congratsRepository.getPostPaymentData(payment, paymentRepository.createPaymentResult(payment),
-            model -> model.process(new PaymentModelHandler() {
-                @Override
-                public void visit(@NonNull final PaymentModel paymentModel) {
-                    getView().showPaymentResult(paymentModel);
-                }
-
-                @Override
-                public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                    getView().showBusinessResult(businessPaymentModel);
-                }
-            })
-        );
+            @Override
+            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                getView().showBusinessResult(businessPaymentModel);
+            }
+        });
     }
 
     /* default */ void resetState(@NonNull final InitResponse initResponse) {

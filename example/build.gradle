@@ -72,4 +72,8 @@ dependencies {
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leak_cannary"
     androidTestImplementation project(':px-testlib')
     androidTestImplementation project(':testlib')
+
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+    implementation "android.arch.lifecycle:livedata-core:$lifecycle_version"
+    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
 }

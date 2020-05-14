@@ -25,7 +25,7 @@ class FromExpressMetadataToPaymentConfiguration(
                 payerCostSelectionRepository.get(customOptionId))
         }
 
-        return PaymentConfiguration(expressMetadata.paymentMethodId, customOptionId, expressMetadata.isCard,
+        return PaymentConfiguration(expressMetadata.paymentMethodId, expressMetadata.paymentTypeId, customOptionId, expressMetadata.isCard,
             splitPayment, payerCost)
     }
 }

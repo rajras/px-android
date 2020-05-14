@@ -71,6 +71,26 @@ public class InitService implements InitRepository {
         return initCache.isCached() ? initCache.get() : newCall();
     }
 
+    @Override
+    public void configure(@NonNull final InitResponse initResponse) {
+        MPTracker.getInstance().hasExpressCheckout(initResponse.hasExpressCheckoutMetadata());
+        if (initResponse.getCheckoutPreference() != null) {
+            paymentSettingRepository.configure(initResponse.getCheckoutPreference());
+        }
+        paymentSettingRepository.configure(initResponse.getSite());
+        paymentSettingRepository.configure(initResponse.getCurrency());
+        paymentSettingRepository.configure(initResponse.getConfiguration());
+        experimentsRepository.configure(initResponse.getExperiments());
+
+        disabledPaymentMethodRepository.storeDisabledPaymentMethodsIds(
+            new ExpressMetadataToDisabledIdMapper().map(initResponse.getExpress()));
+
+        MPTracker.getInstance().setExperiments(experimentsRepository.getExperiments());
+
+        initCache.put(initResponse);
+        notifyListeners(initResponse);
+    }
+
     @NonNull
     private MPCall<InitResponse> newCall() {
         return new MPCall<InitResponse>() {
@@ -90,22 +110,7 @@ public class InitService implements InitRepository {
                 return new Callback<InitResponse>() {
                     @Override
                     public void success(final InitResponse initResponse) {
-                        MPTracker.getInstance().hasExpressCheckout(initResponse.hasExpressCheckoutMetadata());
-                        if (initResponse.getCheckoutPreference() != null) {
-                            paymentSettingRepository.configure(initResponse.getCheckoutPreference());
-                        }
-                        paymentSettingRepository.configure(initResponse.getSite());
-                        paymentSettingRepository.configure(initResponse.getCurrency());
-                        paymentSettingRepository.configure(initResponse.getConfiguration());
-                        experimentsRepository.configure(initResponse.getExperiments());
-
-                        disabledPaymentMethodRepository.storeDisabledPaymentMethodsIds(
-                            new ExpressMetadataToDisabledIdMapper().map(initResponse.getExpress()));
-
-                        MPTracker.getInstance().setExperiments(experimentsRepository.getExperiments());
-
-                        initCache.put(initResponse);
-                        notifyListeners(initResponse);
+                        configure(initResponse);
                         callback.success(initResponse);
                     }
 

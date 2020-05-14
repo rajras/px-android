@@ -5,23 +5,23 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandlerWrapper;
 import com.mercadopago.android.px.internal.model.EscStatus;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
+import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
-import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
-import com.mercadopago.android.px.internal.util.PaymentMethodHelper;
 import com.mercadopago.android.px.internal.util.TokenErrorWrapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import kotlin.Pair;
 
 public class PaymentService implements PaymentRepository {
 
@@ -100,6 +101,11 @@ public class PaymentService implements PaymentRepository {
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
                 instructionsRepository, congratsRepository, userSelectionRepository);
+    }
+
+    @Override
+    public PaymentServiceEventHandler getObservableEvents() {
+        return handlerWrapper.getObservableEvents();
     }
 
     @Override
@@ -155,38 +161,16 @@ public class PaymentService implements PaymentRepository {
     }
 
     /**
-     * This method presets the payment method only for payments with offline methods.
-     */
-    @Override
-    public void startExpressPaymentWithOffMethod(@NonNull final String paymentMethodId,
-        @NonNull final String paymentTypeId) {
-        initRepository.init().enqueue(new Callback<InitResponse>() {
-            @Override
-            public void success(final InitResponse initResponse) {
-                userSelectionRepository.select(PaymentMethodHelper
-                    .assembleOfflinePaymentMethod(initResponse.getPaymentMethods(), paymentMethodId,
-                        paymentTypeId), null);
-                startPayment();
-            }
-
-            @Override
-            public void failure(final ApiException apiException) {
-                throw new IllegalStateException("empty payment methods");
-            }
-        });
-    }
-
-    /**
      * This method presets all user information ahead before the payment is processed.
      */
     @Override
     public void startExpressPayment(@NonNull final PaymentConfiguration configuration) {
-
+        handlerWrapper.createTransactionLiveData();
         initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
-                final PaymentMethod paymentMethod =
-                    new PaymentMethodMapper(initResponse).map(configuration.getPaymentMethodId());
+                Pair<String, String> pair = new Pair<>(configuration.getPaymentMethodId(), configuration.getPaymentTypeId());
+                final PaymentMethod paymentMethod = new PaymentMethodMapper(initResponse).map(pair);
                 userSelectionRepository.select(paymentMethod, null);
                 if (PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId())) {
                     // cards

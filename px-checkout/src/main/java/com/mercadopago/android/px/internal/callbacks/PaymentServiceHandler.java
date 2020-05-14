@@ -2,7 +2,9 @@ package com.mercadopago.android.px.internal.callbacks;
 
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.Card;
+import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 
@@ -25,4 +27,8 @@ public interface PaymentServiceHandler extends SplitPaymentProcessor.OnPaymentLi
      * @param recovery
      */
     void onRecoverPaymentEscInvalid(final PaymentRecovery recovery);
+
+    default void onPaymentFinished(@NonNull final IPaymentDescriptor payment) {}
+
+    void onPostPayment(@NonNull final PaymentModel paymentModel);
 }

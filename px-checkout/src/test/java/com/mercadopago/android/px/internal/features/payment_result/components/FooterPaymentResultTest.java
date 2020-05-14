@@ -10,19 +10,24 @@ import com.mercadopago.android.px.internal.view.NextAction;
 import com.mercadopago.android.px.internal.view.RecoverPaymentAction;
 import com.mercadopago.android.px.mocks.PaymentResults;
 import com.mercadopago.android.px.model.PaymentResult;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class FooterPaymentResultTest {
 
     private static final String LABEL_CONTINUE = "Continue";
@@ -37,7 +42,8 @@ public class FooterPaymentResultTest {
 
     @Before
     public void setup() {
-
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         new PaymentResultScreenConfiguration.Builder().build();
     }
 
@@ -45,8 +51,7 @@ public class FooterPaymentResultTest {
     public void testApproved() {
         when(context.getString(R.string.px_button_continue)).thenReturn(LABEL_CONTINUE);
         final PaymentResult paymentResult = PaymentResults.getStatusApprovedPaymentResult();
-        final FooterPaymentResult footerPaymentResult =
-            new FooterPaymentResult(paymentResult, actionDispatcher);
+        final FooterPaymentResult footerPaymentResult = new FooterPaymentResult(paymentResult, actionDispatcher);
 
         final Footer.Props props = footerPaymentResult.getFooterProps(context);
 

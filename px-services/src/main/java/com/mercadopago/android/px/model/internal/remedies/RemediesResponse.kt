@@ -4,12 +4,15 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class RemediesResponse(val cvv: CvvRemedyResponse?, val highRisk: HighRiskRemedyResponse?,
-    val suggestedPaymentMethod: SuggestedPaymentMethod?) : Parcelable {
+    val suggestedPaymentMethod: SuggestedPaymentMethod?, val trackingData: Map<String, String>?) : Parcelable {
 
     constructor(parcel: Parcel) : this(
         parcel.readParcelable(CvvRemedyResponse::class.java.classLoader) as CvvRemedyResponse?,
         parcel.readParcelable(HighRiskRemedyResponse::class.java.classLoader) as HighRiskRemedyResponse?,
-        parcel.readParcelable(SuggestedPaymentMethod::class.java.classLoader) as SuggestedPaymentMethod?)
+        parcel.readParcelable(SuggestedPaymentMethod::class.java.classLoader) as SuggestedPaymentMethod?,
+        HashMap()) {
+        parcel.readMap(trackingData, String::class.java.classLoader)
+    }
 
     fun hasRemedies() = suggestedPaymentMethod != null || highRisk != null || cvv != null
 
@@ -17,12 +20,13 @@ data class RemediesResponse(val cvv: CvvRemedyResponse?, val highRisk: HighRiskR
         parcel.writeParcelable(cvv, flags)
         parcel.writeParcelable(highRisk, flags)
         parcel.writeParcelable(suggestedPaymentMethod, flags)
+        parcel.writeMap(trackingData)
     }
 
     override fun describeContents() = 0
 
     companion object CREATOR : Parcelable.Creator<RemediesResponse> {
-        @JvmStatic val EMPTY = RemediesResponse(null, null, null)
+        @JvmStatic val EMPTY = RemediesResponse(null, null, null, null)
 
         override fun createFromParcel(parcel: Parcel) = RemediesResponse(parcel)
         override fun newArray(size: Int) = arrayOfNulls<RemediesResponse>(size)

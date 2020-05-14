@@ -26,13 +26,16 @@ import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -42,7 +45,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(MPTracker.class)
+@RunWith(PowerMockRunner.class)
 public class ReviewAndConfirmPresenterTest {
 
     @Mock private ReviewAndConfirm.View view;
@@ -70,6 +74,8 @@ public class ReviewAndConfirmPresenterTest {
 
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(MPTracker.class);
+        when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
         when(advancedConfiguration.getDynamicDialogConfiguration()).thenReturn(dynamicDialogConfiguration);
@@ -282,9 +288,9 @@ public class ReviewAndConfirmPresenterTest {
         final Payment payment = mock(Payment.class);
         when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(payment.getPaymentStatusDetail()).thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
-        processPostPaymentData(payment);
+        final PaymentModel paymentModel = processPostPaymentData(payment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(payment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -295,9 +301,9 @@ public class ReviewAndConfirmPresenterTest {
         when(genericPayment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
         when(genericPayment.getPaymentStatusDetail())
             .thenReturn(Payment.StatusDetail.STATUS_DETAIL_PENDING_WAITING_PAYMENT);
-        processPostPaymentData(genericPayment);
+        final PaymentModel paymentModel = processPostPaymentData(genericPayment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(genericPayment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -306,9 +312,9 @@ public class ReviewAndConfirmPresenterTest {
     public void whenBusinessPaymentFinishedThenFinishLoadingWithExplodeDecorator() {
         final BusinessPayment businessPayment = mock(BusinessPayment.class);
         when(businessPayment.getDecorator()).thenReturn(BusinessPayment.Decorator.APPROVED);
-        processPostPaymentData(businessPayment);
+        final PaymentModel paymentModel = processPostPaymentData(businessPayment);
 
-        reviewAndConfirmPresenter.onPaymentFinished(businessPayment);
+        reviewAndConfirmPresenter.onPostPayment(paymentModel);
 
         verifyPaymentFinished();
     }
@@ -352,7 +358,7 @@ public class ReviewAndConfirmPresenterTest {
         verifyNoMoreInteractions(paymentRepository);
     }
 
-    private void processPostPaymentData(final IPaymentDescriptor payment) {
+    private PaymentModel processPostPaymentData(final IPaymentDescriptor payment) {
         final PaymentModel paymentModel = mock(PaymentModel.class);
         when(paymentModel.getPayment()).thenReturn(payment);
         when(paymentModel.getRemedies()).thenReturn(mock(RemediesResponse.class));
@@ -363,5 +369,6 @@ public class ReviewAndConfirmPresenterTest {
             ((CongratsRepository.PostPaymentCallback) invocation.getArgument(2)).handleResult(paymentModel);
             return null;
         }).when(congratsRepository).getPostPaymentData(any(), any(), any());
+        return paymentModel;
     }
 }

@@ -7,10 +7,13 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.view
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
 
 internal data class RemediesModel(val title: String, val retryPayment: RetryPaymentFragment.Model?,
-    val highRisk: HighRiskRemedy.Model?) : Parcelable {
+    val highRisk: HighRiskRemedy.Model?, val trackingData: Map<String, String>?) : Parcelable {
     constructor(parcel: Parcel) : this(parcel.readString()!!,
         parcel.readParcelable(RetryPaymentFragment.Model::class.java.classLoader),
-        parcel.readParcelable(HighRiskRemedy.Model::class.java.classLoader))
+        parcel.readParcelable(HighRiskRemedy.Model::class.java.classLoader),
+        HashMap()) {
+        parcel.readMap(trackingData, String::class.java.classLoader)
+    }
 
     fun hasRemedies() = retryPayment != null || highRisk != null
 
@@ -18,6 +21,7 @@ internal data class RemediesModel(val title: String, val retryPayment: RetryPaym
         parcel.writeString(title)
         parcel.writeParcelable(retryPayment, flags)
         parcel.writeParcelable(highRisk, flags)
+        parcel.writeMap(trackingData)
     }
 
     override fun describeContents() = 0

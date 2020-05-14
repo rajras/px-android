@@ -107,9 +107,7 @@ public interface ExpressPayment {
 
         void onOtherPaymentMethodClickableStateChanged(boolean state);
 
-        void onPaymentProcessingError(@NonNull final MercadoPagoError error);
-
-        void onPaymentFinished(@NonNull final IPaymentDescriptor payment);
+        void onPaymentFinished(@NonNull final PaymentModel paymentModel);
 
         void handlePrePaymentAction(@NonNull final PayButton.OnReadyForPaymentCallback callback);
 

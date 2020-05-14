@@ -49,7 +49,7 @@ public final class ExamplesUtils {
     private static final String DUMMY_PREFERENCE_ID_WITH_ITEM_LONG_TITLE =
         "243962506-4ddac80d-af86-4a4f-80e3-c4e4735ba200";
     private static final String DUMMY_PREFERENCE_ID_WITH_DECIMALS = "243962506-ad5df092-f5a2-4b99-bcc4-7578d6e71849";
-    private static final String DUMMY_MERCHANT_PUBLIC_KEY = "TEST-c6d9b1f9-71ff-4e05-9327-3c62468a23ee";
+    private static final String DUMMY_MERCHANT_PUBLIC_KEY = "APP_USR-2681ea61-10af-4bf6-a73d-e426d6b07e2c";
     public static final String MLB_PUBLIC_KEY = "APP_USR-f3f035a2-d343-4a6f-bd3b-fc3c3cb72416";
     public static final String MLB_PREFERENCE_ID = "245099733-8771f469-d68e-4863-b8cb-9402e22c6bb2";
 
