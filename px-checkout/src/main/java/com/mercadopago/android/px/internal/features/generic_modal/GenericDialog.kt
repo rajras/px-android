@@ -110,11 +110,17 @@ class GenericDialog : MeliDialog() {
         private const val ARG_GENERIC_DIALOG_ITEM = "arg_generic_dialog_item"
 
         @JvmStatic
-        fun showDialog(fragmentManager: FragmentManager, item: GenericDialogItem): GenericDialog {
+        fun createDialog(item: GenericDialogItem): GenericDialog {
             val instance = GenericDialog()
             val arguments = Bundle()
             arguments.putParcelable(ARG_GENERIC_DIALOG_ITEM, item)
             instance.arguments = arguments
+            return instance
+        }
+
+        @JvmStatic
+        fun showDialog(fragmentManager: FragmentManager, item: GenericDialogItem): GenericDialog {
+            val instance = createDialog(item)
             instance.show(fragmentManager, TAG)
             return instance
         }
