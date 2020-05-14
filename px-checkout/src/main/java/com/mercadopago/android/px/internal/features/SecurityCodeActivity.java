@@ -270,9 +270,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         final CvvInfo cvvInfo = presenter.getCvvInfo();
         final View view = LayoutInflater.from(this).inflate(R.layout.px_cvv_info, mCardContainer, true);
 
-        final AppCompatTextView title = view.findViewById(R.id.title);
-
-        FontHelper.setFont(title, PxFont.SEMI_BOLD);
+        final MPTextView title = view.findViewById(R.id.title);
         title.setText(cvvInfo.getTitle());
         ViewUtils.loadOrGone(cvvInfo.getMessage(), view.findViewById(R.id.message));
     }

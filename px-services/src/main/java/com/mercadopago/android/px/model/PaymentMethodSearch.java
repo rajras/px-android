@@ -3,7 +3,6 @@ package com.mercadopago.android.px.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
-import com.mercadopago.android.px.model.display_info.DisplayInfo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

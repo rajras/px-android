@@ -102,6 +102,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         return paymentMethod;
     }
 
+    @Nullable
     public CvvInfo getCvvInfo() {
         PaymentMethod pm = getCard().getPaymentMethod();
         if (pm != null && pm.getDisplayInfo() != null) {
