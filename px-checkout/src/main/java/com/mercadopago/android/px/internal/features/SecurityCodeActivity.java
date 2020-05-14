@@ -232,43 +232,49 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     private void loadViews() {
-
-        if (!presenter.showCvvInfo()) {
-            mCardView = new CardView(this);
-            final String lastFourDigits = presenter.getCardInfo().getLastFourDigits();
-            mCardView.setSize(CardRepresentationModes.BIG_SIZE);
-            mCardView.inflateInParent(mCardContainer, true);
-            mCardView.initializeControls();
-            mCardView.setPaymentMethod(presenter.getPaymentMethod());
-            mCardView.setSecurityCodeLength(presenter.getSecurityCodeLength());
-            mCardView.setSecurityCodeLocation(presenter.getSecurityCodeLocation());
-            mCardView.setCardNumberLength(presenter.getCardNumberLength());
-            mCardView.setLastFourDigits(lastFourDigits);
-            mCardView.draw(CardView.CARD_SIDE_FRONT);
-            mCardView.drawFullCard();
-            mCardView.drawEditingSecurityCode("");
-
-            executeIfAccessibilityTalkBackEnable(this, () -> {
-                mCardContainer.setContentDescription(new SpannableStringBuilder()
-                    .append(getString(R.string.px_card_number_label))
-                    .append(TextUtil.SPACE)
-                    .append(getString(R.string.px_ending_in))
-                    .append(TextUtil.SPACE)
-                    .append(lastFourDigits));
-                return null;
-            });
+        if (!presenter.shouldShowCvvInfo()) {
+            showCvv();
         } else {
-
-            final CvvInfo cvvInfo = presenter.getCard().getCvvInfo();
-            final View view = LayoutInflater.from(this).inflate(R.layout.px_cvv_info, mCardContainer, true);
-
-            final AppCompatTextView title = view.findViewById(R.id.title);
-
-            FontHelper.setFont(title, PxFont.SEMI_BOLD);
-            title.setText(cvvInfo.getTitle());
-            ViewUtils.loadOrGone(cvvInfo.getMessage(), view.findViewById(R.id.message));
+            showCustomView();
         }
         presenter.setSecurityCodeCardType();
+    }
+
+    private void showCvv() {
+        mCardView = new CardView(this);
+        final String lastFourDigits = presenter.getCardInfo().getLastFourDigits();
+        mCardView.setSize(CardRepresentationModes.BIG_SIZE);
+        mCardView.inflateInParent(mCardContainer, true);
+        mCardView.initializeControls();
+        mCardView.setPaymentMethod(presenter.getPaymentMethod());
+        mCardView.setSecurityCodeLength(presenter.getSecurityCodeLength());
+        mCardView.setSecurityCodeLocation(presenter.getSecurityCodeLocation());
+        mCardView.setCardNumberLength(presenter.getCardNumberLength());
+        mCardView.setLastFourDigits(lastFourDigits);
+        mCardView.draw(CardView.CARD_SIDE_FRONT);
+        mCardView.drawFullCard();
+        mCardView.drawEditingSecurityCode("");
+
+        executeIfAccessibilityTalkBackEnable(this, () -> {
+            mCardContainer.setContentDescription(new SpannableStringBuilder()
+                .append(getString(R.string.px_card_number_label))
+                .append(TextUtil.SPACE)
+                .append(getString(R.string.px_ending_in))
+                .append(TextUtil.SPACE)
+                .append(lastFourDigits));
+            return null;
+        });
+    }
+
+    private void showCustomView() {
+        final CvvInfo cvvInfo = presenter.getCvvInfo();
+        final View view = LayoutInflater.from(this).inflate(R.layout.px_cvv_info, mCardContainer, true);
+
+        final AppCompatTextView title = view.findViewById(R.id.title);
+
+        FontHelper.setFont(title, PxFont.SEMI_BOLD);
+        title.setText(cvvInfo.getTitle());
+        ViewUtils.loadOrGone(cvvInfo.getMessage(), view.findViewById(R.id.message));
     }
 
     private void setSecurityCodeCardColorFilter() {

@@ -16,12 +16,14 @@ import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.CardToken;
+import com.mercadopago.android.px.model.CvvInfo;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.SavedCardToken;
 import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Setting;
 import com.mercadopago.android.px.model.Token;
+import com.mercadopago.android.px.model.display_info.DisplayInfo;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -100,8 +102,16 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         return paymentMethod;
     }
 
-    public boolean showCvvInfo() {
-        return card.getCvvInfo() != null;
+    public CvvInfo getCvvInfo() {
+        PaymentMethod pm = getCard().getPaymentMethod();
+        if (pm != null && pm.getDisplayInfo() != null) {
+            return pm.getDisplayInfo().getCvvInfo();
+        }
+        return null;
+    }
+
+    public boolean shouldShowCvvInfo() {
+        return getCvvInfo() != null;
     }
 
     public Token getToken() {
@@ -378,8 +388,8 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     public void setSecurityCodeCardType() {
-        if (getCard().getCvvInfo() != null) {
-            getView().showUrlSecurityCodeCardView(getCard().getCvvInfo().getImageUrl());
+        if (getCvvInfo() != null) {
+            getView().showUrlSecurityCodeCardView(getCvvInfo().getImageUrl());
         } else if (getSecurityCodeLocation().equals(CardView.CARD_SIDE_BACK)) {
             getView().showBackSecurityCodeCardView();
         } else {

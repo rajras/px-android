@@ -23,13 +23,11 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodSearch
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CustomSearchItem;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentMethodSearchItem;
 import com.mercadopago.android.px.model.PaymentMethods;
 import com.mercadopago.android.px.model.PaymentTypes;
-import com.mercadopago.android.px.model.display_info.DisplayInfo;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
@@ -232,8 +230,6 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
         final PaymentMethod paymentMethod = initResponse.getPaymentMethodById(searchItem.getPaymentMethodId());
         final Card selectedCard = new CustomSearchItemToCardMapper().map(searchItem);
         if (paymentMethod != null) {
-            final DisplayInfo displayInfo = paymentMethod.getDisplayInfo();
-            selectedCard.setCvvInfo(displayInfo != null ? displayInfo.getCvvInfo() : null);
             selectedCard.setPaymentMethod(paymentMethod);
             if (selectedCard.getSecurityCode() == null && paymentMethod.getSettings() != null &&
                 paymentMethod.getSettings().get(0) != null) {

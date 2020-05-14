@@ -78,8 +78,8 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
             ViewUtils.setBackgroundColor(view.findViewById(R.id.bottom_description_background),
                 model.getBottomDescription().getBackgroundColor());
             ViewUtils.loadOrHide(View.INVISIBLE, model.getBottomDescription(), bottomDescription);
+            view.findViewById(R.id.bottom_description_shadow).setVisibility(View.INVISIBLE);
         }
-        view.findViewById(R.id.bottom_description_shadow).setVisibility(View.GONE);
         if (hasFocus()) {
             onFocusIn();
         }
