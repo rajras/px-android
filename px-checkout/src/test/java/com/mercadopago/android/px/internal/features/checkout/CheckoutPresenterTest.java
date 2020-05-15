@@ -265,44 +265,6 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void whenPaymentNeedsRecoveryFromReviewAndConfirmThenShowReviewAndConfirmAndRecoverPayment() {
-        final RecoverPaymentPostPaymentAction action = new RecoverPaymentPostPaymentAction();
-        action.execute(presenter);
-
-        verify(checkoutView).showReviewAndConfirmAndRecoverPayment(false, action);
-    }
-
-    @Test
-    public void whenPaymentNeedsRecoveryFromOneTapThenDoNothing() {
-        checkoutStateModel.isExpressCheckout = true;
-
-        final RecoverPaymentPostPaymentAction action = new RecoverPaymentPostPaymentAction();
-        action.execute(presenter);
-
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenPaymentHasInvalidEscThenStartPaymentRecoveryFlow() {
-        final PaymentRecovery paymentRecovery = mock(PaymentRecovery.class);
-
-        presenter.onRecoverPaymentEscInvalid(paymentRecovery);
-
-        verify(checkoutView).startPaymentRecoveryFlow(paymentRecovery);
-    }
-
-    @Test
-    public void whenOneTapPaymentHasInvalidEscThenDoNotHandleItInCheckoutActivity() {
-        checkoutStateModel.isExpressCheckout = true;
-
-        final PaymentRecovery paymentRecovery = mock(PaymentRecovery.class);
-
-        presenter.onRecoverPaymentEscInvalid(paymentRecovery);
-
-        verifyZeroInteractions(checkoutView);
-    }
-
-    @Test
     public void whenCardFlowResponseHasNotRecoverableTokenProcessAndThereIsNoAvailableHooksThenShowReviewAndConfirmIfPaymentProcessorShouldNotSkipUserConfirmation() {
         final PaymentConfiguration paymentConfiguration = mock(PaymentConfiguration.class);
         final SplitPaymentProcessor paymentProcessor = mock(SplitPaymentProcessor.class);
@@ -370,7 +332,7 @@ public class CheckoutPresenterTest {
         presenter.onPaymentMethodSelected();
         verify(checkoutView).showReviewAndConfirm(anyBoolean());
 
-        presenter.onChangePaymentMethodFromReviewAndConfirm();
+        presenter.onChangePaymentMethod();
         verify(checkoutView, atLeastOnce()).showPaymentMethodSelection();
 
         presenter.onPaymentMethodSelectionCancel();
@@ -406,7 +368,7 @@ public class CheckoutPresenterTest {
     public void whenPaymentSelectionErrorAndPaymentMethodChangeRequestedFromReviewAndConfirmOnBackExitCheckout() {
         final MercadoPagoError mercadoPagoError = mock(MercadoPagoError.class);
 
-        presenter.onChangePaymentMethodFromReviewAndConfirm();
+        presenter.onChangePaymentMethod();
         presenter.onPaymentMethodSelectionError(mercadoPagoError);
 
         verify(checkoutView).transitionOut();

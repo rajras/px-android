@@ -38,10 +38,6 @@ public abstract class PostPaymentAction implements Parcelable {
         return intent;
     }
 
-    public static boolean hasPostPaymentAction(@Nullable final Intent intent) {
-        return intent != null && intent.getExtras() != null && intent.hasExtra(EXTRA_POST_PAYMENT_ACTION);
-    }
-
     @NonNull
     public static PostPaymentAction fromBundle(@NonNull final Bundle bundle) {
         final PostPaymentAction action = bundle.getParcelable(EXTRA_POST_PAYMENT_ACTION);

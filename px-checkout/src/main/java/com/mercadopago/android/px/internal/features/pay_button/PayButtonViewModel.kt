@@ -19,7 +19,10 @@ import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.util.ApiUtil
 import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
+import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
+import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
+import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper
 import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
@@ -170,6 +173,20 @@ internal class PayButtonViewModel(
         stateUILiveData.value = ButtonLoadingFinished(ExplodeDecoratorMapper().map(paymentModel))
     }
 
+    override fun onPostPaymentAction(postPaymentAction: PostPaymentAction) {
+        postPaymentAction.execute(object : PostPaymentAction.ActionController {
+            override fun recoverPayment(postPaymentAction: PostPaymentAction) {
+                stateUILiveData.value = ButtonLoadingCanceled
+                recoverPayment()
+            }
+
+            override fun onChangePaymentMethod() {
+                stateUILiveData.value = ButtonLoadingCanceled
+            }
+        })
+        handler?.onPostPaymentAction(postPaymentAction)
+    }
+
     override fun onRecoverPaymentEscInvalid(recovery: PaymentRecovery) {
         recoverPayment(recovery)
     }
@@ -196,7 +213,21 @@ internal class PayButtonViewModel(
     }
 
     override fun hasFinishPaymentAnimation() {
-        paymentModel?.let { handler?.onPaymentFinished(it) }
+        paymentModel?.let {
+            handler?.onPaymentFinished(it, object : PayButton.OnPaymentFinishedCallback {
+                override fun call() {
+                    it.process(object : PaymentModelHandler {
+                        override fun visit(paymentModel: PaymentModel) {
+                            stateUILiveData.value = UIResult.PaymentResult(paymentModel)
+                        }
+
+                        override fun visit(businessPaymentModel: BusinessPaymentModel) {
+                            stateUILiveData.value = UIResult.BusinessPaymentResult(businessPaymentModel)
+                        }
+                    })
+                }
+            })
+        }
     }
 
     override fun storeInBundle(bundle: Bundle) {

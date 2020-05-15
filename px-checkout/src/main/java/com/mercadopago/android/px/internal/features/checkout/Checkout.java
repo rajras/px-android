@@ -5,13 +5,8 @@ import android.support.annotation.Nullable;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
-import com.mercadopago.android.px.model.PaymentRecovery;
-import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
 /* default */ interface Checkout {
@@ -24,8 +19,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
         void showReviewAndConfirm(final boolean isUniquePaymentMethod);
 
         void showPaymentMethodSelection();
-
-        void showPaymentResult(final PaymentModel paymentModel);
 
         void finishWithPaymentResult();
 
@@ -41,13 +34,9 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void cancelCheckout(final Integer customResultCode, final Boolean paymentMethodEdited);
 
-        void startPaymentRecoveryFlow(final PaymentRecovery paymentRecovery);
-
         void showPaymentProcessorWithAnimation();
 
         boolean isActive();
-
-        void showBusinessResult(final BusinessPaymentModel model);
 
         void showOneTap();
 
@@ -60,9 +49,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
         void showSavedCardFlow(final Card card);
 
         void showNewCardFlow();
-
-        void showReviewAndConfirmAndRecoverPayment(final boolean isUniquePaymentMethod,
-            @NonNull final PostPaymentAction postPaymentAction);
 
         void showFailureRecoveryError();
     }
@@ -102,12 +88,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         boolean isUniquePaymentMethod();
 
-        void onPostPayment(@NonNull PaymentModel paymentModel);
-
-        void onRecoverPaymentEscInvalid(PaymentRecovery recovery);
-
-        //TODO separate with better navigation when we have a proper driver.
-        void onChangePaymentMethodFromReviewAndConfirm();
+        void onChangePaymentMethod();
 
         void onCardAdded(@NonNull final String cardId, @NonNull final LifecycleListener.Callback callback);
     }

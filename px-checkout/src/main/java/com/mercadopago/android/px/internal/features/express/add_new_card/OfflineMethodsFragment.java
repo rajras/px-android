@@ -20,28 +20,18 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.internal.base.BaseFragment;
-import com.mercadopago.android.px.internal.base.PXActivity;
-import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
-import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
-import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
-import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
-
-import org.jetbrains.annotations.NotNull;
 
 public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter, OfflinePaymentTypesMetadata>
     implements OfflineMethods.OffMethodsView, BackHandler {
@@ -222,29 +212,8 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
     }
 
     @Override
-    public void prePayment(@NotNull PayButton.OnReadyForPaymentCallback callback) {
+    public void prePayment(@NonNull PayButton.OnReadyForPaymentCallback callback) {
         presenter.handlePrePaymentAction(callback);
-    }
-
-    @Override
-    public void onPaymentFinished(@NotNull PaymentModel paymentModel) {
-        presenter.onPaymentFinished(paymentModel);
-    }
-
-    @Override
-    public void showPaymentResult(@NonNull final PaymentModel model) {
-        if (getActivity() instanceof PXActivity) {
-            ((PXActivity) getActivity()).overrideTransitionIn();
-        }
-        PaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS, model);
-    }
-
-    @Override
-    public void showBusinessResult(@NonNull final BusinessPaymentModel model) {
-        if (getActivity() instanceof PXActivity) {
-            ((PXActivity) getActivity()).overrideTransitionIn();
-        }
-        BusinessPaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS_BUSINESS, model);
     }
 
     @Override

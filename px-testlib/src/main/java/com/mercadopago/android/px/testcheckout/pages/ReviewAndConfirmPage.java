@@ -23,27 +23,27 @@ public class ReviewAndConfirmPage extends PageObject<CheckoutValidator> {
     }
 
     public CongratsPage pressConfirmButton() {
-        onView(withId(R.id.floating_confirm)).perform(click());
+        onView(withId(R.id.pay_button)).perform(click());
         return new CongratsPage(validator);
     }
 
     public BusinessCongratsPage pressConfirmButtonforBusiness() {
-        onView(withId(R.id.floating_confirm)).perform(click());
+        onView(withId(R.id.pay_button)).perform(click());
         return new BusinessCongratsPage(validator);
     }
 
     public SecurityCodePage pressConfirmButtonWithInvalidEsc() {
-        onView(withId(R.id.floating_confirm)).perform(click());
+        onView(withId(R.id.pay_button)).perform(click());
         return new SecurityCodePage(validator);
     }
 
     public RejectedPage pressConfirmButtonAndReject() {
-        onView(withId(R.id.floating_confirm)).perform(click());
+        onView(withId(R.id.pay_button)).perform(click());
         return new RejectedPage(validator);
     }
 
     public PendingPage pressConfirmButtonAndPending() {
-        onView(withId(R.id.floating_confirm)).perform(click());
+        onView(withId(R.id.pay_button)).perform(click());
         return new PendingPage(validator);
     }
 

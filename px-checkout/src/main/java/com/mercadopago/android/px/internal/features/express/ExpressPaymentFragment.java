@@ -24,14 +24,9 @@ import android.view.animation.AnimationUtils;
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
-import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.MapperProvider;
-import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
-import com.mercadopago.android.px.internal.features.Constants;
-import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
-import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OfflineMethodsFragment;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OtherPaymentMethodFragment;
@@ -53,7 +48,6 @@ import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogA
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
-import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.Logger;
@@ -66,8 +60,6 @@ import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
 import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.view.TitlePager;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
@@ -80,7 +72,6 @@ import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import java.util.Arrays;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
@@ -140,13 +131,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void prePayment(@NotNull final PayButton.OnReadyForPaymentCallback callback) {
+    public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         presenter.handlePrePaymentAction(callback);
     }
 
     @Override
-    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
-        presenter.onPaymentFinished(paymentModel);
+    public void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
+        presenter.onPostPaymentAction(postPaymentAction);
     }
 
     public interface CallBack {
@@ -506,9 +497,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             setPagerIndex(0);
         } else if (requestCode == REQ_CODE_CARD_FORM) {
             handleCardFormResult(resultCode);
-        } else if (resultCode == Constants.RESULT_ACTION) {
-            payButtonFragment.onActivityResult(requestCode, resultCode, data);
-            handleAction(data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -516,13 +504,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     public void handleCardFormResult(final int resultCode) {
         if (resultCode == RESULT_OK) {
-            presenter.onChangePaymentMethod();
-        }
-    }
-
-    private void handleAction(final Intent data) {
-        if (data != null && data.getExtras() != null) {
-            PostPaymentAction.fromBundle(data.getExtras()).execute(presenter);
+            presenter.onCardFormResult();
         }
     }
 
@@ -531,22 +513,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         final int payerCostSelected,
         @NonNull final SplitSelectionState splitSelectionState) {
         hubAdapter.updateData(paymentMethodIndex, payerCostSelected, splitSelectionState);
-    }
-
-    @Override
-    public void showPaymentResult(@NonNull final PaymentModel model) {
-        if (getActivity() instanceof PXActivity) {
-            ((PXActivity) getActivity()).overrideTransitionIn();
-        }
-        PaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS, model);
-    }
-
-    @Override
-    public void showBusinessResult(@NonNull final BusinessPaymentModel model) {
-        if (getActivity() instanceof PXActivity) {
-            ((PXActivity) getActivity()).overrideTransitionIn();
-        }
-        BusinessPaymentResultActivity.start(this, CheckoutActivity.REQ_CONGRATS_BUSINESS, model);
     }
 
     @Override
@@ -635,7 +601,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void onAction(@NotNull final GenericDialogAction action) {
+    public void onAction(@NonNull final GenericDialogAction action) {
         if (action instanceof GenericDialogAction.DeepLinkAction) {
             startDeepLink(((GenericDialogAction.DeepLinkAction) action).getDeepLink());
         } else if (action instanceof GenericDialogAction.CustomAction) {

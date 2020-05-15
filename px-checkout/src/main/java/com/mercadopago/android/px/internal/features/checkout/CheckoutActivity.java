@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.R;
@@ -16,12 +15,10 @@ import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
-import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPayment;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
-import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultActivity;
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity;
 import com.mercadopago.android.px.internal.features.review_and_confirm.ReviewAndConfirmBuilder;
@@ -29,27 +26,20 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.SessionFrictionEventTracker;
 
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.EXTRA_ERROR;
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.EXTRA_PAYMENT_RESULT;
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.PAYMENT_RESULT_CODE;
-import static com.mercadopago.android.px.internal.features.Constants.RESULT_ACTION;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANCELED_RYC;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANCEL_PAYMENT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CHANGE_PAYMENT_METHOD;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUSTOM_EXIT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_ERROR;
-import static com.mercadopago.android.px.internal.features.Constants.RESULT_FAIL_ESC;
-import static com.mercadopago.android.px.internal.features.Constants.RESULT_PAYMENT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_SILENT_ERROR;
 import static com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment.TAG_OFFLINE_METHODS_FRAGMENT;
 import static com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity.EXTRA_RESULT_CODE;
@@ -63,8 +53,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     private static final String EXTRA_PRIVATE_KEY = "extra_private_key";
     private static final String EXTRA_PUBLIC_KEY = "extra_public_key";
 
-    public static final int REQ_CONGRATS_BUSINESS = 0x01;
-    public static final int REQ_CONGRATS = 0x02;
     private static final int REQ_PAYMENT_PROCESSOR = 0x03;
     private static final int REQ_CARD_VAULT = 0x04;
     private static final int REQ_REVIEW_AND_CONFIRM = 0x05;
@@ -213,31 +201,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    public void showPaymentResult(final PaymentModel paymentModel) {
-        overrideTransitionIn();
-        final Intent intent = PaymentResultActivity.getIntent(this, paymentModel);
-        showResult(intent, REQ_CONGRATS);
-    }
-
-    @Override
-    public void showBusinessResult(@NonNull final BusinessPaymentModel model) {
-        overrideTransitionIn();
-        final Intent intent = BusinessPaymentResultActivity.getIntent(this, model);
-        showResult(intent, REQ_CONGRATS_BUSINESS);
-    }
-
-    private void showResult(@NonNull final Intent intent, final int requestCode) {
-        //TODO handle this directly in fragment.
-        final ExpressPaymentFragment fragment = FragmentUtil
-            .getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT, ExpressPaymentFragment.class);
-        if (fragment != null) {
-            fragment.startActivityForResult(intent, requestCode);
-        } else {
-            startActivityForResult(intent, requestCode);
-        }
-    }
-
-    @Override
     @SuppressLint("SourceLockedOrientationActivity")
     public void showOneTap() {
         //One tap only supports portrait
@@ -257,18 +220,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     public void hideProgress() {
         ViewUtils.showRegularLayout(this);
-    }
-
-    @Override
-    public void showReviewAndConfirmAndRecoverPayment(final boolean isUniquePaymentMethod,
-        @NonNull final PostPaymentAction postPaymentAction) {
-        overrideTransitionOut();
-        overrideTransitionIn();
-        final Intent intent = new ReviewAndConfirmBuilder()
-            .setHasExtraPaymentMethods(!isUniquePaymentMethod)
-            .setPostPaymentAction(postPaymentAction)
-            .getIntent(this);
-        startActivityForResult(intent, REQ_REVIEW_AND_CONFIRM);
     }
 
     @Override
@@ -299,8 +250,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         // TODO check cancel on payment processor.
         switch (resultCode) {
         case RESULT_CHANGE_PAYMENT_METHOD:
-            //TODO support one tap too.
-            presenter.onChangePaymentMethodFromReviewAndConfirm();
+            presenter.onChangePaymentMethod();
             break;
         case RESULT_CANCEL_PAYMENT:
             resolveCancelReviewAndConfirm(data);
@@ -320,41 +270,16 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         case RESULT_CANCELED_RYC:
             presenter.onReviewAndConfirmCancel();
             break;
-        case RESULT_ACTION:
-            handleAction(data);
-            break;
         case RESULT_CUSTOM_EXIT:
             handleCustomExit(data);
-            break;
-        case RESULT_PAYMENT:
-            handlePayment(data);
-            break;
-        case RESULT_FAIL_ESC:
-            handleRecovery(data);
             break;
         default:
             break;
         }
     }
 
-    private void handleRecovery(final Intent data) {
-        showProgress();
-        presenter.onRecoverPaymentEscInvalid(PaymentProcessorActivity.getPaymentRecovery(data));
-    }
-
-    private void handlePayment(final Intent data) {
-        showProgress();
-        presenter.onPostPayment(PaymentProcessorActivity.getPaymentModel(data));
-    }
-
     private void handleCancel() {
         presenter.cancelCheckout();
-    }
-
-    private void handleAction(final Intent data) {
-        if (data != null && data.getExtras() != null) {
-            PostPaymentAction.fromBundle(data.getExtras()).execute(presenter);
-        }
     }
 
     private void handleCustomExit(final Intent data) {
@@ -450,12 +375,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     public void showNewCardFlow() {
         CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
-    }
-
-    @Override
-    public void startPaymentRecoveryFlow(final PaymentRecovery paymentRecovery) {
-        CardVaultActivity.startActivityForRecovery(this, REQ_CARD_VAULT, paymentRecovery);
-        overrideTransitionIn();
     }
 
     private void resolveErrorRequest(final int resultCode, final Intent data) {

@@ -21,8 +21,10 @@ import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.SecurityCodeActivity
+import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
+import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity
 import com.mercadopago.android.px.internal.util.FragmentUtil
 import com.mercadopago.android.px.internal.util.ViewUtils
@@ -90,6 +92,9 @@ class PayButtonFragment : Fragment(), PayButton.View {
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
             is UIError.ConnectionError -> showSnackBar(stateUI.error)
+            is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
+            is UIResult.BusinessPaymentResult ->
+                BusinessPaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
         }
     }
 
@@ -139,7 +144,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.startPayment()
             }
-        } else if (resultCode == Constants.RESULT_ACTION) {
+        } else if (requestCode == REQ_CODE_CONGRATS && resultCode == Constants.RESULT_ACTION) {
             handleAction(data)
         } else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
@@ -151,18 +156,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
     }
 
     private fun handleAction(data: Intent?) {
-        data?.extras?.let {
-            PostPaymentAction.fromBundle(it).execute(object : PostPaymentAction.ActionController {
-                override fun recoverPayment(postPaymentAction: PostPaymentAction) {
-                    cancelLoading()
-                    viewModel.recoverPayment()
-                }
-
-                override fun onChangePaymentMethod() {
-                    cancelLoading()
-                }
-            })
-        }
+        data?.extras?.let { viewModel.onPostPaymentAction(PostPaymentAction.fromBundle(it)) }
     }
 
     override fun onDestroyView() {
@@ -236,6 +230,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
     companion object {
         const val TAG = "TAG_BUTTON_FRAGMENT"
+        const val REQ_CODE_CONGRATS = 300
         private const val REQ_CODE_SECURITY_CODE = 301
         private const val REQ_CODE_PAYMENT_PROCESSOR = 302
         private const val REQ_CODE_BIOMETRICS = 303
