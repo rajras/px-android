@@ -4,18 +4,18 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
-class FlowIdInterceptor(val flowIdProvider: FlowIdProvider) : Interceptor {
+class SessionIdInterceptor(private val sessionIdProvider: SessionIdProvider) : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val request = originalRequest.newBuilder()
-            .header(FLOW_ID_HEADER, flowIdProvider.flowId)
+            .header(SESSION_ID_HEADER, sessionIdProvider.sessionId)
             .build()
         return chain.proceed(request)
     }
 
     companion object {
-        private const val FLOW_ID_HEADER = "x-flow-id"
+        private const val SESSION_ID_HEADER = "X-Session-Id"
     }
 }

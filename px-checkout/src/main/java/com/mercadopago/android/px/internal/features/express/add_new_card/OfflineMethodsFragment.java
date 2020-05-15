@@ -25,6 +25,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.internal.base.BaseFragment;
 import com.mercadopago.android.px.internal.base.PXActivity;
+import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
@@ -172,7 +173,7 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
             session.getConfigurationModule().getPaymentSettings(),
             session.getAmountRepository(),
             session.getDiscountRepository(),
-            session.getProductIdProvider(),
+            session.getNetworkModule().getProductIdProvider(),
             model.getPaymentTypes().isEmpty() ? TextUtil.EMPTY : model.getPaymentTypes().get(0).getId(),
             session.getInitRepository(), session.getCongratsRepository());
     }

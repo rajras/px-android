@@ -27,6 +27,7 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.MapperProvider;
+import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
@@ -371,8 +372,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             MapperProvider.INSTANCE.getPaymentMethodDrawableItemMapper(getContext()),
             session.getCongratsRepository(),
             configurationModule.getPayerComplianceRepository(),
-            session.getSessionIdProvider(),
-            session.getFlowIdProvider(),
+            Session.getInstance().getNetworkModule().getSessionIdProvider(),
+            Session.getInstance().getNetworkModule().getFlowIdProvider(),
             MapperProvider.INSTANCE.getPaymentMethodDescriptorMapper());
     }
 

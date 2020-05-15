@@ -11,7 +11,7 @@ import java.math.BigDecimal
 class PaymentTypeChargeRule private constructor(val paymentTypeId: String, private val charge: BigDecimal,
     val detailModal: DynamicDialogCreator?, val message: String?) : Serializable, Parcelable {
 
-    constructor(parcel: Parcel) : this(
+    private constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         ParcelableUtil.getBigDecimal(parcel),
         parcel.readParcelable(DynamicDialogCreator::class.java.classLoader),

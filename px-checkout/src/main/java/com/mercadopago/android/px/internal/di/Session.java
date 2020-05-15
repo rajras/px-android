@@ -13,7 +13,6 @@ import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.core.internal.MercadoPagoCardStorage;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.core.ApplicationModule;
-import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.datasource.AmountConfigurationRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.AmountService;
 import com.mercadopago.android.px.internal.datasource.BankDealsService;
@@ -62,7 +61,6 @@ import com.mercadopago.android.px.internal.services.GatewayService;
 import com.mercadopago.android.px.internal.services.InstallmentService;
 import com.mercadopago.android.px.internal.services.InstructionsClient;
 import com.mercadopago.android.px.internal.util.LocaleUtil;
-import com.mercadopago.android.px.internal.util.RetrofitUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Device;
 import com.mercadopago.android.px.model.internal.InitResponse;
@@ -103,9 +101,11 @@ public final class Session extends ApplicationModule implements AmountComponent 
     private ExperimentsRepository experimentsRepository;
     private EscPaymentManagerImp escPaymentManager;
     private ViewModelModule viewModelModule;
+    private final NetworkModule networkModule;
 
-    private Session(@NonNull final Context context) {
+    private Session(@NonNull final Context context, @NonNull final NetworkModule networkModule) {
         super(context);
+        this.networkModule = networkModule;
     }
 
     public static Session getInstance() {
@@ -116,9 +116,10 @@ public final class Session extends ApplicationModule implements AmountComponent 
         return instance;
     }
 
-    public static Session initialize(@NonNull final Context context) {
+    public static Session initialize(@NonNull final Context context, @NonNull final NetworkModule networkModule) {
         // In shared processes' content providers getApplicationContext() can return null.
-        instance = new Session(context.getApplicationContext() == null ? context : context.getApplicationContext());
+        instance = new Session(context.getApplicationContext() == null ? context : context.getApplicationContext(),
+            networkModule);
         return instance;
     }
 
@@ -190,6 +191,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         congratsRepository = null;
         escPaymentManager = null;
         viewModelModule = null;
+        networkModule.clear();
         initialized = false;
     }
 
@@ -198,8 +200,8 @@ public final class Session extends ApplicationModule implements AmountComponent 
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             initRepository = new InitService(paymentSettings, getExperimentsRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(), getMercadoPagoESC(),
-                RetrofitUtil.getRetrofitClient(getApplicationContext()).create(CheckoutService.class),
-                LocaleUtil.getLanguage(getApplicationContext()), getFlowIdProvider(), getInitCache());
+                networkModule.getRetrofitClient().create(CheckoutService.class),
+                LocaleUtil.getLanguage(getApplicationContext()), networkModule.getFlowIdProvider(), getInitCache());
         }
         return initRepository;
     }
@@ -219,10 +221,10 @@ public final class Session extends ApplicationModule implements AmountComponent 
             final UserSelectionRepository userSelectionRepository =
                 getConfigurationModule().getUserSelectionRepository();
             final InstallmentService paymentService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext()).create(InstallmentService.class);
+                networkModule.getRetrofitClient().create(InstallmentService.class);
 
             summaryAmountRepository = new SummaryAmountService(paymentService, paymentSettings,
-                advancedConfiguration, userSelectionRepository, getProductIdProvider());
+                advancedConfiguration, userSelectionRepository, networkModule.getProductIdProvider());
         }
         return summaryAmountRepository;
     }
@@ -231,7 +233,8 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public ESCManagerBehaviour getMercadoPagoESC() {
         //noinspection ConstantConditions
         return BehaviourProvider
-            .getEscManagerBehaviour(getSessionIdProvider().getSessionId(), getFlowIdProvider().getFlowId());
+            .getEscManagerBehaviour(networkModule.getSessionIdProvider().getSessionId(),
+                networkModule.getFlowIdProvider().getFlowId());
     }
 
     @NonNull
@@ -341,7 +344,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
 
     @NonNull
     private TokenRepository getTokenRepository() {
-        return new TokenizeService(getRetrofitClient().create(GatewayService.class),
+        return new TokenizeService(networkModule.getRetrofitClient().create(GatewayService.class),
             getConfigurationModule().getPaymentSettings(), getMercadoPagoESC(), getDevice());
     }
 
@@ -365,7 +368,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         if (instructionsRepository == null) {
             instructionsRepository =
                 new InstructionsService(getConfigurationModule().getPaymentSettings(),
-                    getRetrofitClient().create(InstructionsClient.class),
+                    networkModule.getRetrofitClient().create(InstructionsClient.class),
                     LocaleUtil.getLanguage(getApplicationContext()));
         }
         return instructionsRepository;
@@ -374,7 +377,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public IssuersRepository getIssuersRepository() {
         if (issuersRepository == null) {
             final com.mercadopago.android.px.internal.services.IssuersService issuersService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext()).create(
+                networkModule.getRetrofitClient().create(
                     com.mercadopago.android.px.internal.services.IssuersService.class);
 
             issuersRepository = new IssuersServiceImp(issuersService, getConfigurationModule().getPaymentSettings(),
@@ -386,11 +389,9 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public CardTokenRepository getCardTokenRepository() {
         if (cardTokenRepository == null) {
             final GatewayService gatewayService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext()).create(GatewayService.class);
-            cardTokenRepository =
-                new CardTokenService(gatewayService, getConfigurationModule().getPaymentSettings(),
-                    new Device(getApplicationContext()),
-                    getMercadoPagoESC());
+                networkModule.getRetrofitClient().create(GatewayService.class);
+            cardTokenRepository = new CardTokenService(gatewayService, getConfigurationModule().getPaymentSettings(),
+                    new Device(getApplicationContext()), getMercadoPagoESC());
         }
         return cardTokenRepository;
     }
@@ -398,10 +399,8 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public BankDealsRepository getBankDealsRepository() {
         if (bankDealsRepository == null) {
             final BankDealService bankDealsService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext())
-                    .create(BankDealService.class);
-            bankDealsRepository =
-                new BankDealsService(bankDealsService, getApplicationContext(),
+                networkModule.getRetrofitClient().create(BankDealService.class);
+            bankDealsRepository = new BankDealsService(bankDealsService, getApplicationContext(),
                     getConfigurationModule().getPaymentSettings());
         }
         return bankDealsRepository;
@@ -410,7 +409,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public IdentificationRepository getIdentificationRepository() {
         if (identificationRepository == null) {
             final com.mercadopago.android.px.internal.services.IdentificationService identificationService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext())
+                networkModule.getRetrofitClient()
                     .create(com.mercadopago.android.px.internal.services.IdentificationService.class);
             identificationRepository =
                 new IdentificationService(identificationService, getConfigurationModule().getPaymentSettings());
@@ -421,7 +420,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     public PaymentMethodsRepository getPaymentMethodsRepository() {
         if (paymentMethodsRepository == null) {
             final CheckoutService checkoutService =
-                RetrofitUtil.getRetrofitClient(getApplicationContext()).create(CheckoutService.class);
+                networkModule.getRetrofitClient().create(CheckoutService.class);
             paymentMethodsRepository =
                 new PaymentMethodsService(getConfigurationModule().getPaymentSettings(), checkoutService);
         }
@@ -432,11 +431,11 @@ public final class Session extends ApplicationModule implements AmountComponent 
         if (congratsRepository == null) {
             final Context applicationContext = getApplicationContext();
             final CongratsService congratsService =
-                RetrofitUtil.getRetrofitClient(applicationContext).create(CongratsService.class);
+                networkModule.getRetrofitClient().create(CongratsService.class);
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             congratsRepository =
                 new CongratsRepositoryImpl(congratsService, getInitRepository(),paymentSettings, getPlatform(applicationContext),
-                    LocaleUtil.getLanguage(getApplicationContext()), getFlowIdProvider(),
+                    LocaleUtil.getLanguage(getApplicationContext()), networkModule.getFlowIdProvider(),
                     configurationModule.getUserSelectionRepository(), amountRepository,
                     configurationModule.getDisabledPaymentMethodRepository(), configurationModule.getPayerComplianceRepository(),
                     getMercadoPagoESC());
@@ -451,10 +450,15 @@ public final class Session extends ApplicationModule implements AmountComponent 
         return viewModelModule;
     }
 
+    public NetworkModule getNetworkModule() {
+        return networkModule;
+    }
+
     public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
         return new PrefetchInitService(checkout,
-            RetrofitUtil.getRetrofitClient(getApplicationContext()).create(CheckoutService.class),
-            LocaleUtil.getLanguage(getApplicationContext()), getMercadoPagoESC(), getFlowIdProvider());
+            networkModule.getRetrofitClient().create(CheckoutService.class),
+            LocaleUtil.getLanguage(getApplicationContext()), getMercadoPagoESC(),
+            networkModule.getFlowIdProvider());
     }
 
     public void initIds(@NonNull final MercadoPagoCheckout checkout) {
@@ -463,11 +467,10 @@ public final class Session extends ApplicationModule implements AmountComponent 
             checkout.getAdvancedConfiguration().getDiscountParamsConfiguration().getProductId();
         final String productId = TextUtil.isNotEmpty(deprecatedProductId) ? deprecatedProductId
             : checkout.getAdvancedConfiguration().getProductId();
-        final SessionIdProvider sessionIdProvider =
-            newSessionProvider(checkout.getTrackingConfiguration().getSessionId());
-        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
+        networkModule.getSessionIdProvider().configure(checkout.getTrackingConfiguration().getSessionId());
+        MPTracker.getInstance().setSessionId(checkout.getTrackingConfiguration().getSessionId());
         MPTracker.getInstance().setSecurityEnabled(BehaviourProvider.getSecurityBehaviour()
             .isSecurityEnabled(new SecurityValidationData.Builder(productId).build()));
-        newProductIdProvider(productId);
+        networkModule.getProductIdProvider().configure(productId);
     }
 }
