@@ -50,13 +50,17 @@
 
         <com.mercadopago.android.px.internal.view.ElementDescriptorView
             android:id="@+id/bigElementDescriptor"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/px_m_margin"
             android:layout_marginEnd="@dimen/px_m_margin"
             android:orientation="vertical"
+            android:paddingTop="@dimen/ui_1m"
+            android:paddingBottom="@dimen/ui_1m"
             app:layout_constraintBottom_toTopOf="@id/recycler"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:px_element_icon_height="@dimen/px_m_height"
             app:px_element_icon_width="@dimen/px_m_height"
             app:px_element_subtitle_size="@dimen/px_xs_text"
