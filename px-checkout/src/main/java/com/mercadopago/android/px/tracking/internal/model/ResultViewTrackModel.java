@@ -28,9 +28,9 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     private final String paymentMethodId;
     private final String paymentMethodType;
     private final Integer scoreLevel;
-    private final int discountsCount;
-    private final String campaignsIds;
     private final String campaignId;
+    private final String campaignsIds;
+    private final int discountsCount;
 
     private boolean hasBottomView;
     private boolean hasTopView;

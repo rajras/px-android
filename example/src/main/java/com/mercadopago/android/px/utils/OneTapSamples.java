@@ -30,9 +30,9 @@ import static com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentRej
 public final class OneTapSamples {
 
     private static final String ONE_TAP_PAYER_1_ACCESS_TOKEN =
-        "APP_USR-7092-122619-fc2376471063df48cf0c9fcd26e00729-506902649";
+        "APP_USR-1945000207238192-051214-ffcae1d4f9e40b96508d7e2636f99c54-421883848";
     private static final String ONE_TAP_PAYER_2_ACCESS_TOKEN =
-        "APP_USR-3456261032857473-051216-7a7cad2360bbbc37aefed92c94ef5ff1-340764447";
+        "APP_USR-7092-122619-fc2376471063df48cf0c9fcd26e00729-506902649";
     private static final String ONE_TAP_PAYER_3_ACCESS_TOKEN =
         "TEST-244508097630521-031308-7b8b58d617aec50b3e528ca98606b116__LC_LA__-150216849";
     private static final String ONE_TAP_PAYER_4_ACCESS_TOKEN =

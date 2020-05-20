@@ -15,13 +15,15 @@ import com.mercadolibre.android.mlbusinesscomponents.components.common.downloada
 import com.mercadolibre.android.mlbusinesscomponents.components.common.downloadapp.MLBusinessDownloadAppView;
 import com.mercadolibre.android.mlbusinesscomponents.components.crossselling.MLBusinessCrossSellingBoxData;
 import com.mercadolibre.android.mlbusinesscomponents.components.crossselling.MLBusinessCrossSellingBoxView;
-import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusinessDiscountBoxData;
 import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusinessDiscountBoxView;
 import com.mercadolibre.android.mlbusinesscomponents.components.loyalty.MLBusinessLoyaltyRingData;
 import com.mercadolibre.android.mlbusinesscomponents.components.loyalty.MLBusinessLoyaltyRingView;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.callback.OnClickCallback;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.view.MLBusinessTouchpointView;
 import com.mercadolibre.android.ui.widgets.MeliButton;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.features.business_result.CongratsViewModel;
+import com.mercadopago.android.px.internal.features.business_result.PXDiscountBoxData;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
@@ -35,13 +37,19 @@ import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMPInsta
 public final class PaymentResultBody extends LinearLayout {
 
     public interface Listener extends ActionDispatcher, MLBusinessLoyaltyRingView.OnClickLoyaltyRing,
-        MLBusinessDiscountBoxView.OnClickDiscountBox,
-        MLBusinessDownloadAppView.OnClickDownloadApp,
-        MLBusinessCrossSellingBoxView.OnClickCrossSellingBoxView {
+        OnClickCallback, MLBusinessDownloadAppView.OnClickDownloadApp,
+        MLBusinessCrossSellingBoxView.OnClickCrossSellingBoxView,
+        MLBusinessDiscountBoxView.OnClickDiscountBox {
 
         void onClickShowAllDiscounts(@NonNull final String deepLink);
 
         void onClickViewReceipt(@NonNull final String deeLink);
+
+        void onClickTouchPoint(@Nullable String deepLink);
+        @Override
+        default void onClick(@Nullable final String deepLink) {
+            onClickTouchPoint(deepLink);
+        }
     }
 
     public PaymentResultBody(final Context context) {
@@ -106,15 +114,27 @@ public final class PaymentResultBody extends LinearLayout {
         }
     }
 
-    private void renderDiscounts(@Nullable final MLBusinessDiscountBoxData discountData,
+    private void renderDiscounts(@Nullable final PXDiscountBoxData discountData,
         @NonNull final Listener onClickDiscountBox) {
-        final MLBusinessDiscountBoxView discountView = findViewById(R.id.discountView);
+        final MLBusinessTouchpointView touchpointView = findViewById(R.id.touchpointView);
+        final TextView touchpointLabel = findViewById(R.id.touchpointLabelView);
+        final MLBusinessDiscountBoxView discountBoxView = findViewById(R.id.discountView);
         final MLBusinessDividingLineView dividingView = findViewById(R.id.dividingLineView);
 
-        if (discountData != null) {
-            discountView.init(discountData, onClickDiscountBox);
+        if (discountData != null && discountData.getTouchpoint() != null) {
+            if (!TextUtil.isEmpty(discountData.getTitle())) {
+                touchpointLabel.setText(discountData.getTitle());
+                touchpointLabel.setVisibility(VISIBLE);
+            }
+            touchpointView.setVisibility(VISIBLE);
+            touchpointView.setCanOpenMercadoPago(isMPInstalled(getContext().getPackageManager()));
+            touchpointView.setOnClickCallback(onClickDiscountBox);
+            touchpointView.setTracker(discountData.getTracker());
+            touchpointView.init(discountData.getTouchpoint());
+        } else if(discountData != null && !discountData.getDiscountBoxData().getItems().isEmpty()) {
+            discountBoxView.setVisibility(VISIBLE);
+            discountBoxView.init(discountData.getDiscountBoxData(), onClickDiscountBox);
         } else {
-            discountView.setVisibility(GONE);
             dividingView.setVisibility(GONE);
         }
     }

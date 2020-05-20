@@ -68,8 +68,8 @@ class CongratsRepositoryImpl(
                 .joinToString(TextUtil.CSV_DELIMITER) { p -> (p.paymentMethod.id) }
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
             val response = congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, locale, privateKey,
-                joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-                joinedPaymentMethodsIds, flowIdProvider.flowId).await()
+            joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
+            joinedPaymentMethodsIds, flowIdProvider.flowId).await()
             if (response.isSuccessful) {
                 response.body()!!
             } else {

@@ -19,7 +19,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ScrollView;
-
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.print.MLBusinessTouchpointListener;
 import com.mercadolibre.android.ui.widgets.MeliSnackbar;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
@@ -102,6 +102,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         if (savedInstanceState == null) {
             presenter.onFreshStart();
         }
+        new MLBusinessTouchpointListener().setOnTouchListener(findViewById(R.id.scroll_view));
     }
 
     @NonNull

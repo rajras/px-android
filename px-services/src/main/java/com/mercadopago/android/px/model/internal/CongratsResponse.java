@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public final class CongratsResponse implements Parcelable {
@@ -207,13 +208,16 @@ public final class CongratsResponse implements Parcelable {
         private final Action action;
         @SerializedName("action_download")
         private final DownloadApp actionDownload;
+        private final PXBusinessTouchpoint touchpoint;
         private final List<Item> items;
+
 
         /* default */ Discount(final Parcel in) {
             title = in.readString();
             subtitle = in.readString();
             action = in.readParcelable(Action.class.getClassLoader());
             actionDownload = in.readParcelable(DownloadApp.class.getClassLoader());
+            touchpoint = in.readParcelable(PXBusinessTouchpoint.class.getClassLoader());
             items = in.createTypedArrayList(Item.CREATOR);
         }
 
@@ -223,6 +227,7 @@ public final class CongratsResponse implements Parcelable {
             dest.writeString(subtitle);
             dest.writeParcelable(action, flags);
             dest.writeParcelable(actionDownload, flags);
+            dest.writeParcelable(touchpoint, flags);
             dest.writeTypedList(items);
         }
 
@@ -352,6 +357,10 @@ public final class CongratsResponse implements Parcelable {
             return actionDownload;
         }
 
+        public PXBusinessTouchpoint getTouchpoint() {
+            return touchpoint;
+        }
+
         @NonNull
         public List<Item> getItems() {
             return items != null ? items : Collections.emptyList();
@@ -411,6 +420,129 @@ public final class CongratsResponse implements Parcelable {
 
         public String getContentId() {
             return contentId;
+        }
+    }
+
+    /* default */ public static final class PXBusinessTouchpoint implements Parcelable {
+
+        public static final Creator<PXBusinessTouchpoint> CREATOR = new Creator<PXBusinessTouchpoint>() {
+            @Override
+            public PXBusinessTouchpoint createFromParcel(final Parcel in) {
+                return new PXBusinessTouchpoint(in);
+            }
+
+            @Override
+            public PXBusinessTouchpoint[] newArray(final int size) {
+                return new PXBusinessTouchpoint[size];
+            }
+        };
+
+        private final String id;
+        private final String type;
+        private final HashMap content;
+        @Nullable private final HashMap tracking;
+        @SerializedName("additional_edge_insets")
+        @Nullable private final AdditionalEdgeInsets additionalEdgeInsets;
+
+
+        /* default */ PXBusinessTouchpoint(final Parcel in) {
+            id = in.readString();
+            type = in.readString();
+            content = in.readHashMap(HashMap.class.getClassLoader());
+            tracking = in.readHashMap(HashMap.class.getClassLoader());
+            additionalEdgeInsets = in.readParcelable(AdditionalEdgeInsets.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(final Parcel dest, final int flags) {
+            dest.writeString(id);
+            dest.writeString(type);
+            dest.writeMap(content);
+            dest.writeMap(tracking);
+            dest.writeParcelable(additionalEdgeInsets, flags);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public HashMap getContent() {
+            return content;
+        }
+
+        @Nullable
+        public HashMap getTracking() {
+            return tracking;
+        }
+
+        @Nullable
+        public AdditionalEdgeInsets getAdditionalEdgeInsets() {
+            return additionalEdgeInsets;
+        }
+    }
+
+    /* default */ public static final class AdditionalEdgeInsets implements Parcelable {
+
+        public static final Creator<AdditionalEdgeInsets> CREATOR = new Creator<AdditionalEdgeInsets>() {
+            @Override
+            public AdditionalEdgeInsets createFromParcel(final Parcel in) {
+                return new AdditionalEdgeInsets(in);
+            }
+
+            @Override
+            public AdditionalEdgeInsets[] newArray(final int size) {
+                return new AdditionalEdgeInsets[size];
+            }
+        };
+
+        private final int top;
+        private final int left;
+        private final int bottom;
+        private final int right;
+
+        /* default */ AdditionalEdgeInsets(final Parcel in) {
+            top = in.readInt();
+            left = in.readInt();
+            bottom = in.readInt();
+            right = in.readInt();
+        }
+
+        @Override
+        public void writeToParcel(final Parcel dest, final int flags) {
+            dest.writeInt(top);
+            dest.writeInt(left);
+            dest.writeInt(bottom);
+            dest.writeInt(right);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public int getTop() {
+            return top;
+        }
+
+        public int getLeft() {
+            return left;
+        }
+
+        public int getBottom() {
+            return bottom;
+        }
+
+        public int getRight() {
+            return right;
         }
     }
 }

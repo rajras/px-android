@@ -9,7 +9,7 @@ import com.mercadopago.android.px.model.internal.Text
 
 internal data class CongratsViewModel(
     val loyaltyRingData: MLBusinessLoyaltyRingData?,
-    val discountBoxData: MLBusinessDiscountBoxData?,
+    val discountBoxData: PXDiscountBoxData?,
     val showAllDiscounts: Action?,
     val downloadAppData: MLBusinessDownloadAppData?,
     val crossSellingBoxData: List<MLBusinessCrossSellingBoxData>?,

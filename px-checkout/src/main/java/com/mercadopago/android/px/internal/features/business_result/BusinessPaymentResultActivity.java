@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.print.MLBusinessTouchpointListener;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
@@ -63,6 +64,7 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
         if (savedInstanceState == null) {
             presenter.onFreshStart();
         }
+        new MLBusinessTouchpointListener().setOnTouchListener(findViewById(R.id.scroll_view));
     }
 
     @NonNull

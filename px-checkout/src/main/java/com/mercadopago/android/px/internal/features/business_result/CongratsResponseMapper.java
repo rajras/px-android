@@ -8,6 +8,10 @@ import com.mercadolibre.android.mlbusinesscomponents.components.crossselling.MLB
 import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusinessDiscountBoxData;
 import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusinessDiscountTracker;
 import com.mercadolibre.android.mlbusinesscomponents.components.loyalty.MLBusinessLoyaltyRingData;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.domain.model.AdditionalEdgeInsets;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.domain.response.MLBusinessTouchpointResponse;
+import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.MLBusinessTouchpointTracker;
+import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
 import com.mercadopago.android.px.model.internal.Action;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
@@ -20,14 +24,14 @@ import javax.annotation.Nullable;
 
 public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsViewModel> {
 
-    /* default */ final MLBusinessDiscountTracker discountTracker;
+    /* default */ final BusinessPaymentResultTracker discountTracker;
 
     /**
      * Constructor
      *
-     * @param discountTracker A {@link MLBusinessDiscountTracker}
+     * @param discountTracker A {@link BusinessPaymentResultTracker}
      */
-    public CongratsResponseMapper(final MLBusinessDiscountTracker discountTracker) {
+    public CongratsResponseMapper(final BusinessPaymentResultTracker discountTracker) {
         this.discountTracker = discountTracker;
     }
 
@@ -84,14 +88,13 @@ public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsVie
     }
 
     @Nullable
-    private MLBusinessDiscountBoxData getDiscountBoxData(
-        @Nullable final CongratsResponse.Discount discount) {
+    private PXDiscountBoxData getDiscountBoxData(@Nullable final CongratsResponse.Discount discount) {
 
         if (discount == null) {
             return null;
         }
 
-        return new MLBusinessDiscountBoxData() {
+        return new PXDiscountBoxData() {
             @Nullable
             @Override
             public String getTitle() {
@@ -104,27 +107,55 @@ public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsVie
                 return discount.getSubtitle();
             }
 
-            @NonNull
+            @Nullable
             @Override
-            public List<MLBusinessSingleItem> getItems() {
-                return getDisCountItems(discount.getItems());
+            public MLBusinessTouchpointResponse getTouchpoint() {
+                return mapTouchpoint(discount.getTouchpoint());
             }
 
-            @NonNull
+            @Nullable
             @Override
-            public MLBusinessDiscountTracker getTracker() {
+            public MLBusinessTouchpointTracker getTracker() {
                 return discountTracker;
+            }
+
+            @Override
+            public MLBusinessDiscountBoxData getDiscountBoxData() {
+                return new MLBusinessDiscountBoxData() {
+                    @Nullable
+                    @Override
+                    public String getTitle() {
+                        return discount.getTitle();
+                    }
+
+                    @Nullable
+                    @Override
+                    public String getSubtitle() {
+                        return discount.getSubtitle();
+                    }
+
+                    @NonNull
+                    @Override
+                    public List<MLBusinessSingleItem> getItems() {
+                        return getDisCountItems(discount.getItems());
+                    }
+
+                    @Nullable
+                    @Override
+                    public MLBusinessDiscountTracker getTracker() {
+                        return discountTracker;
+                    }
+                };
             }
         };
     }
 
     @NonNull
-    private List<MLBusinessSingleItem> getDisCountItems(
-        @NonNull List<CongratsResponse.Discount.Item> items) {
+    private List<MLBusinessSingleItem> getDisCountItems(@NonNull List<CongratsResponse.Discount.Item> items) {
 
-        List<MLBusinessSingleItem> singleItems = new LinkedList<>();
+        final List<MLBusinessSingleItem> singleItems = new LinkedList<>();
 
-        for (CongratsResponse.Discount.Item item : items) {
+        for (final CongratsResponse.Discount.Item item : items) {
             singleItems.add(new MLBusinessSingleItem() {
                 @Override
                 public String getImageUrl() {
@@ -164,6 +195,29 @@ public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsVie
             });
         }
         return singleItems;
+    }
+
+    @Nullable
+        /* default */ MLBusinessTouchpointResponse mapTouchpoint(
+        @Nullable final CongratsResponse.PXBusinessTouchpoint touchpoint) {
+        if (touchpoint == null) {
+            return null;
+        }
+        final MLBusinessTouchpointResponse touchpointResponse = new MLBusinessTouchpointResponse();
+        touchpointResponse.id = touchpoint.getId();
+        touchpointResponse.type = touchpoint.getType();
+        touchpointResponse.content = JsonUtil.getGson().toJsonTree(touchpoint.getContent());
+        if (touchpoint.getAdditionalEdgeInsets() != null) {
+            final CongratsResponse.AdditionalEdgeInsets insets = touchpoint.getAdditionalEdgeInsets();
+            touchpointResponse.additionalEdgeInsets = new AdditionalEdgeInsets(
+                insets.getTop(), insets.getLeft(), insets.getBottom(), insets.getRight());
+        }
+        try {
+            touchpointResponse.tracking = touchpoint.getTracking();
+        } catch (final ClassCastException e) {
+            //no-op
+        }
+        return touchpointResponse;
     }
 
     @Nullable

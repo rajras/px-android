@@ -14,6 +14,7 @@ import com.mercadopago.android.px.internal.features.review_and_confirm.component
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.view.CopyAction;
 import com.mercadopago.android.px.internal.view.LinkAction;
@@ -205,14 +206,6 @@ import java.util.List;
     }
 
     @Override
-    public void onClickDiscountItem(final int index, @Nullable final String deepLink, @Nullable final String trackId) {
-        new DiscountItemEvent(resultViewTrack, index, trackId).track();
-        if (deepLink != null) {
-            getView().launchDeepLink(deepLink);
-        }
-    }
-
-    @Override
     public void onClickLoyaltyButton(@NonNull final String deepLink) {
         new ScoreEvent(resultViewTrack).track();
         getView().launchDeepLink(deepLink);
@@ -228,5 +221,21 @@ import java.util.List;
     public void onClickViewReceipt(@NonNull final String deeLink) {
         new ViewReceiptEvent(resultViewTrack).track();
         getView().launchDeepLink(deeLink);
+    }
+
+    @Override
+    public void onClickTouchPoint(@Nullable final String deepLink) {
+        new DiscountItemEvent(resultViewTrack, 0, TextUtil.EMPTY).track();
+        if (deepLink != null) {
+            getView().launchDeepLink(deepLink);
+        }
+    }
+
+    @Override
+    public void onClickDiscountItem(final int index, @Nullable final String deepLink, @Nullable final String trackId) {
+        new DiscountItemEvent(resultViewTrack, index, trackId).track();
+        if (deepLink != null) {
+            getView().launchDeepLink(deepLink);
+        }
     }
 }
