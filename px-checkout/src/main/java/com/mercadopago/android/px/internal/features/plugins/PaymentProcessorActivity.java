@@ -127,9 +127,9 @@ public final class PaymentProcessorActivity extends PXActivity
             .getPaymentDataList();
 
         final CheckoutPreference checkoutPreference = paymentSettings.getCheckoutPreference();
-
+        final String securityType = paymentSettings.getSecurityType().getValue();
         final SplitPaymentProcessor.CheckoutData checkoutData =
-            new SplitPaymentProcessor.CheckoutData(paymentData, checkoutPreference);
+            new SplitPaymentProcessor.CheckoutData(paymentData, checkoutPreference, securityType);
 
         final Fragment fragment = paymentProcessor.getFragment(checkoutData, this);
 

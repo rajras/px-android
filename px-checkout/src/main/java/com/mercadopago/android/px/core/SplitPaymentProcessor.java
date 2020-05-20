@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.v4.app.Fragment;
+import com.mercadopago.android.px.addons.model.internal.SecurityType;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -19,11 +20,22 @@ public interface SplitPaymentProcessor extends Parcelable {
 
         @NonNull public final CheckoutPreference checkoutPreference;
         @NonNull public final List<PaymentData> paymentDataList;
+        @NonNull public final String securityType;
 
+        /**
+         * @deprecated use the one with security type
+         */
+        @Deprecated
         public CheckoutData(@NonNull @Size(min = 1) final List<PaymentData> paymentData,
             @NonNull final CheckoutPreference checkoutPreference) {
+            this(paymentData, checkoutPreference, SecurityType.NONE.getValue());
+        }
+
+        public CheckoutData(@NonNull @Size(min = 1) final List<PaymentData> paymentData,
+            @NonNull final CheckoutPreference checkoutPreference, @NonNull final String securityType) {
             paymentDataList = paymentData;
             this.checkoutPreference = checkoutPreference;
+            this.securityType = securityType;
         }
     }
 
@@ -31,8 +43,8 @@ public interface SplitPaymentProcessor extends Parcelable {
      * Method that we will call if {@link #shouldShowFragmentOnPayment(CheckoutPreference)} is false. we will place a
      * loading for you meanwhile we call this method.
      *
-     * @param data checkout data to the moment it's called.
-     * @param context that you may need to fill information.
+     * @param data            checkout data to the moment it's called.
+     * @param context         that you may need to fill information.
      * @param paymentListener when you have processed your payment you should call {@link OnPaymentListener}
      */
     void startPayment(@NonNull final Context context, @NonNull final CheckoutData data,
@@ -68,7 +80,7 @@ public interface SplitPaymentProcessor extends Parcelable {
      * inside {@link android.support.v4.app.Fragment#onAttach(Context)} context will be an instance of {@link
      * OnPaymentListener}
      *
-     * @param data checkout data to the moment it's called.
+     * @param data    checkout data to the moment it's called.
      * @param context that you may need to fill information.
      * @return fragment
      */
@@ -85,12 +97,11 @@ public interface SplitPaymentProcessor extends Parcelable {
     interface BackHandler {
 
         /**
-         * The implementation of this method can tell you if the back action is enabled or disabled.
-         * In certain cases you want to block UI, disabling the back button. This occurs for toolbar back button,
-         * display screen back button and swipe back gestures.
+         * The implementation of this method can tell you if the back action is enabled or disabled. In certain cases
+         * you want to block UI, disabling the back button. This occurs for toolbar back button, display screen back
+         * button and swipe back gestures.
          */
         boolean isBackEnabled();
-
     }
 
     /**

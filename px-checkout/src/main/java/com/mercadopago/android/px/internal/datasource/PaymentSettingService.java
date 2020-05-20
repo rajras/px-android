@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.datasource;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.model.internal.SecurityType;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
@@ -28,6 +29,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_CURRENCY = "PREF_CURRENCY";
     private static final String PREF_PRIVATE_KEY = "PREF_PRIVATE_KEY";
     private static final String PREF_TOKEN = "PREF_TOKEN";
+    private static final String PREF_SECURITY_TYPE = "PREF_SECURITY_TYPE";
     private static final String PREF_PRODUCT_ID = "PREF_PRODUCT_ID";
     private static final String PREF_LABELS = "PREF_LABELS";
     private static final String PREF_AMOUNT_ROW_ENABLED = "PREF_AMOUNT_ROW_ENABLED";
@@ -64,6 +66,13 @@ public class PaymentSettingService implements PaymentSettingRepository {
     public void configure(@NonNull final Token token) {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(PREF_TOKEN, JsonUtil.toJson(token));
+        edit.apply();
+    }
+
+    @Override
+    public void configure(@NonNull final SecurityType secondFactor) {
+        final SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putString(PREF_SECURITY_TYPE, secondFactor.name());
         edit.apply();
     }
 
@@ -201,6 +210,12 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public Token getToken() {
         return JsonUtil.fromJson(sharedPreferences.getString(PREF_TOKEN, ""), Token.class);
+    }
+
+    @NonNull
+    @Override
+    public SecurityType getSecurityType() {
+        return SecurityType.valueOf(sharedPreferences.getString(PREF_SECURITY_TYPE, SecurityType.NONE.name()));
     }
 
     @Override

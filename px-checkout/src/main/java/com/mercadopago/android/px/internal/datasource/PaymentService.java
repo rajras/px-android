@@ -281,11 +281,12 @@ public class PaymentService implements PaymentRepository {
 
     private void pay() {
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
+        final String securityType = paymentSettingRepository.getSecurityType().getValue();
         if (paymentProcessor.shouldShowFragmentOnPayment(checkoutPreference)) {
             handlerWrapper.onVisualPayment();
         } else {
             final SplitPaymentProcessor.CheckoutData checkoutData =
-                new SplitPaymentProcessor.CheckoutData(getPaymentDataList(), checkoutPreference);
+                new SplitPaymentProcessor.CheckoutData(getPaymentDataList(), checkoutPreference, securityType);
             paymentProcessor.startPayment(context, checkoutData, handlerWrapper);
         }
     }
