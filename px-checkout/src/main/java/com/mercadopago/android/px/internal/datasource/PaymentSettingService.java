@@ -3,7 +3,7 @@ package com.mercadopago.android.px.internal.datasource;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.addons.model.internal.SecurityType;
+import com.mercadopago.android.px.model.internal.SecurityType;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
