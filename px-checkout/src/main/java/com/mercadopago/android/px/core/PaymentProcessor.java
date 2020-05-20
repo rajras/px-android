@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import com.mercadopago.android.px.addons.model.internal.SecurityType;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.GenericPayment;
 import com.mercadopago.android.px.model.Payment;
@@ -22,12 +23,20 @@ public interface PaymentProcessor extends Serializable {
 
         @NonNull public final PaymentData paymentData;
         @NonNull public final CheckoutPreference checkoutPreference;
+        @NonNull public final String securityType;
 
         @Deprecated
         public CheckoutData(@NonNull final PaymentData paymentData,
             @NonNull final CheckoutPreference checkoutPreference) {
+            this(paymentData, checkoutPreference, SecurityType.NONE.getValue());
+        }
+
+        @Deprecated
+        public CheckoutData(@NonNull final PaymentData paymentData,
+            @NonNull final CheckoutPreference checkoutPreference, @NonNull final String securityType) {
             this.paymentData = paymentData;
             this.checkoutPreference = checkoutPreference;
+            this.securityType = securityType;
         }
     }
 
@@ -47,8 +56,8 @@ public interface PaymentProcessor extends Serializable {
      * Method that we will call if {@link #shouldShowFragmentOnPayment()} is false. we will place a loading for you
      * meanwhile we call this method.
      *
-     * @param data checkout data to the moment it's called.
-     * @param context that you may need to fill information.
+     * @param data            checkout data to the moment it's called.
+     * @param context         that you may need to fill information.
      * @param paymentListener when you have processed your payment you should call {@link OnPaymentListener}
      */
     void startPayment(@NonNull final PaymentProcessor.CheckoutData data, @NonNull final Context context,
@@ -74,7 +83,7 @@ public interface PaymentProcessor extends Serializable {
      * This bundle will be attached to the fragment that you expose in {@link #getFragment(PaymentProcessor.CheckoutData,
      * Context)}
      *
-     * @param data checkout data to the moment it's called.
+     * @param data    checkout data to the moment it's called.
      * @param context that you may need to fill information.
      * @return fragment.
      * @deprecated you can place your bundle in the fragment you provide.
@@ -90,7 +99,7 @@ public interface PaymentProcessor extends Serializable {
      * inside {@link android.support.v4.app.Fragment#onAttach(Context)} context will be an instance of {@link
      * OnPaymentListener}
      *
-     * @param data checkout data to the moment it's called.
+     * @param data    checkout data to the moment it's called.
      * @param context that you may need to fill information.
      * @return fragment
      */

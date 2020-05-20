@@ -42,7 +42,7 @@ public class PaymentProcessorMapper extends Mapper<PaymentProcessor, SplitPaymen
             }
 
             @Override
-            public boolean supportsSplitPayment(@NonNull final CheckoutPreference checkoutPreference) {
+            public boolean supportsSplitPayment(@Nullable final CheckoutPreference checkoutPreference) {
                 return false;
             }
 

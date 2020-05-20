@@ -8,6 +8,6 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
 public class CheckoutDataMapper extends Mapper<SplitPaymentProcessor.CheckoutData, PaymentProcessor.CheckoutData> {
     @Override
     public PaymentProcessor.CheckoutData map(@NonNull final SplitPaymentProcessor.CheckoutData val) {
-        return new PaymentProcessor.CheckoutData(val.paymentDataList.get(0), val.checkoutPreference);
+        return new PaymentProcessor.CheckoutData(val.paymentDataList.get(0), val.checkoutPreference, val.securityType);
     }
 }

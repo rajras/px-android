@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.repository;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.model.internal.SecurityType;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.model.Currency;
@@ -28,13 +29,15 @@ public interface PaymentSettingRepository {
 
     void configure(@Nullable final PaymentConfiguration paymentConfiguration);
 
-    void configure(@NonNull Configuration configuration);
+    void configure(@NonNull final Configuration configuration);
 
-    void configure(@NonNull Token token);
+    void configure(@NonNull final Token token);
+
+    void configure(@NonNull final SecurityType secondFactor);
 
     void clearToken();
 
-    void configurePreferenceId(@Nullable String preferenceId);
+    void configurePreferenceId(@Nullable final String preferenceId);
 
     void configurePrivateKey(@Nullable final String privateKey);
 
@@ -73,6 +76,9 @@ public interface PaymentSettingRepository {
 
     @Nullable
     Token getToken();
+
+    @NonNull
+    SecurityType getSecurityType();
 
     boolean hasToken();
 }
