@@ -9,14 +9,13 @@ import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.ItemsModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.LineSeparatorType;
-import com.mercadopago.android.px.internal.features.review_and_confirm.models.PaymentModel;
+import com.mercadopago.android.px.internal.features.review_and_confirm.models.ReviewAndConfirmViewModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.SummaryModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.TermsAndConditionsModel;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.Issuer;
@@ -32,15 +31,9 @@ import java.util.List;
 public class ReviewAndConfirmBuilder {
 
     private Boolean hasExtraPaymentMethods;
-    private PostPaymentAction postPaymentAction;
 
     public ReviewAndConfirmBuilder setHasExtraPaymentMethods(final boolean hasExtraPaymentMethods) {
         this.hasExtraPaymentMethods = hasExtraPaymentMethods;
-        return this;
-    }
-
-    public ReviewAndConfirmBuilder setPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
-        this.postPaymentAction = postPaymentAction;
         return this;
     }
 
@@ -53,7 +46,6 @@ public class ReviewAndConfirmBuilder {
         final PaymentSettingRepository paymentSettings = configurationModule.getPaymentSettings();
         final Site site = paymentSettings.getSite();
         final Currency currency = paymentSettings.getCurrency();
-        final String publicKey = paymentSettings.getPublicKey();
         final Token token = paymentSettings.getToken();
         final AmountRepository amountRepository = session.getAmountRepository();
         final PaymentMethod paymentMethod = userSelectionRepository.getPaymentMethod();
@@ -78,7 +70,8 @@ public class ReviewAndConfirmBuilder {
                 resources.getString(R.string.px_discount_terms_and_conditions_linked_message),
                 LineSeparatorType.BOTTOM_LINE_SEPARATOR) : null;
 
-        final PaymentModel paymentModel = new PaymentModel(paymentMethod, token, issuer, hasExtraPaymentMethods);
+        final ReviewAndConfirmViewModel
+            reviewAndConfirmViewModel = new ReviewAndConfirmViewModel(paymentMethod, token, issuer, hasExtraPaymentMethods);
 
         final PayerCost payerCost = userSelectionRepository.getPayerCost();
         final SummaryModel summaryModel =
@@ -95,13 +88,11 @@ public class ReviewAndConfirmBuilder {
         }
 
         return ReviewAndConfirmActivity.getIntentForAction(context,
-            publicKey,
             mercadoPagoTermsAndConditions,
             linkableText,
-            paymentModel,
+            reviewAndConfirmViewModel,
             summaryModel,
             itemsModel,
-            discountTermsAndConditions,
-            postPaymentAction);
+            discountTermsAndConditions);
     }
 }

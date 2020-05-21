@@ -159,10 +159,6 @@ internal class RemediesViewModel(
         }
     }
 
-    fun onPaymentFinished(paymentModel: PaymentModel) {
-        remedyState.value = RemedyState.ShowResult(paymentModel)
-    }
-
     override fun onButtonPressed(action: RemedyButton.Action) {
         when(action) {
             RemedyButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod

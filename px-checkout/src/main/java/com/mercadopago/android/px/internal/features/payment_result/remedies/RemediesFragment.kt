@@ -18,7 +18,6 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.view
 import com.mercadopago.android.px.internal.util.MercadoPagoUtil
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
-import com.mercadopago.android.px.model.IPaymentDescriptor
 
 internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener, PaymentResultFooter.Listener {
 
@@ -80,10 +79,6 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
         viewModel.onPayButtonPressed(callback)
     }
 
-    override fun onPaymentFinished(paymentModel: PaymentModel) {
-        viewModel.onPaymentFinished(paymentModel)
-    }
-
     override fun onLoudButtonClicked(action: RemedyButton.Action) {
         viewModel.onButtonPressed(action)
     }
@@ -110,10 +105,6 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
                 is RemedyState.ShowKyCRemedy -> {
                     highRisk.visible()
                     highRisk.init(it.model)
-                }
-
-                is RemedyState.ShowResult -> {
-                    listener?.showResult(it.paymentModel)
                 }
 
                 is RemedyState.GoToKyc -> {
@@ -153,6 +144,5 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
         fun disablePayButton()
         fun onUserValidation()
         fun changePaymentMethod()
-        fun showResult(paymentModel: PaymentModel)
     }
 }

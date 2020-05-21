@@ -34,7 +34,6 @@ import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 import java.util.List;
 
-import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_FAIL_ESC;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_PAYMENT;
 import static com.mercadopago.android.px.internal.util.ErrorUtil.ERROR_REQUEST_CODE;
@@ -56,12 +55,6 @@ public final class PaymentProcessorActivity extends PXActivity
 
     public static void start(@NonNull final Fragment fragment, final int requestCode) {
         fragment.startActivityForResult(getIntent(fragment.getContext()), requestCode);
-    }
-
-    public static void startWithForwardResult(@NonNull final Activity context) {
-        final Intent intent = getIntent(context);
-        intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
-        context.startActivity(intent);
     }
 
     @NonNull

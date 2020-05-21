@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.features.checkout;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
@@ -16,24 +15,18 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
-import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Cause;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
-
 import java.util.List;
 
-public class CheckoutPresenter extends BasePresenter<Checkout.View> implements PostPaymentAction.ActionController, Checkout.Actions {
+public class CheckoutPresenter extends BasePresenter<Checkout.View> implements Checkout.Actions {
 
     @NonNull /* default */ final CheckoutStateModel state;
     @NonNull /* default */ final PaymentRepository paymentRepository;
@@ -328,39 +321,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
         return state.isUniquePaymentMethod;
     }
 
-    @Override
-    public void onPostPayment(@NonNull final PaymentModel paymentModel) {
-        if (!state.isExpressCheckout) {
-            getView().hideProgress();
-            paymentModel.process(new PaymentModelHandler() {
-                @Override
-                public void visit(@NonNull final PaymentModel paymentModel) {
-                    getView().showPaymentResult(paymentModel);
-                }
-
-                @Override
-                public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                    getView().showBusinessResult(businessPaymentModel);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onRecoverPaymentEscInvalid(final PaymentRecovery recovery) {
-        if (!state.isExpressCheckout) {
-            getView().startPaymentRecoveryFlow(recovery);
-        }
-    }
-
-    @Override
-    public void recoverPayment(@NonNull final PostPaymentAction postPaymentAction) {
-        if (!state.isExpressCheckout) {
-            getView().showReviewAndConfirmAndRecoverPayment(isUniquePaymentMethod(), postPaymentAction);
-        }
-    }
-
-    @Override
+   @Override
     public void onChangePaymentMethod() {
         state.paymentMethodEdited = true;
         userSelectionRepository.reset();
@@ -384,12 +345,6 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
                     getView().showPaymentMethodSelection();
                 }
             });
-    }
-
-    //TODO separate with better navigation when we have a proper driver.
-    @Override
-    public void onChangePaymentMethodFromReviewAndConfirm() {
-        onChangePaymentMethod();
     }
 
     @Override

@@ -35,13 +35,10 @@ import com.mercadopago.android.px.internal.view.AmountDescriptorView;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.SummaryView;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.ConfirmButtonViewModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
-import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ConfirmButtonViewModelMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ElementDescriptorMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.InstallmentViewModelMapper;
@@ -80,8 +77,7 @@ import java.util.Map;
 import java.util.Set;
 
 /* default */ class ExpressPaymentPresenter extends BasePresenter<ExpressPayment.View>
-    implements PostPaymentAction.ActionController, ExpressPayment.Actions,
-    AmountDescriptorView.OnClickListener {
+    implements ExpressPayment.Actions, AmountDescriptorView.OnClickListener {
 
     private static final String BUNDLE_STATE_SPLIT_PREF = "state_split_pref";
     private static final String BUNDLE_STATE_CURRENT_PM_INDEX = "state_current_pm_index";
@@ -368,16 +364,21 @@ import java.util.Set;
     }
 
     @Override
-    public void onChangePaymentMethod() {
-        postDisableModelUpdate();
+    public void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
+        postPaymentAction.execute(new PostPaymentAction.ActionController() {
+            @Override
+            public void recoverPayment(@NonNull final PostPaymentAction postPaymentAction) {
+                //nothing to do here
+            }
+
+            @Override
+            public void onChangePaymentMethod() {
+                postDisableModelUpdate();
+            }
+        });
     }
 
-    @Override
-    public void recoverPayment(@NonNull final PostPaymentAction postPaymentAction) {
-        // do nothing
-    }
-
-    private void postDisableModelUpdate() {
+    /* default */ void postDisableModelUpdate() {
         initRepository.refresh().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
@@ -483,21 +484,6 @@ import java.util.Set;
         }
     }
 
-    @Override
-    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
-        paymentModel.process(new PaymentModelHandler() {
-            @Override
-            public void visit(@NonNull final PaymentModel paymentModel) {
-                getView().showPaymentResult(paymentModel);
-            }
-
-            @Override
-            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                getView().showBusinessResult(businessPaymentModel);
-            }
-        });
-    }
-
     /* default */ void resetState(@NonNull final InitResponse initResponse) {
         expressMetadataList = initResponse.getExpress();
         actionTypeWrapper = new ActionTypeWrapper(expressMetadataList);
@@ -534,5 +520,10 @@ import java.util.Set;
                 }
             }
         });
+    }
+
+    @Override
+    public void onCardFormResult() {
+        postDisableModelUpdate();
     }
 }

@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.features.express.add_new_card;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper;
@@ -15,10 +14,7 @@ import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper;
 import com.mercadopago.android.px.model.OfflineMethodsCompliance;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
@@ -152,21 +148,6 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     @Override
     public void trackAbort() {
         tracker.trackAbort();
-    }
-
-    @Override
-    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
-        paymentModel.process(new PaymentModelHandler() {
-            @Override
-            public void visit(@NonNull final PaymentModel paymentModel) {
-                getView().showPaymentResult(paymentModel);
-            }
-
-            @Override
-            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                getView().showBusinessResult(businessPaymentModel);
-            }
-        });
     }
 
     public void trackOfflineMethodsView(final OfflinePaymentTypesMetadata model) {

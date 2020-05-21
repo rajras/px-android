@@ -10,20 +10,16 @@ import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogI
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
+import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
-import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
-import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import java.util.List;
 
 public interface ExpressPayment {
@@ -65,10 +61,6 @@ public interface ExpressPayment {
 
         void updateBottomSheetStatus(final boolean hasToExpand);
 
-        void showPaymentResult(@NonNull final PaymentModel model);
-
-        void showBusinessResult(@NonNull final BusinessPaymentModel model);
-
         void showGenericDialog(@NonNull GenericDialogItem item);
 
         void startAddNewCardFlow(
@@ -107,12 +99,14 @@ public interface ExpressPayment {
 
         void onOtherPaymentMethodClickableStateChanged(boolean state);
 
-        void onPaymentFinished(@NonNull final PaymentModel paymentModel);
-
         void handlePrePaymentAction(@NonNull final PayButton.OnReadyForPaymentCallback callback);
 
         void handleGenericDialogAction(@NonNull @ActionType final String type);
 
         void handleDeepLink();
+
+        void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction);
+
+        void onCardFormResult();
     }
 }
