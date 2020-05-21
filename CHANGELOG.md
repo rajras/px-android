@@ -1,3 +1,10 @@
+## VERSION 4.45.0
+_21_05_2020_
+* FEATURE - TouchPointView in congrats.
+* FEATURE - Security Type flag on payment processor
+* ENHANCEMENT - Pay button fragment on review and confirm screen
+* FIX - Back button in one tap covered with logo
+
 ## VERSION 4.44.0
 _14_05_2020_
 * FEATURE - Support for Caixa virtual payment method
