@@ -157,7 +157,7 @@ internal class TokenCreationWrapper private constructor(builder: Builder) {
         fun with(paymentRecovery: PaymentRecovery) = apply {
             card = paymentRecovery.card
             token = paymentRecovery.token
-            paymentMethod = card!!.paymentMethod
+            paymentMethod = paymentRecovery.paymentMethod
             reason = Reason.from(paymentRecovery)
         }
 

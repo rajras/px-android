@@ -95,12 +95,22 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
 
     public static void startForRecovery(@NonNull final Fragment fragment, @NonNull final PaymentRecovery recovery,
         final int reqCode) {
-        //noinspection ConstantConditions
-        final Intent intent = createIntent(fragment.getContext(), recovery.getCard());
-        intent.putExtra(EXTRA_PAYMENT_RECOVERY, recovery);
+        final Context context = fragment.getContext();
+        if (context != null) {
+            final Card card = recovery.getCard();
+            final Intent intent = card != null ? createIntent(context, card) : createIntent(context, recovery);
+            intent.putExtra(EXTRA_PAYMENT_RECOVERY, recovery);
+            intent.putExtra(EXTRA_REASON, Reason.from(recovery).name());
+            fragment.startActivityForResult(intent, reqCode);
+        }
+    }
+
+    private static Intent createIntent(@NonNull final Context context, @NonNull final PaymentRecovery recovery) {
+        final Intent intent = new Intent(context, SecurityCodeActivity.class);
+        intent.putExtra(EXTRA_CARD_INFO, new CardInfo(recovery.getToken()));
         intent.putExtra(EXTRA_TOKEN, recovery.getToken());
-        intent.putExtra(EXTRA_REASON, Reason.from(recovery).name());
-        fragment.startActivityForResult(intent, reqCode);
+        intent.putExtra(EXTRA_PAYMENT_METHOD, (Parcelable) recovery.getPaymentMethod());
+        return intent;
     }
 
     private static Intent createIntent(@NonNull final Context context, @NonNull final Card card) {
@@ -113,7 +123,6 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
 
     @Override
     public void onCreated(@Nullable final Bundle savedInstanceState) {
-
         final Session session = Session.getInstance();
         final PaymentSettingRepository paymentSettings = session.getConfigurationModule().getPaymentSettings();
         presenter = new SecurityCodePresenter(paymentSettings, session.getCardTokenRepository(),

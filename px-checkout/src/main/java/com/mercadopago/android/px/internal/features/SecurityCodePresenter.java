@@ -23,7 +23,6 @@ import com.mercadopago.android.px.model.SavedCardToken;
 import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Setting;
 import com.mercadopago.android.px.model.Token;
-import com.mercadopago.android.px.model.display_info.DisplayInfo;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -104,9 +103,8 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
 
     @Nullable
     public CvvInfo getCvvInfo() {
-        PaymentMethod pm = getCard().getPaymentMethod();
-        if (pm != null && pm.getDisplayInfo() != null) {
-            return pm.getDisplayInfo().getCvvInfo();
+        if (paymentMethod != null && paymentMethod.getDisplayInfo() != null) {
+            return paymentMethod.getDisplayInfo().getCvvInfo();
         }
         return null;
     }
@@ -260,9 +258,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     private boolean hasToCloneToken() {
-        return paymentRecovery != null &&
-            (paymentRecovery.isStatusDetailCallForAuthorize() || paymentRecovery.isStatusDetailCardDisabled()) &&
-            token != null && TextUtil.isEmpty(token.getCardId());
+        return paymentRecovery != null && token != null && TextUtil.isEmpty(token.getCardId());
     }
 
     private boolean hasToRecoverTokenFromESC() {

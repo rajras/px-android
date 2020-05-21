@@ -31,6 +31,7 @@ import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
+import com.mercadopago.android.px.model.PaymentMethod
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.model.Reason
@@ -69,13 +70,15 @@ class PayButtonFragment : Fragment(), PayButton.View {
         }
         updateButtonState()
 
-        viewModel.buttonTextLiveData.observe(viewLifecycleOwner,
-            Observer { buttonConfig -> button.text = buttonConfig!!.getButtonText(this.context!!) })
-        viewModel.cvvRequiredLiveData.observe(viewLifecycleOwner,
-            Observer { pair -> pair?.let { showSecurityCodeScreen(it.first, it.second) } })
-        viewModel.recoverRequiredLiveData.observe(viewLifecycleOwner,
-            Observer { recovery -> recovery?.let { showSecurityCodeForRecovery(it) } })
-        viewModel.stateUILiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onStateUIChanged(it) } })
+        with(viewModel) {
+            buttonTextLiveData.observe(viewLifecycleOwner,
+                Observer { buttonConfig -> button.text = buttonConfig!!.getButtonText(this@PayButtonFragment.context!!) })
+            cvvRequiredLiveData.observe(viewLifecycleOwner,
+                Observer { pair -> pair?.let { showSecurityCodeScreen(it.first, it.second) } })
+            recoverRequiredLiveData.observe(viewLifecycleOwner,
+                Observer { recovery -> recovery?.let { showSecurityCodeForRecovery(it) } })
+            stateUILiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onStateUIChanged(it) } })
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
