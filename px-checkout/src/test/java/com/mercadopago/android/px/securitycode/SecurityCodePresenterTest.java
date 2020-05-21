@@ -226,7 +226,10 @@ public class SecurityCodePresenterTest {
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(cardTokenRepository.createToken(any(SavedESCCardToken.class)))
             .thenReturn(new StubSuccessMpCall<>(stubToken));
+        final Token token = mock(Token.class);
+        when(token.getCardId()).thenReturn("123");
 
+        presenter.setToken(token);
         presenter.saveSecurityCode(DUMMY_CVV);
         presenter.validateSecurityCodeInput();
 
@@ -246,7 +249,10 @@ public class SecurityCodePresenterTest {
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(cardTokenRepository.createToken(any(SavedESCCardToken.class)))
             .thenReturn(new StubFailMpCall<>(apiException));
+        final Token token = mock(Token.class);
+        when(token.getCardId()).thenReturn("123");
 
+        presenter.setToken(token);
         presenter.saveSecurityCode(DUMMY_CVV);
         presenter.validateSecurityCodeInput();
 
@@ -265,7 +271,10 @@ public class SecurityCodePresenterTest {
         when(paymentRecovery.isStatusDetailInvalidESC()).thenReturn(true);
         when(cardTokenRepository.createToken(any(SavedESCCardToken.class)))
             .thenReturn(new StubSuccessMpCall<>(stubToken));
+        final Token token = mock(Token.class);
+        when(token.getCardId()).thenReturn("123");
 
+        presenter.setToken(token);
         presenter.saveSecurityCode(DUMMY_CVV);
         presenter.validateSecurityCodeInput();
 
@@ -284,7 +293,10 @@ public class SecurityCodePresenterTest {
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(escManagerBehaviour.isESCEnabled()).thenReturn(false);
         when(cardTokenRepository.createToken(any(SavedCardToken.class))).thenReturn(new StubSuccessMpCall<>(stubToken));
+        final Token token = mock(Token.class);
+        when(token.getCardId()).thenReturn("123");
 
+        presenter.setToken(token);
         presenter.saveSecurityCode(DUMMY_CVV);
         presenter.validateSecurityCodeInput();
 
@@ -302,7 +314,10 @@ public class SecurityCodePresenterTest {
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(escManagerBehaviour.isESCEnabled()).thenReturn(false);
         when(cardTokenRepository.createToken(any(SavedCardToken.class))).thenReturn(new StubFailMpCall<>(apiException));
+        final Token token = mock(Token.class);
+        when(token.getCardId()).thenReturn("123");
 
+        presenter.setToken(token);
         presenter.saveSecurityCode(DUMMY_CVV);
         presenter.validateSecurityCodeInput();
 

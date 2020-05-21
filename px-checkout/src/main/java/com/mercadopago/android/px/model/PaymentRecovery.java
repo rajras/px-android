@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.model;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import java.io.Serializable;
 
 //TODO move to internal package.
@@ -9,6 +10,7 @@ public class PaymentRecovery implements Serializable {
     private final String statusDetail;
     private final Token token;
     private final Card card;
+    private final PaymentMethod paymentMethod;
 
     @Deprecated
     public PaymentRecovery(final String paymentStatusDetail) {
@@ -20,18 +22,31 @@ public class PaymentRecovery implements Serializable {
         this(statusDetail, token, null);
     }
 
-    public PaymentRecovery(@NonNull final String statusDetail, @NonNull final Token token, @NonNull final Card card) {
+    @Deprecated
+    public PaymentRecovery(@NonNull final String statusDetail, @NonNull final Token token, @Nullable final Card card) {
+        this(statusDetail, token, card, null);
+    }
+
+    public PaymentRecovery(@NonNull final String statusDetail, @NonNull final Token token, @Nullable final Card card,
+        @NonNull final PaymentMethod paymentMethod) {
         this.statusDetail = statusDetail;
         this.token = token;
         this.card = card;
+        this.paymentMethod = paymentMethod;
     }
 
     public Token getToken() {
         return token;
     }
 
+    @Nullable
     public Card getCard() {
         return card;
+    }
+
+    @NonNull
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
     public boolean isTokenRecoverable() {

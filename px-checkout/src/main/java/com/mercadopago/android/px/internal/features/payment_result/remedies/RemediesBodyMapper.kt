@@ -4,8 +4,8 @@ import com.mercadopago.android.px.internal.repository.AmountRepository
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
 import com.mercadopago.android.px.model.PaymentData
-import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 import com.mercadopago.android.px.model.internal.remedies.RemediesBody
+import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 
 internal class RemediesBodyMapper(private val userSelectionRepository: UserSelectionRepository,
     private val amountRepository: AmountRepository, private val customOptionId: String,
@@ -15,6 +15,8 @@ internal class RemediesBodyMapper(private val userSelectionRepository: UserSelec
     override fun map(data: PaymentData): RemediesBody {
         val (secCodeLocation, secCodeLength, escStatus) = userSelectionRepository.card?.let {
             Triple(it.securityCodeLocation, it.securityCodeLength, it.escStatus)
+        } ?: data.token?.let {
+            Triple(DEFAULT_CVV_LOCATION, it.securityCodeLength, null)
         } ?: Triple(null, null, null)
         with(data) {
             val payerPaymentMethodRejected = RemedyPaymentMethod(customOptionId, payerCost?.installments,
@@ -23,5 +25,9 @@ internal class RemediesBodyMapper(private val userSelectionRepository: UserSelec
                 null, escStatus, esc)
             return RemediesBody(payerPaymentMethodRejected, alternativePayerPaymentMethods)
         }
+    }
+
+    companion object {
+        private const val DEFAULT_CVV_LOCATION = "back"
     }
 }
