@@ -31,7 +31,6 @@ import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
-import com.mercadopago.android.px.model.PaymentMethod
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.model.Reason
@@ -131,7 +130,6 @@ class PayButtonFragment : Fragment(), PayButton.View {
     private fun startBiometricsValidation(validationData: SecurityValidationData) {
         disable()
         BehaviourProvider.getSecurityBehaviour().startValidation(this, validationData, REQ_CODE_BIOMETRICS)
-
     }
 
     override fun onAnimationFinished() {
@@ -174,19 +172,21 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
     private fun finishLoading(params: ExplodeDecorator) {
         childFragmentManager.findFragmentByTag(ExplodingFragment.TAG)
-            ?.let { (it as ExplodingFragment).finishLoading(params)  }
+            ?.let { (it as ExplodingFragment).finishLoading(params) }
             ?: viewModel.hasFinishPaymentAnimation()
     }
 
     private fun startLoadingButton(paymentTimeout: Int, buttonConfig: ButtonConfig) {
-        hideConfirmButton()
-        ViewUtils.runWhenViewIsFullyMeasured(view!!) {
-            val explodeParams = ExplodingFragment.getParams(button,
-                buttonConfig.getButtonProgressText(context!!), paymentTimeout)
-            val explodingFragment = ExplodingFragment.newInstance(explodeParams)
-            childFragmentManager.beginTransaction()
-                .add(R.id.exploding_frame, explodingFragment, ExplodingFragment.TAG)
-                .commitNowAllowingStateLoss()
+        context?.let {
+            button.post {
+                val explodeParams = ExplodingFragment.getParams(button, buttonConfig.getButtonProgressText(it),
+                    paymentTimeout)
+                val explodingFragment = ExplodingFragment.newInstance(explodeParams)
+                childFragmentManager.beginTransaction()
+                    .add(R.id.exploding_frame, explodingFragment, ExplodingFragment.TAG)
+                    .commitNowAllowingStateLoss()
+                hideConfirmButton()
+            }
         }
     }
 

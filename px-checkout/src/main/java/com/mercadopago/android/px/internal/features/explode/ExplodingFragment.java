@@ -6,7 +6,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -40,7 +39,6 @@ public class ExplodingFragment extends Fragment {
     private static final String BUNDLE_DECORATOR = "BUNDLE_DECORATOR";
     private static final String ARG_EXPLODING_PARAMS = "ARG_EXPLODING_PARAMS";
 
-    private static final int MAX_LOADING_TIME = 20000; // the max loading time in milliseconds
     public static final float ICON_SCALE = 3.0f;
 
     /* default */ ProgressBar progressBar;
@@ -58,7 +56,6 @@ public class ExplodingFragment extends Fragment {
     private CharSequence buttonText;
     //TODO add loading time payment processor
     private int maxLoadingTime;
-    private int previousOrientation;
 
     /* default */ ExplodingAnimationListener listener;
 
@@ -82,8 +79,7 @@ public class ExplodingFragment extends Fragment {
         final int timeout) {
         final int[] location = new int[2];
         button.getLocationOnScreen(location);
-        return new ExplodeParams(location[1] - button.getMeasuredHeight() / 2,
-            button.getMeasuredHeight(), location[0], progressText, timeout);
+        return new ExplodeParams(location[1], button.getMeasuredHeight(), location[0], progressText, timeout);
     }
 
     @Override
@@ -92,17 +88,16 @@ public class ExplodingFragment extends Fragment {
         final Bundle args = getArguments();
         if (args != null) {
             final ExplodeParams explodeParams = (ExplodeParams) args.getSerializable(ARG_EXPLODING_PARAMS);
-            if (explodeParams == null) {
-                yButtonPosition = 0;
-                buttonHeight = (int) getContext().getResources().getDimension(R.dimen.px_m_height);
-                buttonLeftRightMargin = (int) getContext().getResources().getDimension(R.dimen.px_s_margin);
-                maxLoadingTime = MAX_LOADING_TIME;
-            } else {
-                yButtonPosition = explodeParams.getyButtonPositionInPixels();
+            if (explodeParams != null) {
+                final int[] parentLocation = new int[2];
+                getActivityContentView().getLocationOnScreen(parentLocation);
+                yButtonPosition = explodeParams.getyButtonPositionInPixels() - parentLocation[1];
                 buttonHeight = explodeParams.getButtonHeightInPixels();
                 buttonLeftRightMargin = explodeParams.getButtonLeftRightMarginInPixels();
                 buttonText = explodeParams.getButtonText();
                 maxLoadingTime = explodeParams.getPaymentTimeout();
+            } else {
+                throw new RuntimeException("Missing explode params");
             }
         }
     }
@@ -111,7 +106,7 @@ public class ExplodingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
         final Bundle savedInstanceState) {
-        ViewGroup view = getActivity().findViewById(android.R.id.content);
+        final ViewGroup view = getActivityContentView();
         rootView = (ViewGroup) inflater.inflate(R.layout.px_fragment_exploding, view);
         circle = rootView.findViewById(R.id.cho_loading_buy_circular);
         icon = rootView.findViewById(R.id.cho_loading_buy_icon);
@@ -147,7 +142,7 @@ public class ExplodingFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        ViewGroup view = getActivity().findViewById(android.R.id.content);
+        final ViewGroup view = getActivityContentView();
         view.removeViewAt(view.getChildCount()-1);
         super.onDestroyView();
     }
@@ -366,10 +361,6 @@ public class ExplodingFragment extends Fragment {
     public void onAttach(final Context context) {
         super.onAttach(context);
         configureListener(context);
-
-        // lock the orientation during the loading
-        previousOrientation = getResources().getConfiguration().orientation;
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
     }
 
     private void configureListener(final Context context) {
@@ -382,10 +373,13 @@ public class ExplodingFragment extends Fragment {
         }
     }
 
+    private ViewGroup getActivityContentView() {
+        return getActivity().findViewById(android.R.id.content);
+    }
+
     @Override
     public void onDetach() {
-        listener = null;
-        getActivity().setRequestedOrientation(previousOrientation);
         super.onDetach();
+        listener = null;
     }
 }
