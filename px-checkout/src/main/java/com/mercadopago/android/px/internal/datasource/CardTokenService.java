@@ -59,21 +59,9 @@ public class CardTokenService implements CardTokenRepository {
     public MPCall<Token> createTokenAsync(final CardToken cardToken) {
         cardToken.setDevice(device);
         cardToken.setRequireEsc(escManagerBehaviour.isESCEnabled());
-        return new MPCall<Token>() {
-            @Override
-            public void enqueue(final Callback<Token> callback) {
-                gatewayService
-                    .createToken(paymentSettingRepository.getPublicKey(), paymentSettingRepository.getPrivateKey(),
-                        cardToken).enqueue(wrap(cardToken, callback));
-            }
-
-            @Override
-            public void execute(final Callback<Token> callback) {
-                gatewayService
-                    .createToken(paymentSettingRepository.getPublicKey(), paymentSettingRepository.getPrivateKey(),
-                        cardToken).execute(wrap(cardToken, callback));
-            }
-        };
+        return callback -> gatewayService
+            .createToken(paymentSettingRepository.getPublicKey(), paymentSettingRepository.getPrivateKey(),
+                cardToken).enqueue(wrap(cardToken, callback));
     }
 
     @Override

@@ -95,11 +95,6 @@ public class InitService implements InitRepository {
                 newRequest().enqueue(getInternalCallback(callback));
             }
 
-            @Override
-            public void execute(final Callback<InitResponse> callback) {
-                newRequest().execute(getInternalCallback(callback));
-            }
-
             @NonNull /* default */ Callback<InitResponse> getInternalCallback(
                 final Callback<InitResponse> callback) {
                 return new Callback<InitResponse>() {
@@ -153,17 +148,7 @@ public class InitService implements InitRepository {
 
     @Override
     public MPCall<InitResponse> refresh() {
-        return new MPCall<InitResponse>() {
-            @Override
-            public void enqueue(final Callback<InitResponse> callback) {
-                init().enqueue(getRefreshCallback(callback));
-            }
-
-            @Override
-            public void execute(final Callback<InitResponse> callback) {
-                init().execute(getRefreshCallback(callback));
-            }
-        };
+        return callback -> init().enqueue(getRefreshCallback(callback));
     }
 
     @Override
@@ -194,18 +179,9 @@ public class InitService implements InitRepository {
 
     @Override
     public MPCall<InitResponse> refreshWithNewCard(@NonNull final String cardId) {
-        return new MPCall<InitResponse>() {
-            @Override
-            public void enqueue(final Callback<InitResponse> callback) {
-                initCache.evict();
-                init().enqueue(getRefreshWithNewCardCallback(cardId, callback));
-            }
-
-            @Override
-            public void execute(final Callback<InitResponse> callback) {
-                initCache.evict();
-                init().execute(getRefreshWithNewCardCallback(cardId, callback));
-            }
+        return callback -> {
+            initCache.evict();
+            init().enqueue(getRefreshWithNewCardCallback(cardId, callback));
         };
     }
 

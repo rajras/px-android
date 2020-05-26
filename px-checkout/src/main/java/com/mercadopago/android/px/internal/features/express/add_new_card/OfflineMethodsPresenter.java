@@ -92,7 +92,7 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     }
 
     private void initPresenter() {
-        initRepository.init().execute(new Callback<InitResponse>() {
+        initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
                 payerCompliance =

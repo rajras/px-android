@@ -42,11 +42,6 @@ public class TokenizeService implements TokenRepository {
             public void enqueue(final Callback<Token> callback) {
                 serviceCallWrapp(card.getId(), esc).enqueue(wrap(card, esc, callback));
             }
-
-            @Override
-            public void execute(final Callback<Token> callback) {
-                serviceCallWrapp(card.getId(), esc).enqueue(wrap(card, esc, callback));
-            }
         };
     }
 

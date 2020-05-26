@@ -22,7 +22,7 @@ public class AddNewCardOldPresenter extends OtherPaymentMethodPresenter {
 
     @Override
     public void onAddNewCardSelected() {
-        initRepository.init().execute(new Callback<InitResponse>() {
+        initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
                 getView().showPaymentMethods(getCardsGroup(initResponse.getGroups()));
