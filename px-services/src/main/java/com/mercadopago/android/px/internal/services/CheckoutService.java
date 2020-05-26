@@ -5,12 +5,12 @@ import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.internal.InitResponse;
+import com.mercadopago.android.px.services.BuildConfig;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -18,26 +18,22 @@ import retrofit2.http.Query;
 public interface CheckoutService {
 
     String CHECKOUT_VERSION = "v2";
+    String ENVIRONMENT = BuildConfig.API_ENVIRONMENT_NEW;
 
-    @POST("{environment}/px_mobile/" + CHECKOUT_VERSION + "/checkout")
+    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout")
     MPCall<InitResponse> checkout(
-        @Path(value = "environment", encoded = true) String environment,
-        @Header("Accept-Language") String locale,
         @Query("access_token") String privateKey,
         @Body Map<String, Object> body);
 
-    @POST("{environment}/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
+    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
     MPCall<InitResponse> checkout(
-        @Path(value = "environment", encoded = true) String environment,
         @Path(value = "preference_id", encoded = true) String preferenceId,
-        @Header("Accept-Language") String locale,
         @Query("access_token") String privateKey,
         @Body Map<String, Object> body);
 
     /**
      * Old api call version ; used by MercadoPagoServices.
      *
-     * @param locale
      * @param publicKey
      * @param amount
      * @param excludedPaymentTypes
@@ -54,7 +50,6 @@ public interface CheckoutService {
     @GET("{environment}/px_mobile_api/payment_methods?api_version=1.8")
     MPCall<PaymentMethodSearch> getPaymentMethodSearch(
         @Path(value = "environment", encoded = true) String environment,
-        @Header("Accept-Language") String locale,
         @Query("public_key") String publicKey,
         @Query("amount") BigDecimal amount,
         @Query("excluded_payment_types") String excludedPaymentTypes,
