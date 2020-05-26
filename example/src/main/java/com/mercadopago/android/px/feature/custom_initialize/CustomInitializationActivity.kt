@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.CheckBox
 import com.mercadopago.android.px.di.Dependencies
 import com.mercadopago.example.R
 
@@ -19,6 +20,7 @@ class CustomInitializationActivity : AppCompatActivity() {
     private lateinit var publicKeyInput: AutoCompleteTextView
     private lateinit var preferenceIdInput: AutoCompleteTextView
     private lateinit var accessTokenInput: AutoCompleteTextView
+    private lateinit var oneTapCheck: CheckBox
     private lateinit var clearButton: Button
     private lateinit var startButton: Button
 
@@ -30,11 +32,17 @@ class CustomInitializationActivity : AppCompatActivity() {
         publicKeyInput = findViewById(R.id.publicKeyInput)
         preferenceIdInput = findViewById(R.id.preferenceIdInput)
         accessTokenInput = findViewById(R.id.accessTokenInput)
+        oneTapCheck = findViewById(R.id.one_tap)
         clearButton = findViewById(R.id.clearButton)
         startButton = findViewById(R.id.startButton)
         configureViews()
         bindViewModel(savedInstanceState)
         viewModel.initialize()
+    }
+
+    override fun onSaveInstanceState(bundle: Bundle?) {
+        super.onSaveInstanceState(bundle)
+        bundle?.let { viewModel.storeInBundle(it) }
     }
 
     private fun bindViewModel(savedInstanceState: Bundle?) {
@@ -58,17 +66,20 @@ class CustomInitializationActivity : AppCompatActivity() {
         publicKeyInput.setText(initializationData.publicKey.value)
         preferenceIdInput.setText(initializationData.preferenceId.value)
         accessTokenInput.setText(initializationData.accessToken.value)
+        oneTapCheck.isChecked = initializationData.oneTap.value
     }
 
     private fun configureViews() {
         configInputDropDownView(localeInput, resources.getStringArray(R.array.locales))
-        { value -> value?.let { viewModel.onInputChanged(InitializationDataType.Locale(it)) } }
+        { value -> value?.let { viewModel.onConfigurationChanged(ConfigurationStringData.Locale(it)) } }
         configInputDropDownView(publicKeyInput, resources.getStringArray(R.array.public_key))
-        { value -> value?.let { viewModel.onInputChanged(InitializationDataType.PublicKey(it)) } }
+        { value -> value?.let { viewModel.onConfigurationChanged(ConfigurationStringData.PublicKey(it)) } }
         configInputDropDownView(preferenceIdInput, resources.getStringArray(R.array.preference_ids))
-        { value -> value?.let { viewModel.onInputChanged(InitializationDataType.PreferenceId(it)) } }
+        { value -> value?.let { viewModel.onConfigurationChanged(ConfigurationStringData.PreferenceId(it)) } }
         configInputDropDownView(accessTokenInput, resources.getStringArray(R.array.access_tokens))
-        { value -> value?.let { viewModel.onInputChanged(InitializationDataType.AccessToken(it)) } }
+        { value -> value?.let { viewModel.onConfigurationChanged(ConfigurationStringData.AccessToken(it)) } }
+        oneTapCheck.setOnCheckedChangeListener()
+        { _, isChecked -> viewModel.onConfigurationChanged(ConfigurationBooleanData.OneTap(isChecked)) }
 
         clearButton.setOnClickListener { viewModel.onClear() }
         startButton.setOnClickListener { viewModel.onStartButtonClicked() }
