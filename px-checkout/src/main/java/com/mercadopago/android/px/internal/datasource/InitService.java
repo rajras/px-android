@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT_NEW;
-
 public class InitService implements InitRepository {
 
     private static final int MAX_REFRESH_RETRIES = 4;
@@ -39,7 +37,6 @@ public class InitService implements InitRepository {
 
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final CheckoutService checkoutService;
-    @NonNull private final String language;
     @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
     @NonNull /* default */ final ExperimentsRepository experimentsRepository;
     @NonNull /* default */ DisabledPaymentMethodRepository disabledPaymentMethodRepository;
@@ -53,14 +50,12 @@ public class InitService implements InitRepository {
         @NonNull final ExperimentsRepository experimentsRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour, @NonNull final CheckoutService checkoutService,
-        @NonNull final String language, @NonNull final FlowIdProvider flowIdProvider,
-        @NonNull final Cache<InitResponse> initCache) {
+        @NonNull final FlowIdProvider flowIdProvider, @NonNull final Cache<InitResponse> initCache) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.experimentsRepository = experimentsRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.escManagerBehaviour = escManagerBehaviour;
         this.checkoutService = checkoutService;
-        this.language = language;
         this.flowIdProvider = flowIdProvider;
         this.initCache = initCache;
     }
@@ -138,23 +133,21 @@ public class InitService implements InitRepository {
             .setOdrFlag(true)
             .build();
 
-        final InitRequest initRequest = new InitRequest.Builder(paymentSettingRepository.getPublicKey())
-            .setCardWithEsc(new ArrayList<>(escManagerBehaviour.getESCCardIds()))
-            .setCharges(paymentConfiguration.getCharges())
-            .setDiscountParamsConfiguration(discountParamsConfiguration)
-            .setCheckoutFeatures(features)
-            .setCheckoutPreference(checkoutPreference)
-            .setFlow(flowIdProvider.getFlowId())
-            .build();
+        final Map<String, Object> body = JsonUtil.getMapFromObject(
+            new InitRequest.Builder(paymentSettingRepository.getPublicKey())
+                .setCardWithEsc(new ArrayList<>(escManagerBehaviour.getESCCardIds()))
+                .setCharges(paymentConfiguration.getCharges())
+                .setDiscountParamsConfiguration(discountParamsConfiguration)
+                .setCheckoutFeatures(features)
+                .setCheckoutPreference(checkoutPreference)
+                .setFlow(flowIdProvider.getFlowId())
+                .build());
 
         final String preferenceId = paymentSettingRepository.getCheckoutPreferenceId();
         if (preferenceId != null) {
-            return checkoutService
-                .checkout(API_ENVIRONMENT_NEW, preferenceId, language, paymentSettingRepository.getPrivateKey(),
-                    JsonUtil.getMapFromObject(initRequest));
+            return checkoutService.checkout(preferenceId, paymentSettingRepository.getPrivateKey(), body);
         } else {
-            return checkoutService.checkout(API_ENVIRONMENT_NEW, language, paymentSettingRepository.getPrivateKey(),
-                JsonUtil.getMapFromObject(initRequest));
+            return checkoutService.checkout(paymentSettingRepository.getPrivateKey(), body);
         }
     }
 

@@ -76,7 +76,7 @@ public class MercadoPagoServices {
     public void getInstructions(final Long paymentId, final String paymentTypeId,
         final Callback<Instructions> callback) {
         final InstructionsClient service = retrofitClient.create(InstructionsClient.class);
-        service.getInstructions(API_ENVIRONMENT, LocaleUtil.getLanguage(context), paymentId, publicKey, privateKey,
+        service.getInstructions(API_ENVIRONMENT, paymentId, publicKey, privateKey,
             paymentTypeId).enqueue(callback);
     }
 
@@ -103,8 +103,7 @@ public class MercadoPagoServices {
         final String cardsWithEscAppended = getListAsString(cardsWithEsc, separator);
 
         service.getPaymentMethodSearch(
-            API_ENVIRONMENT,
-            LocaleUtil.getLanguage(context), publicKey, amount,
+            API_ENVIRONMENT, publicKey, amount,
             excludedPaymentTypesAppended, excludedPaymentMethodsAppended, site.getId(),
             processingMode.asQueryParamName(), cardsWithEscAppended,
             differentialPricing, null, false,

@@ -21,15 +21,12 @@ public class InstructionsService implements InstructionsRepository {
 
     /* default */ @NonNull final PaymentSettingRepository paymentSettingRepository;
     /* default */ @NonNull final InstructionsClient instructionsClient;
-    /* default */ @NonNull final String locale;
     /* default */ @NonNull final LongSparseArray<List<Instruction>> instructionsCache = new LongSparseArray<>();
 
     public InstructionsService(@NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final InstructionsClient instructionsClient,
-        @NonNull final String locale) {
+        @NonNull final InstructionsClient instructionsClient) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.instructionsClient = instructionsClient;
-        this.locale = locale;
     }
 
     @Override
@@ -97,11 +94,8 @@ public class InstructionsService implements InstructionsRepository {
         return new MPCallWrapper<Instructions>() {
             @Override
             protected MPCall<Instructions> method() {
-                return instructionsClient.getInstructions(API_ENVIRONMENT,
-                    locale, id,
-                    paymentSettingRepository.getPublicKey(),
-                    paymentSettingRepository.getPrivateKey(),
-                    paymentTypeId);
+                return instructionsClient.getInstructions(API_ENVIRONMENT, id, paymentSettingRepository.getPublicKey(),
+                    paymentSettingRepository.getPrivateKey(), paymentTypeId);
             }
         }.wrap();
     }
