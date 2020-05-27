@@ -36,7 +36,6 @@
                 android:id="@+id/body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:importantForAccessibility="noHideDescendants"
                 />
 
             <!-- Body used to draw instructions or error messages of the old congrats -->
