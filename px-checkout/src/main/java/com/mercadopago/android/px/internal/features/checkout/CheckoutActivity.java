@@ -93,7 +93,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
                 fragment.onDeepLinkReceived();
             }
         } else {
-            FragmentUtil.removeFragment(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
+            FragmentUtil.tryRemoveNow(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
             // if onNewIntent is called, means that we are initialized twice, so we need to detach previews presenter
             if (presenter != null) {
                 presenter.detachView();

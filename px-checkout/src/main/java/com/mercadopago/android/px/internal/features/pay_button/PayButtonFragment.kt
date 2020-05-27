@@ -166,7 +166,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
     }
 
     override fun onDestroy() {
-        FragmentUtil.removeFragment(childFragmentManager, ExplodingFragment.TAG)
+        FragmentUtil.tryRemoveNow(childFragmentManager, ExplodingFragment.TAG)
         super.onDestroy()
     }
 
