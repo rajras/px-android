@@ -585,7 +585,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 .replace(R.id.off_methods_fragment, instance,
                     TAG_OFFLINE_METHODS_FRAGMENT)
                 .addToBackStack(TAG_OFFLINE_METHODS_FRAGMENT)
-                .commit();
+                .commitAllowingStateLoss();
             instance.setTargetFragment(this, 1);
         } else {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);

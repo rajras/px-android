@@ -179,6 +179,9 @@ public class ExplodingFragment extends Fragment {
      */
     public void finishLoading(@NonNull final ExplodeDecorator explodeDecorator) {
         this.explodeDecorator = explodeDecorator;
+        if (explodeDecorator == null) {
+            throw new RuntimeException("Explode decorator can't be null");
+        }
         // now finish the remaining loading progress
         final int progress = progressBar.getProgress();
         animator.cancel();
