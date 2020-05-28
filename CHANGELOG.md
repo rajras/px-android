@@ -1,4 +1,4 @@
-## VERSION 4.45.1
+## VERSION 4.46.1
 _28_05_2020_
 * FIX - Payment method malformed in payment data
 
