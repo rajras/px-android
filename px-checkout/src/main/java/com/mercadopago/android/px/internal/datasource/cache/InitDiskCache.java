@@ -42,17 +42,7 @@ public class InitDiskCache implements Cache<InitResponse> {
     @NonNull
     @Override
     public MPCall<InitResponse> get() {
-        return new MPCall<InitResponse>() {
-            @Override
-            public void enqueue(final Callback<InitResponse> callback) {
-                executorService.execute(() -> read(callback));
-            }
-
-            @Override
-            public void execute(final Callback<InitResponse> callback) {
-                readExec(callback);
-            }
-        };
+        return callback -> executorService.execute(() -> read(callback));
     }
 
     /* default */ void read(final Callback<InitResponse> callback) {
@@ -69,31 +59,17 @@ public class InitDiskCache implements Cache<InitResponse> {
         }
     }
 
-    /* default */ void readExec(final Callback<InitResponse> callback) {
-        if (isCached()) {
-            final String fileContent = fileManager.readFileContent(initFile);
-            final InitResponse initResponse = JsonUtil.fromJson(fileContent, InitResponse.class);
-            if (initResponse != null) {
-                callback.success(initResponse);
-            } else {
-                callback.failure(new ApiException());
-            }
-        } else {
-            callback.failure(new ApiException());
-        }
-    }
-
     @Override
     public void put(@NonNull final InitResponse initResponse) {
         if (!isCached()) {
-            executorService.execute(new CacheWriter(fileManager, initFile, JsonUtil.toJson(initResponse)));
+            executorService.execute(() -> fileManager.writeToFile(initFile, JsonUtil.toJson(initResponse)));
         }
     }
 
     @Override
     public void evict() {
         if (isCached()) {
-            new CacheEvict(fileManager, initFile).run();
+            fileManager.removeFile(initFile);
         }
     }
 

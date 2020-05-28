@@ -1,1 +1,4 @@
-<resources></resources>
+<resources>
+    <dimen name="ui_0_5m">4dp</dimen>
+    <dimen name="ui_2m">16dp</dimen>
+</resources>
