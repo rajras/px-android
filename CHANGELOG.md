@@ -1,3 +1,7 @@
+## VERSION 4.45.1
+_28_05_2020_
+* FIX - Payment method malformed in payment data
+
 ## VERSION 4.45.0
 _21_05_2020_
 * FEATURE - TouchPointView in congrats.
