@@ -1,3 +1,7 @@
+## VERSION 4.45.1
+_28_05_2020_
+* FIX - Payment method malformed in payment data
+
 ## VERSION 4.46.0
 _28_05_2020_
 * FEATURE - Accessibility support on congrats screen
