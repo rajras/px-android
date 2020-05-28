@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mercadopago/px-android.svg?branch=master)](https://travis-ci.org/mercadopago/px-android)
+[![Build Status](https://app.bitrise.io/app/4b686858985766f0/status.svg?token=ls19BfGu3wG58WAx6sMC7Q&branch=master)](https://app.bitrise.io/app/4b686858985766f0)
 [![Codecov branch](https://img.shields.io/codecov/c/github/mercadopago/px-android/develop.svg)](https://codecov.io/gh/mercadopago/px-android/)
 [![Bintray](https://img.shields.io/bintray/v/mercadopago/android/com.mercadopago.android.px.checkout.svg)](https://bintray.com/mercadopago/android/com.mercadopago.android.px.checkout)
 ![GitHub tag](https://img.shields.io/github/tag/mercadopago/px-android.svg)
