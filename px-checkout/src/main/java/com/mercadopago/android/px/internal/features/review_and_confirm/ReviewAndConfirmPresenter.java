@@ -69,16 +69,17 @@ import java.util.Set;
     @Override
     public void onPrePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         final PaymentMethod paymentMethod = userSelectionRepository.getPaymentMethod();
+        final String paymentTypeId = paymentMethod.getPaymentTypeId();
+        final String paymentMethodId = paymentMethod.getId();
         final Card card = userSelectionRepository.getCard();
         final PayerCost payerCost = userSelectionRepository.getPayerCost();
-        final boolean isCard = PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId());
-        final String paymentMethodId = paymentMethod.getId();
+        final boolean isCard = PaymentTypes.isCardPaymentType(paymentTypeId);
         //Card is null on guessing card flow
         final String customOptionId = isCard ? (card != null ? card.getId() : "") : paymentMethodId;
         callback.call(
             new PaymentConfiguration(
                 paymentMethodId,
-                paymentMethodId,
+                paymentTypeId,
                 customOptionId,
                 isCard,
                 false,
