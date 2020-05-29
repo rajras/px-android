@@ -3,7 +3,6 @@ package com.mercadopago.android.px.tracking.internal;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.core.FlowIdProvider;
-import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.model.CheckoutType;
 import com.mercadopago.android.px.model.Event;
