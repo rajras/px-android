@@ -1,3 +1,7 @@
+## VERSION 4.46.2
+_29_05_2020_
+* FIX - Flow id lost on session init
+
 ## VERSION 4.45.2
 _29_05_2020_
 * FIX - Flow id lost on session init
