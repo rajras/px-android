@@ -7,6 +7,8 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.Reme
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
 import com.mercadopago.android.px.internal.services.CongratsService
+import com.mercadopago.android.px.internal.services.Response
+import com.mercadopago.android.px.internal.services.awaitCallback
 import com.mercadopago.android.px.internal.util.StatusHelper
 import com.mercadopago.android.px.internal.util.TextUtil
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
@@ -16,8 +18,6 @@ import com.mercadopago.android.px.model.internal.CongratsResponse
 import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
 import com.mercadopago.android.px.services.BuildConfig
-import com.mercadopago.android.px.internal.services.Response
-import com.mercadopago.android.px.internal.services.awaitCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,10 +25,10 @@ import kotlinx.coroutines.withContext
 
 class CongratsRepositoryImpl(
     private val congratsService: CongratsService, private val initService: InitRepository,
-    private val paymentSetting: PaymentSettingRepository, private val platform: String, private val locale: String,
+    private val paymentSetting: PaymentSettingRepository, private val platform: String,
     private val flowIdProvider: FlowIdProvider, private val userSelectionRepository: UserSelectionRepository,
     private val amountRepository: AmountRepository,
-    private val disabledPaymentMethodRepository : DisabledPaymentMethodRepository,
+    private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository,
     private val payerComplianceRepository: PayerComplianceRepository,
     private val escManagerBehaviour: ESCManagerBehaviour) : CongratsRepository {
 
@@ -67,9 +67,9 @@ class CongratsRepositoryImpl(
             val joinedPaymentMethodsIds = paymentResult.paymentDataList
                 .joinToString(TextUtil.CSV_DELIMITER) { p -> (p.paymentMethod.id) }
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
-            val response = congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, locale, privateKey,
-            joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-            joinedPaymentMethodsIds, flowIdProvider.flowId).await()
+            val response = congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, privateKey,
+                joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
+                joinedPaymentMethodsIds, flowIdProvider.flowId).await()
             if (response.isSuccessful) {
                 response.body()!!
             } else {
@@ -117,7 +117,6 @@ class CongratsRepositoryImpl(
             val response = congratsService.getRemedies(
                 BuildConfig.API_ENVIRONMENT_NEW,
                 payment.id.toString(),
-                locale,
                 privateKey,
                 hasOneTap,
                 body

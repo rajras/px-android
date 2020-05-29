@@ -5,7 +5,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
-import com.mercadopago.android.px.model.internal.SecurityType;
 import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
@@ -61,10 +60,10 @@ import com.mercadopago.android.px.internal.services.CongratsService;
 import com.mercadopago.android.px.internal.services.GatewayService;
 import com.mercadopago.android.px.internal.services.InstallmentService;
 import com.mercadopago.android.px.internal.services.InstructionsClient;
-import com.mercadopago.android.px.internal.util.LocaleUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Device;
 import com.mercadopago.android.px.model.internal.InitResponse;
+import com.mercadopago.android.px.model.internal.SecurityType;
 import com.mercadopago.android.px.services.MercadoPagoServices;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 
@@ -202,7 +201,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
             initRepository = new InitService(paymentSettings, getExperimentsRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(), getMercadoPagoESC(),
                 networkModule.getRetrofitClient().create(CheckoutService.class),
-                LocaleUtil.getLanguage(getApplicationContext()), networkModule.getFlowIdProvider(), getInitCache());
+                networkModule.getFlowIdProvider(), getInitCache());
         }
         return initRepository;
     }
@@ -369,8 +368,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         if (instructionsRepository == null) {
             instructionsRepository =
                 new InstructionsService(getConfigurationModule().getPaymentSettings(),
-                    networkModule.getRetrofitClient().create(InstructionsClient.class),
-                    LocaleUtil.getLanguage(getApplicationContext()));
+                    networkModule.getRetrofitClient().create(InstructionsClient.class));
         }
         return instructionsRepository;
     }
@@ -392,7 +390,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
             final GatewayService gatewayService =
                 networkModule.getRetrofitClient().create(GatewayService.class);
             cardTokenRepository = new CardTokenService(gatewayService, getConfigurationModule().getPaymentSettings(),
-                    new Device(getApplicationContext()), getMercadoPagoESC());
+                new Device(getApplicationContext()), getMercadoPagoESC());
         }
         return cardTokenRepository;
     }
@@ -402,7 +400,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
             final BankDealService bankDealsService =
                 networkModule.getRetrofitClient().create(BankDealService.class);
             bankDealsRepository = new BankDealsService(bankDealsService, getApplicationContext(),
-                    getConfigurationModule().getPaymentSettings());
+                getConfigurationModule().getPaymentSettings());
         }
         return bankDealsRepository;
     }
@@ -435,10 +433,12 @@ public final class Session extends ApplicationModule implements AmountComponent 
                 networkModule.getRetrofitClient().create(CongratsService.class);
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             congratsRepository =
-                new CongratsRepositoryImpl(congratsService, getInitRepository(),paymentSettings, getPlatform(applicationContext),
-                    LocaleUtil.getLanguage(getApplicationContext()), networkModule.getFlowIdProvider(),
-                    configurationModule.getUserSelectionRepository(), amountRepository,
-                    configurationModule.getDisabledPaymentMethodRepository(), configurationModule.getPayerComplianceRepository(),
+                new CongratsRepositoryImpl(congratsService, getInitRepository(), paymentSettings,
+                    getPlatform(applicationContext),
+                    networkModule.getFlowIdProvider(), configurationModule.getUserSelectionRepository(),
+                    amountRepository,
+                    configurationModule.getDisabledPaymentMethodRepository(),
+                    configurationModule.getPayerComplianceRepository(),
                     getMercadoPagoESC());
         }
         return congratsRepository;
@@ -456,10 +456,8 @@ public final class Session extends ApplicationModule implements AmountComponent 
     }
 
     public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
-        return new PrefetchInitService(checkout,
-            networkModule.getRetrofitClient().create(CheckoutService.class),
-            LocaleUtil.getLanguage(getApplicationContext()), getMercadoPagoESC(),
-            networkModule.getFlowIdProvider());
+        return new PrefetchInitService(checkout, networkModule.getRetrofitClient().create(CheckoutService.class),
+            getMercadoPagoESC(), networkModule.getFlowIdProvider());
     }
 
     public void initIds(@NonNull final MercadoPagoCheckout checkout) {

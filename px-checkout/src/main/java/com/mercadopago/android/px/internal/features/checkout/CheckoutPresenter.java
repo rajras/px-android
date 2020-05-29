@@ -202,7 +202,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
 
     @Override
     public void onCardFlowCancel() {
-        initRepository.init().execute(new Callback<InitResponse>() {
+        initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
                 new DefaultPaymentMethodDriver(initResponse,

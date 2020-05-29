@@ -23,17 +23,7 @@ public class InitCacheCoordinator implements Cache<InitResponse> {
         if (initMemCache.isCached()) {
             return initMemCache.get();
         } else {
-            return new MPCall<InitResponse>() {
-                @Override
-                public void enqueue(final Callback<InitResponse> callback) {
-                    initDiskCache.get().enqueue(getCallbackDisk(callback));
-                }
-
-                @Override
-                public void execute(final Callback<InitResponse> callback) {
-                    initDiskCache.get().execute(getCallbackDisk(callback));
-                }
-            };
+            return callback -> initDiskCache.get().enqueue(getCallbackDisk(callback));
         }
     }
 

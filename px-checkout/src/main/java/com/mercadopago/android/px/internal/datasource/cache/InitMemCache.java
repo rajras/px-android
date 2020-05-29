@@ -14,17 +14,7 @@ public class InitMemCache implements Cache<InitResponse> {
     @NonNull
     @Override
     public MPCall<InitResponse> get() {
-        return new MPCall<InitResponse>() {
-            @Override
-            public void enqueue(final Callback<InitResponse> callback) {
-                resolve(callback);
-            }
-
-            @Override
-            public void execute(final Callback<InitResponse> callback) {
-                resolve(callback);
-            }
-        };
+        return callback -> resolve(callback);
     }
 
     /* default */ void resolve(final Callback<InitResponse> callback) {
