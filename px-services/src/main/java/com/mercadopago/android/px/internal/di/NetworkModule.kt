@@ -16,7 +16,8 @@ class NetworkModule(context: Context) : ApplicationModule(context) {
     val sessionIdProvider by lazy { SessionIdProvider(sharedPreferences) }
 
     fun clear() {
-        flowIdProvider.clear()
+        //TODO: need to refactor how flow is setted to be able to clear it between sessions
+        //flowIdProvider.clear()
         productIdProvider.clear()
         sessionIdProvider.clear()
     }

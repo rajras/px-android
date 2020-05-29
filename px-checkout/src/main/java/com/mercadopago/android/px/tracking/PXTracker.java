@@ -2,7 +2,6 @@ package com.mercadopago.android.px.tracking;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 import java.util.HashMap;

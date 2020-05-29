@@ -1,4 +1,12 @@
+## VERSION 4.45.2
+_29_05_2020_
+* FIX - Flow id lost on session init
+
 ## VERSION 4.46.1
+_28_05_2020_
+* FIX - Payment method malformed in payment data
+
+## VERSION 4.45.1
 _28_05_2020_
 * FIX - Payment method malformed in payment data
 

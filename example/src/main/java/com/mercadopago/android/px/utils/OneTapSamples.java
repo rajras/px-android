@@ -16,12 +16,16 @@ import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.model.internal.IParcelablePaymentDescriptor;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.PXTracker;
+import com.mercadopago.android.px.tracking.PXTrackingListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mercadopago.android.px.utils.PaymentUtils.getBusinessPaymentApproved;
 import static com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentApproved;
@@ -149,6 +153,18 @@ public final class OneTapSamples {
                 Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
                     PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
                 .build();
+
+        PXTracker.setListener(new PXTrackingListener() {
+            @Override
+            public void onView(@NonNull final String path, @NonNull final Map<String, ?> data) {
+
+            }
+
+            @Override
+            public void onEvent(@NonNull final String path, @NonNull final Map<String, ?> data) {
+
+            }
+        }, new HashMap<>(), "example_app");
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
