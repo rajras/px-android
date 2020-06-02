@@ -21,7 +21,7 @@ interface PayButton {
         fun attach(handler: Handler)
         fun detach()
         fun preparePayment()
-        fun handleBiometricsResult(isSuccess: Boolean)
+        fun handleBiometricsResult(isSuccess: Boolean, securityRequested: Boolean)
         fun startPayment()
         fun hasFinishPaymentAnimation()
         fun recoverPayment()

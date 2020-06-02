@@ -34,4 +34,12 @@ public interface SecurityBehaviour {
      */
     void startValidation(@NonNull final Fragment fragment,
         @NonNull final SecurityValidationData data, final int requestCode);
+
+    /**
+     * @return the key to get the result from intent when validation finished
+     */
+    @NonNull
+    default String getExtraResultKey() {
+        return "NO_KEY";
+    }
 }

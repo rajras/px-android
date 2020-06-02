@@ -468,11 +468,9 @@ public final class Session extends ApplicationModule implements AmountComponent 
             : checkout.getAdvancedConfiguration().getProductId();
         networkModule.getSessionIdProvider().configure(checkout.getTrackingConfiguration().getSessionId());
         MPTracker.getInstance().setSessionId(checkout.getTrackingConfiguration().getSessionId());
-        boolean securityEnabled = BehaviourProvider.getSecurityBehaviour()
+        final boolean securityEnabled = BehaviourProvider.getSecurityBehaviour()
             .isSecurityEnabled(new SecurityValidationData.Builder(productId).build());
         MPTracker.getInstance().setSecurityEnabled(securityEnabled);
         networkModule.getProductIdProvider().configure(productId);
-        getConfigurationModule().getPaymentSettings().configure(
-            securityEnabled ? SecurityType.SECOND_FACTOR : SecurityType.NONE);
     }
 }
