@@ -28,6 +28,7 @@ import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.exceptions.NoConnectivityException
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
+import com.mercadopago.android.px.model.internal.SecurityType
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.model.ConfirmData
@@ -59,11 +60,13 @@ internal class PayButtonViewModel(
     val stateUILiveData = MediatorLiveData<PayButtonState>()
     var observingService = false
 
-    private fun <T : Event<X>, X: Any, I> transform(liveData: LiveData<T>, block: (content: X) -> I): LiveData<I?> {
-        return map(liveData) { event -> event.getContentIfNotHandled()?.let {
-            observingService = false
-            block(it)
-        } }
+    private fun <T : Event<X>, X : Any, I> transform(liveData: LiveData<T>, block: (content: X) -> I): LiveData<I?> {
+        return map(liveData) { event ->
+            event.getContentIfNotHandled()?.let {
+                observingService = false
+                block(it)
+            }
+        }
     }
 
     override fun attach(handler: PayButton.Handler) {
@@ -92,12 +95,13 @@ internal class PayButtonViewModel(
         this.paymentConfiguration = paymentConfiguration
         this.confirmTrackerData = confirmTrackerData
         val data: SecurityValidationData = SecurityValidationDataFactory
-            .create(productIdProvider, paymentConfiguration)
+            .create(productIdProvider, paymentSettingRepository.checkoutPreference!!.totalAmount, paymentConfiguration)
         stateUILiveData.value = FingerprintRequired(data)
     }
 
-    override fun handleBiometricsResult(isSuccess: Boolean) {
+    override fun handleBiometricsResult(isSuccess: Boolean, securityRequested: Boolean) {
         if (isSuccess) {
+            paymentSettingRepository.configure(if (securityRequested) SecurityType.SECOND_FACTOR else SecurityType.NONE)
             startPayment()
         } else {
             FrictionEventTracker
@@ -127,44 +131,44 @@ internal class PayButtonViewModel(
         observingService = true
         // Error event
         val paymentErrorLiveData: LiveData<ButtonLoadingCanceled?> =
-                transform(serviceLiveData.paymentErrorLiveData) { error ->
-                    val shouldHandleError = error.isPaymentProcessing
-                    if (shouldHandleError) onPaymentProcessingError() else noRecoverableError(error)
-                    handler?.onPaymentError(error)
-                    ButtonLoadingCanceled
-                }
+            transform(serviceLiveData.paymentErrorLiveData) { error ->
+                val shouldHandleError = error.isPaymentProcessing
+                if (shouldHandleError) onPaymentProcessingError() else noRecoverableError(error)
+                handler?.onPaymentError(error)
+                ButtonLoadingCanceled
+            }
         stateUILiveData.addSource(paymentErrorLiveData) { value -> stateUILiveData.value = value }
 
         // Visual payment event
         val visualPaymentLiveData: LiveData<VisualProcessorResult?> =
-                transform(serviceLiveData.visualPaymentLiveData) { VisualProcessorResult }
+            transform(serviceLiveData.visualPaymentLiveData) { VisualProcessorResult }
         stateUILiveData.addSource(visualPaymentLiveData) { value -> stateUILiveData.value = value }
 
         // Payment finished event
         val paymentFinishedLiveData: LiveData<ButtonLoadingFinished?> =
-                transform(serviceLiveData.paymentFinishedLiveData) { paymentModel ->
-                    this.paymentModel = paymentModel
-                    ButtonLoadingFinished(ExplodeDecoratorMapper().map(paymentModel))
-                }
+            transform(serviceLiveData.paymentFinishedLiveData) { paymentModel ->
+                this.paymentModel = paymentModel
+                ButtonLoadingFinished(ExplodeDecoratorMapper().map(paymentModel))
+            }
         stateUILiveData.addSource(paymentFinishedLiveData) { value -> stateUILiveData.value = value }
 
         // Cvv required event
         val cvvRequiredLiveData: LiveData<Pair<Card, Reason>?> = transform(serviceLiveData.requireCvvLiveData) { it }
-        this.cvvRequiredLiveData.addSource(cvvRequiredLiveData) {value -> this.cvvRequiredLiveData.value = value }
+        this.cvvRequiredLiveData.addSource(cvvRequiredLiveData) { value -> this.cvvRequiredLiveData.value = value }
 
         // Invalid esc event
         val recoverRequiredLiveData: LiveData<PaymentRecovery?> =
-                transform(serviceLiveData.recoverInvalidEscLiveData) { it.takeIf { it.shouldAskForCvv() } }
-        this.recoverRequiredLiveData.addSource(recoverRequiredLiveData) {value -> this.recoverRequiredLiveData.value = value }
+            transform(serviceLiveData.recoverInvalidEscLiveData) { it.takeIf { it.shouldAskForCvv() } }
+        this.recoverRequiredLiveData.addSource(recoverRequiredLiveData) { value -> this.recoverRequiredLiveData.value = value }
     }
 
     private fun onPaymentProcessingError() {
         val currency: Currency = paymentSettingRepository.currency
         val paymentResult: PaymentResult = PaymentResult.Builder()
-                .setPaymentData(paymentService.paymentDataList)
-                .setPaymentStatus(Payment.StatusCodes.STATUS_IN_PROCESS)
-                .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
-                .build()
+            .setPaymentData(paymentService.paymentDataList)
+            .setPaymentStatus(Payment.StatusCodes.STATUS_IN_PROCESS)
+            .setPaymentStatusDetail(Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY)
+            .build()
         onPostPayment(PaymentModel(paymentResult, currency))
     }
 
@@ -242,7 +246,7 @@ internal class PayButtonViewModel(
         confirmTrackerData = bundle.getParcelable(BUNDLE_CONFIRM_DATA)
         paymentModel = bundle.getParcelable(BUNDLE_PAYMENT_MODEL)
         observingService = bundle.getBoolean(BUNDLE_OBSERVING_SERVICE)
-        if(observingService) {
+        if (observingService) {
             observeService(paymentService.observableEvents)
         }
     }

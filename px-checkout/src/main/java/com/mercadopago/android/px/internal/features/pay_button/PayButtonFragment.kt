@@ -52,7 +52,7 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
         when {
             targetFragment is PayButton.Handler -> viewModel.attach(targetFragment as PayButton.Handler)
-            parentFragment is PayButton.Handler ->viewModel.attach(parentFragment as PayButton.Handler)
+            parentFragment is PayButton.Handler -> viewModel.attach(parentFragment as PayButton.Handler)
             context is PayButton.Handler -> viewModel.attach(context as PayButton.Handler)
             else -> throw IllegalStateException("Parent should implement ${PayButton.Handler::class.java.simpleName}")
         }
@@ -138,8 +138,10 @@ class PayButtonFragment : Fragment(), PayButton.View {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQ_CODE_BIOMETRICS) {
+            val securityRequested = data?.getBooleanExtra(
+                BehaviourProvider.getSecurityBehaviour().extraResultKey, false) ?: false
             enable()
-            viewModel.handleBiometricsResult(resultCode == Activity.RESULT_OK)
+            viewModel.handleBiometricsResult(resultCode == Activity.RESULT_OK, securityRequested)
         } else if (requestCode == REQ_CODE_SECURITY_CODE) {
             cancelLoading()
             if (resultCode == Activity.RESULT_OK) {
