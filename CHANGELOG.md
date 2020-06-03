@@ -1,3 +1,7 @@
+## VERSION 4.45.3
+_03_06_2020_
+* FIX - Crash on review and confirm
+
 ## VERSION 4.45.2
 _29_05_2020_
 * FIX - Flow id lost on session init
