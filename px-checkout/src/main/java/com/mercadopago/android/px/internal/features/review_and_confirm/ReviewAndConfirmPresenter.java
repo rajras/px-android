@@ -46,6 +46,11 @@ import java.util.Set;
                 discountRepository.getCurrentConfiguration());
 
         setCurrentViewTracker(reviewAndConfirmViewTracker);
+    }
+
+    @Override
+    public void attachView(final ReviewAndConfirm.View view) {
+        super.attachView(view);
         resolveDynamicDialog(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM);
     }
 
