@@ -14,4 +14,5 @@ internal data class CongratsViewModel(
     val downloadAppData: MLBusinessDownloadAppData?,
     val crossSellingBoxData: List<MLBusinessCrossSellingBoxData>?,
     val topTextBox: Text,
-    val viewReceipt: Action?)
+    val viewReceipt: Action?,
+    val customOrder: Boolean)

@@ -33,6 +33,7 @@ public final class CongratsResponse implements Parcelable {
     private final List<CrossSelling> crossSellings;
     private final Text topTextBox;
     private final Action viewReceipt;
+    private final boolean customOrder;
 
     private CongratsResponse() {
         score = null;
@@ -40,6 +41,7 @@ public final class CongratsResponse implements Parcelable {
         crossSellings = Collections.emptyList();
         topTextBox = Text.EMPTY;
         viewReceipt = null;
+        customOrder = false;
     }
 
     /* default */ CongratsResponse(final Parcel in) {
@@ -48,6 +50,7 @@ public final class CongratsResponse implements Parcelable {
         crossSellings = in.createTypedArrayList(CrossSelling.CREATOR);
         topTextBox = in.readParcelable(Text.class.getClassLoader());
         viewReceipt = in.readParcelable(Action.class.getClassLoader());
+        customOrder = in.readInt() == 1;
     }
 
     @Override
@@ -57,6 +60,7 @@ public final class CongratsResponse implements Parcelable {
         dest.writeTypedList(crossSellings);
         dest.writeParcelable(topTextBox, flags);
         dest.writeParcelable(viewReceipt, flags);
+        dest.writeInt(customOrder ? 1 : 0);
     }
 
     @Override
@@ -87,6 +91,10 @@ public final class CongratsResponse implements Parcelable {
     @Nullable
     public Action getViewReceipt() {
         return viewReceipt;
+    }
+
+    public boolean hasCustomOrder() {
+        return customOrder;
     }
 
     /* default */public static final class Score implements Parcelable {
