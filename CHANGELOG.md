@@ -1,3 +1,7 @@
+## VERSION 4.46.3
+_03_06_2020_
+* FIX - Crash on review and confirm
+
 ## VERSION 4.45.3
 _03_06_2020_
 * FIX - Crash on review and confirm
