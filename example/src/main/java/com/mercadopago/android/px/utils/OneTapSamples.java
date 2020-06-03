@@ -5,6 +5,7 @@ import android.support.v4.util.Pair;
 import com.mercadopago.SamplePaymentProcessorNoView;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountConfiguration;
+import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
@@ -17,7 +18,6 @@ import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.model.internal.IParcelablePaymentDescriptor;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.PXTracker;
-import com.mercadopago.android.px.tracking.PXTrackingListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.mercadopago.android.px.utils.PaymentUtils.getBusinessPaymentApproved;
 import static com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentApproved;
@@ -34,7 +33,7 @@ import static com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentRej
 public final class OneTapSamples {
 
     private static final String ONE_TAP_PAYER_1_ACCESS_TOKEN =
-        "APP_USR-7092-122619-fc2376471063df48cf0c9fcd26e00729-506902649";
+        "APP_USR-3671576383500204-012221-5957120e397c5f7e85204d41f587d3cd-506902649";
     private static final String ONE_TAP_PAYER_2_ACCESS_TOKEN =
         "APP_USR-3666825723887583-102916-54c728cfd9eea30e98073b19617a5eec-484351849";
     private static final String ONE_TAP_PAYER_3_ACCESS_TOKEN =
@@ -154,21 +153,19 @@ public final class OneTapSamples {
                     PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
                 .build();
 
-        PXTracker.setListener(new PXTrackingListener() {
-            @Override
-            public void onView(@NonNull final String path, @NonNull final Map<String, ?> data) {
-
-            }
-
-            @Override
-            public void onEvent(@NonNull final String path, @NonNull final Map<String, ?> data) {
-
-            }
-        }, new HashMap<>(), "example_app");
+        PXTracker.setListener(TrackingSamples.INSTANCE.getTracker(), new HashMap<>(), "example_app");
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
-            .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(true).build());
+            .setAdvancedConfiguration(new AdvancedConfiguration.Builder()
+                .setDynamicDialogConfiguration(new DynamicDialogConfiguration.Builder()
+                    .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM,
+                        DialogSamples.INSTANCE.getDialog())
+                    .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER,
+                        DialogSamples.INSTANCE.getDialog())
+                    .build())
+                .setExpressPaymentEnable(true)
+                .build());
     }
 
     // It should suggest one tap with account money
