@@ -170,7 +170,8 @@ public class PaymentService implements PaymentRepository {
         initRepository.init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
-                Pair<String, String> pair = new Pair<>(configuration.getPaymentMethodId(), configuration.getPaymentTypeId());
+                final Pair<String, String> pair = new Pair<>(configuration.getPaymentMethodId(),
+                    configuration.getPaymentTypeId());
                 final PaymentMethod paymentMethod = new PaymentMethodMapper(initResponse).map(pair);
                 userSelectionRepository.select(paymentMethod, null);
                 if (PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId())) {
@@ -184,7 +185,7 @@ public class PaymentService implements PaymentRepository {
                                 .getSplitConfiguration().secondaryPaymentMethod.paymentMethodId;
                         userSelectionRepository
                             .select(card, initResponse.getPaymentMethodById(secondaryPaymentMethodId));
-                    } else {
+                    } else if (card != null) {
                         userSelectionRepository.select(card, null);
                     }
                 }
