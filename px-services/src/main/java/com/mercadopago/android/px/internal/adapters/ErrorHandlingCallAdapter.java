@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.services.Callback;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -89,21 +88,6 @@ public final class ErrorHandlingCallAdapter {
                     }
                 }
             });
-        }
-
-        @Override
-        public void execute(final Callback<T> callback) {
-            try {
-                final Response<T> execute = call.execute();
-                if (execute.isSuccessful()) {
-                    final T body = execute.body();
-                    callback.success(body);
-                } else {
-                    callback.failure(ApiUtil.getApiException(execute));
-                }
-            } catch (final IOException e) {
-                callback.failure(ApiUtil.getApiException(e));
-            }
         }
     }
 

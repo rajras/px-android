@@ -39,7 +39,7 @@
         android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/publicKeyInput"/>
+        app:layout_constraintTop_toBottomOf="@id/publicKeyInput"/>
 
     <AutoCompleteTextView
         android:id="@+id/accessTokenInput"
@@ -50,7 +50,24 @@
         android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/preferenceIdInput"/>
+        app:layout_constraintTop_toBottomOf="@id/preferenceIdInput"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/one_tap_check"
+        android:layout_marginStart="@dimen/ui_0_5m"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/one_tap"
+        app:layout_constraintBottom_toBottomOf="@id/one_tap"/>
+
+    <CheckBox android:id="@+id/one_tap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/ui_2m"
+        android:layoutDirection="rtl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accessTokenInput"/>
 
     <Button
         android:id="@+id/clearButton"
@@ -59,7 +76,7 @@
         android:text="@string/clear_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accessTokenInput"/>
+        app:layout_constraintTop_toBottomOf="@id/one_tap"/>
 
     <Button
         android:id="@+id/startButton"
@@ -68,6 +85,6 @@
         android:text="@string/continue_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clearButton"/>
+        app:layout_constraintTop_toBottomOf="@id/clearButton"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -16,10 +17,15 @@ public final class FragmentUtil {
     private FragmentUtil() {
     }
 
-    public static void removeFragment(@NonNull final FragmentManager fragmentManager, @NonNull final String tag) {
+    public static void tryRemoveNow(@NonNull final FragmentManager fragmentManager, @NonNull final String tag) {
         final Fragment fragment = fragmentManager.findFragmentByTag(tag);
         if (fragment != null) {
-            fragmentManager.beginTransaction().remove(fragment).commitNowAllowingStateLoss();
+            final FragmentTransaction transaction = fragmentManager.beginTransaction().remove(fragment);
+            try {
+                transaction.commitNowAllowingStateLoss();
+            } catch (final IllegalStateException e) {
+                transaction.commitAllowingStateLoss();
+            }
         }
     }
 

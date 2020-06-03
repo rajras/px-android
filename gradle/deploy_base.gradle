@@ -46,7 +46,11 @@ task publishAar {
 
 task printLastVersion {
     doLast {
-        println file(versionLocation).text
+        try {
+            println file(versionLocation).text
+        } catch(Exception e) {
+            //nothing to do here
+        }
     }
 }
 

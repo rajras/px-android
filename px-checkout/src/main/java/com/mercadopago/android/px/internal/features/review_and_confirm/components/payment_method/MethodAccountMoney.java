@@ -42,7 +42,7 @@ import com.mercadopago.android.px.services.Callback;
         final View paymentView = ViewUtils.inflate(parent, R.layout.px_payment_method_account_money);
 
         // TODO: process this on PaymentMethodComponent to only render here.
-        Session.getInstance().getInitRepository().init().execute(new Callback<InitResponse>() {
+        Session.getInstance().getInitRepository().init().enqueue(new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
 

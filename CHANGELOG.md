@@ -2,13 +2,29 @@
 _03_06_2020_
 * FIX - Crash on review and confirm
 
+## VERSION 4.46.2
+_29_05_2020_
+* FIX - Flow id lost on session init
+
 ## VERSION 4.45.2
 _29_05_2020_
 * FIX - Flow id lost on session init
 
+## VERSION 4.46.1
+_28_05_2020_
+* FIX - Payment method malformed in payment data
+
 ## VERSION 4.45.1
 _28_05_2020_
 * FIX - Payment method malformed in payment data
+
+## VERSION 4.46.0
+_28_05_2020_
+* FEATURE - Accessibility support on congrats screen
+* ENHANCEMENT - Removed execute network requests to avoid bad usage
+* ENHANCEMENT - Accept language interceptor
+* FIX - Exploding fragment button alignment
+* FIX - Crash trying to remove fragments immediately
 
 ## VERSION 4.45.0
 _21_05_2020_
