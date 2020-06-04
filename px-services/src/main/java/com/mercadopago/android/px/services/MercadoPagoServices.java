@@ -3,6 +3,7 @@ package com.mercadopago.android.px.services;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.internal.model.SecurityType;
 import com.mercadopago.android.px.internal.services.BankDealService;
 import com.mercadopago.android.px.internal.services.CheckoutService;
 import com.mercadopago.android.px.internal.services.DiscountService;
@@ -222,13 +223,19 @@ public class MercadoPagoServices {
 
     public void createPayment(final String transactionId, final Map<String, Object> paymentData,
         final Callback<Payment> callback) {
+        createPayment(transactionId, SecurityType.NONE.getValue(), paymentData, callback);
+    }
+
+    public void createPayment(final String transactionId, final String securityType,
+        final Map<String, Object> paymentData, final Callback<Payment> callback) {
         final Map<String, String> queryParams = new HashMap<>();
         queryParams.put("public_key", publicKey);
         if (TextUtil.isNotEmpty(privateKey)) {
             queryParams.put("access_token", privateKey);
         }
         final PaymentService paymentService = retrofitClient.create(PaymentService.class);
-        paymentService.createPayment(API_ENVIRONMENT, transactionId, paymentData, queryParams).enqueue(callback);
+        paymentService.createPayment(API_ENVIRONMENT, transactionId, securityType, paymentData, queryParams)
+            .enqueue(callback);
     }
 
     private String getListAsString(final List<String> list, final String separator) {

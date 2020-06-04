@@ -25,6 +25,6 @@ public interface PaymentService {
     @POST("{environment}/px_mobile/payments?api_version=" + PAYMENTS_VERSION)
     MPCall<Payment> createPayment(
         @Path(value = "environment", encoded = true) String environment,
-        @Header("X-Idempotency-Key") String transactionId, @Body Map<String, Object> additionalInfo,
-        @QueryMap Map<String, String> query);
+        @Header("X-Idempotency-Key") String transactionId, @Header("X-Security") String securityType,
+        @Body Map<String, Object> additionalInfo, @QueryMap Map<String, String> query);
 }

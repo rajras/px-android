@@ -34,7 +34,7 @@ public final class DefaultPaymentProcessor implements SplitPaymentProcessor {
         body.put("payment_data", data.paymentDataList);
         final Session session = Session.getInstance();
         final String transactionId = session.getConfigurationModule().getPaymentSettings().getTransactionId();
-        session.getMercadoPagoServices().createPayment(transactionId, body,
+        session.getMercadoPagoServices().createPayment(transactionId, data.securityType, body,
             new TaggedCallback<Payment>(ApiUtil.RequestOrigin.CREATE_PAYMENT) {
                 @Override
                 public void onSuccess(final Payment payment) {
