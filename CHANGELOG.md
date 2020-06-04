@@ -1,3 +1,11 @@
+## VERSION 4.47.0
+_04_06_2020_
+* FEATURE - Send security type of payment as header of payment wrapper api call
+* ENHANCEMENT - Alternative order in congrats
+* ENHANCEMENT - Added amount to security validation data
+* ENHANCEMENT - Change account money logo
+* ENHANCEMENT - Take security required parameter from biometrics lib callback
+
 ## VERSION 4.46.3
 _03_06_2020_
 * FIX - Crash on review and confirm
