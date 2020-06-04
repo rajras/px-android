@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.model.internal
+package com.mercadopago.android.px.internal.model
 
 enum class SecurityType(val value: String) {
     SECOND_FACTOR("2fa"),
