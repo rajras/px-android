@@ -27,7 +27,7 @@ public interface PaymentSettingRepository {
 
     void configure(@Nullable final CheckoutPreference checkoutPreference);
 
-    void configure(@Nullable final PaymentConfiguration paymentConfiguration);
+    void configure(@NonNull final PaymentConfiguration paymentConfiguration);
 
     void configure(@NonNull final Configuration configuration);
 

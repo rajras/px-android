@@ -42,7 +42,7 @@ public final class ConfigurationModule extends ApplicationModule implements Conf
     @Override
     public PaymentSettingRepository getPaymentSettings() {
         if (paymentSettingRepository == null) {
-            paymentSettingRepository = new PaymentSettingService(getSharedPreferences());
+            paymentSettingRepository = new PaymentSettingService(getSharedPreferences(), getFileManager());
         }
         return paymentSettingRepository;
     }
