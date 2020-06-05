@@ -2,11 +2,13 @@ package com.mercadopago.android.px.utils;
 
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
+import com.mercadopago.SampleDialog;
 import com.mercadopago.SamplePaymentProcessorNoView;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
+import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.model.GenericPayment;
@@ -158,6 +160,8 @@ public final class OneTapSamples {
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
             .setAdvancedConfiguration(new AdvancedConfiguration.Builder()
+                .setPaymentResultScreenConfiguration(new PaymentResultScreenConfiguration.Builder()
+                    .setTopFragment(SampleDialog.class, null).build())
                 .setDynamicDialogConfiguration(new DynamicDialogConfiguration.Builder()
                     .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM,
                         DialogSamples.INSTANCE.getDialog())
