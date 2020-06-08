@@ -1,14 +1,13 @@
 package com.mercadopago.android.px.utils;
 
 import android.support.v4.util.Pair;
-import com.mercadopago.SamplePaymentProcessorNoView;
+import com.mercadopago.SamplePaymentProcessor;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
-import com.mercadopago.android.px.core.PaymentProcessor;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.ExitAction;
-import com.mercadopago.android.px.model.GenericPayment;
+import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.Sites;
@@ -41,8 +40,8 @@ public final class AccountMoneySamples {
     }
 
     private static MercadoPagoCheckout.Builder startCheckoutWithGenericPayment() {
-        final GenericPayment payment = getGenericPaymentApproved();
-        final SplitPaymentProcessor paymentProcessor = new SamplePaymentProcessorNoView(payment);
+        final IPaymentDescriptor payment = getGenericPaymentApproved();
+        final SplitPaymentProcessor paymentProcessor = new SamplePaymentProcessor(payment);
         final PaymentConfiguration paymentConfiguration = new PaymentConfiguration.Builder(paymentProcessor).build();
 
         return new MercadoPagoCheckout.Builder(MERCHANT_PUBLIC_KEY,
@@ -60,7 +59,7 @@ public final class AccountMoneySamples {
             .setSecondaryButton(new ExitAction(BUSINESS_PAYMENT_BUTTON_NAME, 34))
             .build();
 
-        final SplitPaymentProcessor paymentProcessor = new SamplePaymentProcessorNoView(payment);
+        final SplitPaymentProcessor paymentProcessor = new SamplePaymentProcessor(payment);
         final PaymentConfiguration paymentConfiguration = new PaymentConfiguration.Builder(paymentProcessor).build();
 
         return new MercadoPagoCheckout.Builder(MERCHANT_PUBLIC_KEY,
