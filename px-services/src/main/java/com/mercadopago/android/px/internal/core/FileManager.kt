@@ -15,18 +15,10 @@ class FileManager(private val rootCacheDir: File) {
     }
 
     @Synchronized
-    fun writeToFile(file: File, fileContent: String) {
-        if (!file.exists()) {
-            file.writeText(fileContent)
-        }
-    }
+    fun writeToFile(file: File, fileContent: String) = file.writeText(fileContent)
 
     @Synchronized
-    fun writeToFile(file: File, fileContent: Parcelable) {
-        if (!file.exists()) {
-            file.writeBytes(ParcelableUtil.marshall(fileContent))
-        }
-    }
+    fun writeToFile(file: File, fileContent: Parcelable) = file.writeBytes(ParcelableUtil.marshall(fileContent))
 
     @Synchronized
     fun readText(file: File): String {

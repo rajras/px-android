@@ -26,7 +26,8 @@ public class ErrorActivity extends PXActivity {
     private String message;
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         animateErrorScreenLaunch();
         setContentView(R.layout.px_activity_error);
         error = (MercadoPagoError) getIntent().getSerializableExtra(EXTRA_ERROR);

@@ -32,7 +32,8 @@ public class TermsAndConditionsActivity extends PXActivity {
     private String data;
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.px_activity_terms_and_conditions);
 
         data = getIntent().getStringExtra(EXTRA_DATA);

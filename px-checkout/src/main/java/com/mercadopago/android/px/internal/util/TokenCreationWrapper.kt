@@ -42,7 +42,7 @@ internal class TokenCreationWrapper private constructor(builder: Builder) {
 
     suspend fun createTokenWithEsc(cvv: String): Token {
         return if (card != null) {
-            SavedESCCardToken.createWithSecurityCode(card.id, cvv).run {
+            SavedESCCardToken.createWithSecurityCode(card.id!!, cvv).run {
                 validateSecurityCode(card)
                 createESCToken(this).apply { lastFourDigits = card.lastFourDigits }
             }

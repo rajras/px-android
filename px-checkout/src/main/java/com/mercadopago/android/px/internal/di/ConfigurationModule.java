@@ -34,7 +34,7 @@ public final class ConfigurationModule extends ApplicationModule implements Conf
     @Override
     public UserSelectionRepository getUserSelectionRepository() {
         if (userSelectionRepository == null) {
-            userSelectionRepository = new UserSelectionService(getSharedPreferences());
+            userSelectionRepository = new UserSelectionService(getSharedPreferences(), getFileManager());
         }
         return userSelectionRepository;
     }
