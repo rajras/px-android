@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Button
-import android.widget.CheckBox
+import android.widget.*
 import com.mercadopago.android.px.di.Dependencies
 import com.mercadopago.example.R
 
@@ -21,6 +18,9 @@ class CustomInitializationActivity : AppCompatActivity() {
     private lateinit var preferenceIdInput: AutoCompleteTextView
     private lateinit var accessTokenInput: AutoCompleteTextView
     private lateinit var oneTapCheck: CheckBox
+    private lateinit var defaultProcessor: RadioButton
+    private lateinit var visualProcessor: RadioButton
+    private lateinit var noVisualProcessor: RadioButton
     private lateinit var clearButton: Button
     private lateinit var startButton: Button
 
@@ -33,6 +33,9 @@ class CustomInitializationActivity : AppCompatActivity() {
         preferenceIdInput = findViewById(R.id.preferenceIdInput)
         accessTokenInput = findViewById(R.id.accessTokenInput)
         oneTapCheck = findViewById(R.id.one_tap)
+        defaultProcessor = findViewById(R.id.default_processor)
+        visualProcessor = findViewById(R.id.visual_processor)
+        noVisualProcessor = findViewById(R.id.no_visual_processor)
         clearButton = findViewById(R.id.clearButton)
         startButton = findViewById(R.id.startButton)
         configureViews()
@@ -67,6 +70,9 @@ class CustomInitializationActivity : AppCompatActivity() {
         preferenceIdInput.setText(initializationData.preferenceId.value)
         accessTokenInput.setText(initializationData.accessToken.value)
         oneTapCheck.isChecked = initializationData.oneTap.value
+        defaultProcessor.isChecked = initializationData.processor.value == ProcessorType.DEFAULT
+        visualProcessor.isChecked = initializationData.processor.value == ProcessorType.VISUAL
+        noVisualProcessor.isChecked = initializationData.processor.value == ProcessorType.NO_VISUAL
     }
 
     private fun configureViews() {
@@ -80,6 +86,12 @@ class CustomInitializationActivity : AppCompatActivity() {
         { value -> value?.let { viewModel.onConfigurationChanged(ConfigurationStringData.AccessToken(it)) } }
         oneTapCheck.setOnCheckedChangeListener()
         { _, isChecked -> viewModel.onConfigurationChanged(ConfigurationBooleanData.OneTap(isChecked)) }
+        defaultProcessor.setOnClickListener()
+        {_ ->  viewModel.onConfigurationChanged(ConfigurationDataType.Processor(ProcessorType.DEFAULT))}
+        visualProcessor.setOnClickListener()
+        {_ ->  viewModel.onConfigurationChanged(ConfigurationDataType.Processor(ProcessorType.VISUAL))}
+        noVisualProcessor.setOnClickListener()
+        {_ ->  viewModel.onConfigurationChanged(ConfigurationDataType.Processor(ProcessorType.NO_VISUAL))}
 
         clearButton.setOnClickListener { viewModel.onClear() }
         startButton.setOnClickListener { viewModel.onStartButtonClicked() }

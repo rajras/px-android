@@ -2,12 +2,17 @@ package com.mercadopago.android.px.feature.custom_initialize
 
 import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
+import com.mercadopago.SamplePaymentProcessor
+import com.mercadopago.SamplePaymentProcessorNoView
 import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
+import com.mercadopago.android.px.configuration.PaymentConfiguration
 import com.mercadopago.android.px.core.MercadoPagoCheckout
 import com.mercadopago.android.px.di.preference.InitializationDataPreferences
 import com.mercadopago.android.px.internal.base.BaseViewModel
+import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfiguration
 import com.mercadopago.android.px.internal.util.TextUtil
+import com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentApproved
 
 internal class CustomInitializationViewModel(private val preferences: InitializationDataPreferences) : BaseViewModel() {
 
@@ -22,7 +27,8 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
             bundle.getString(EXTRA_PUBLIC_KEY)!!,
             bundle.getString(EXTRA_PREFERENCE_ID)!!,
             bundle.getString(EXTRA_ACCESS_TOKEN)!!,
-            bundle.getBoolean(EXTRA_ONE_TAP)
+            bundle.getBoolean(EXTRA_ONE_TAP),
+            bundle.getString(EXTRA_PROCESSOR_TYPE)!!
         )
     }
 
@@ -33,6 +39,7 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
         bundle.putString(EXTRA_PREFERENCE_ID, initializationData.preferenceId.value)
         bundle.putString(EXTRA_ACCESS_TOKEN, initializationData.accessToken.value)
         bundle.putBoolean(EXTRA_ONE_TAP, initializationData.oneTap.value)
+        bundle.putString(EXTRA_PROCESSOR_TYPE, initializationData.processor.value.name)
     }
 
     fun initialize() {
@@ -48,7 +55,8 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
     }
 
     fun onClear() {
-        initializationData.updateModel(TextUtil.EMPTY, TextUtil.EMPTY, TextUtil.EMPTY, TextUtil.EMPTY, true)
+        initializationData.updateModel(TextUtil.EMPTY, TextUtil.EMPTY, TextUtil.EMPTY, TextUtil.EMPTY, true,
+            ProcessorType.DEFAULT.name)
         updateView()
     }
 
@@ -60,9 +68,18 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
             .setExpressPaymentEnable(initializationData.oneTap.value)
             .build()
 
+        val paymentConfiguration: PaymentConfiguration = when (initializationData.processor.value) {
+            ProcessorType.DEFAULT -> MercadoPagoPaymentConfiguration.create()
+            ProcessorType.VISUAL ->
+                PaymentConfiguration.Builder(SamplePaymentProcessor(getGenericPaymentApproved())).build()
+            ProcessorType.NO_VISUAL ->
+                PaymentConfiguration.Builder(SamplePaymentProcessorNoView(getGenericPaymentApproved())).build()
+        }
+
         val builder = MercadoPagoCheckout.Builder(
             initializationData.publicKey.value.replace(TAGGED_INPUT_REGEX, TextUtil.EMPTY),
-            initializationData.preferenceId.value.replace(TAGGED_INPUT_REGEX, TextUtil.EMPTY))
+            initializationData.preferenceId.value.replace(TAGGED_INPUT_REGEX, TextUtil.EMPTY),
+            paymentConfiguration)
             .setPrivateKey(initializationData.accessToken.value.replace(TAGGED_INPUT_REGEX, TextUtil.EMPTY))
             .setAdvancedConfiguration(advancedConfiguration)
         stateUILiveData.value = CustomInitializeState.InitCheckout(builder)
@@ -75,5 +92,6 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
         const val EXTRA_PREFERENCE_ID = "preference_id"
         const val EXTRA_ACCESS_TOKEN = "access_token"
         const val EXTRA_ONE_TAP = "one_tap"
+        const val EXTRA_PROCESSOR_TYPE = "processor_type"
     }
 }
