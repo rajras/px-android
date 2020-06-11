@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import com.mercadopago.SampleDialog;
 import com.mercadopago.SamplePaymentProcessor;
-import com.mercadopago.SampleRemediesPaymentProcessor;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
@@ -147,15 +146,18 @@ public final class OneTapSamples {
         final CheckoutPreference preference =
             getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
-            new PaymentConfiguration.Builder(new SampleRemediesPaymentProcessor())
-            .addChargeRules(
-                Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
-                    PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
+            new PaymentConfiguration.Builder(new SamplePaymentProcessor(true,
+                PaymentUtils.getGenericPaymentRejected(),
+                PaymentUtils.getGenericPaymentApproved()))
+                .addChargeRules(
+                    Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
+                        PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
                 .build();
 
         PXTracker.setListener(TrackingSamples.INSTANCE.getTracker(), new HashMap<>(), "example_app");
 
-        return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
+        return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference,
+            paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
             .setAdvancedConfiguration(new AdvancedConfiguration.Builder()
                 .setPaymentResultScreenConfiguration(new PaymentResultScreenConfiguration.Builder()
