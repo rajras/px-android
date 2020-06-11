@@ -1,3 +1,9 @@
+## VERSION 4.48.0
+_11_06_2020_
+* FEATURE - experiments with installments row
+* ENHANCEMENT - persist payment configuration
+* FIX - top fragment position in default congrats order
+
 ## VERSION 4.47.0
 _04_06_2020_
 * FEATURE - Send security type of payment as header of payment wrapper api call
