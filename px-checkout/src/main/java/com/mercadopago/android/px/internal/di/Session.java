@@ -291,8 +291,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     private Cache<InitResponse> getInitCache() {
         if (initCache == null) {
             initCache =
-                new InitCacheCoordinator(new InitDiskCache(getFileManager(), getCacheDir()),
-                    new InitMemCache());
+                new InitCacheCoordinator(new InitDiskCache(getFileManager()), new InitMemCache());
         }
         return initCache;
     }

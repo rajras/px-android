@@ -86,6 +86,7 @@ class PaymentConfiguration private constructor(val charges: ArrayList<PaymentTyp
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeTypedList(charges)
         parcel.writeParcelable(paymentProcessor, flags)
     }
 

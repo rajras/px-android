@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.core
 
 import android.content.Context
 import android.content.SharedPreferences
-import java.io.File
 
 open class ApplicationModule(val applicationContext: Context) : PreferenceComponent {
 
@@ -11,10 +10,7 @@ open class ApplicationModule(val applicationContext: Context) : PreferenceCompon
     }
 
     val fileManager: FileManager
-        get() = FileManager()
-
-    val cacheDir: File
-        get() = applicationContext.cacheDir
+        get() = FileManager(applicationContext.cacheDir)
 
     companion object {
         private const val SHARED_PREFERENCE_NAME = "com.mercadopago.checkout.store"
