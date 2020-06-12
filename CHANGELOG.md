@@ -1,3 +1,7 @@
+## VERSION 4.47.1
+_12_06_2020_
+* ENHANCEMENT - Update CFTFormatter for CFTNA
+
 ## VERSION 4.48.1
 _12_06_2020_
 * ENHANCEMENT - Update CFTFormatter for CFTNA
