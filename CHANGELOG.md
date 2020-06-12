@@ -12,6 +12,10 @@ _04_06_2020_
 * ENHANCEMENT - Change account money logo
 * ENHANCEMENT - Take security required parameter from biometrics lib callback
 
+## VERSION 4.46.4
+_12_06_2020_
+* ENHANCEMENT - Update CFTFormatter for CFTNA
+
 ## VERSION 4.46.3
 _03_06_2020_
 * FIX - Crash on review and confirm

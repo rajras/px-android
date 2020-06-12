@@ -6,6 +6,7 @@
     <string name="px_prefix_discount_amount" translatable="false">- {0}</string>
     <string name="px_installments_by" translatable="false">x</string>
     <string name="px_installments_cft" translatable="false">CFT: {0}</string>
+    <string name="px_installments_cftna" translatable="false">CFTNA: {0}</string>
     <string name="px_payer_information_identification_type_and_number" translatable="false">{0}: {1}</string>
     <string name="px_payer_information_first_and_last_name" translatable="false">{0} {1}</string>
     <string name="px_identification_card_holder_hint" translatable="false">•• ••• •••</string>
