@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.datasource;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.model.SecurityType;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
@@ -15,6 +16,7 @@ import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.model.internal.Configuration;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import java.io.File;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -34,22 +36,26 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_LABELS = "PREF_LABELS";
     private static final String PREF_AMOUNT_ROW_ENABLED = "PREF_AMOUNT_ROW_ENABLED";
     private static final String PREF_CONFIGURATION = "PREF_CONFIGURATION";
+    private static final String FILE_PAYMENT_CONFIG = "px_payment_config";
 
     @NonNull private final SharedPreferences sharedPreferences;
+    @NonNull private final FileManager fileManager;
 
-    //mem cache
-    private CheckoutPreference pref;
+    @Nullable private CheckoutPreference pref;
     private PaymentConfiguration paymentConfiguration;
     private AdvancedConfiguration advancedConfiguration;
 
-    public PaymentSettingService(@NonNull final SharedPreferences sharedPreferences) {
+    public PaymentSettingService(@NonNull final SharedPreferences sharedPreferences,
+        @NonNull final FileManager fileManager) {
         this.sharedPreferences = sharedPreferences;
+        this.fileManager = fileManager;
     }
 
     @Override
     public void reset() {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.clear().apply();
+        fileManager.removeFile(fileManager.create(FILE_PAYMENT_CONFIG));
         pref = null;
         paymentConfiguration = null;
         advancedConfiguration = null;
@@ -126,8 +132,10 @@ public class PaymentSettingService implements PaymentSettingRepository {
     }
 
     @Override
-    public void configure(@Nullable final PaymentConfiguration paymentConfiguration) {
+    public void configure(@NonNull final PaymentConfiguration paymentConfiguration) {
         this.paymentConfiguration = paymentConfiguration;
+        final File file = fileManager.create(FILE_PAYMENT_CONFIG);
+        fileManager.writeToFile(file, paymentConfiguration);
     }
 
     @Override
@@ -151,6 +159,10 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @NonNull
     @Override
     public PaymentConfiguration getPaymentConfiguration() {
+        if (paymentConfiguration == null) {
+            final File file = fileManager.create(FILE_PAYMENT_CONFIG);
+            paymentConfiguration = fileManager.readParcelable(file, PaymentConfiguration.CREATOR);
+        }
         return paymentConfiguration;
     }
 

@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.util;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import java.io.Serializable;
@@ -60,9 +61,9 @@ public final class ParcelableUtil {
 
     // For writing to a Serializable
     public static <K extends Serializable, V extends Serializable> void writeSerializableMap(
-        Parcel parcel, Map<K, V> map) {
+        final Parcel parcel, final Map<K, V> map) {
         parcel.writeInt(map.size());
-        for (Map.Entry<K, V> e : map.entrySet()) {
+        for (final Map.Entry<K, V> e : map.entrySet()) {
             if (e.getValue() != null) {
                 parcel.writeSerializable(e.getKey());
                 parcel.writeSerializable(e.getValue());
@@ -73,10 +74,35 @@ public final class ParcelableUtil {
     // For reading from a Serializable
     public static <K extends Serializable, V extends Serializable> void readSerializableMap(@NonNull final Map<K,V> map,
         final Parcel parcel, @NonNull final Class<K> kClass, @NonNull final Class<V> vClass) {
-        int size = parcel.readInt();
+        final int size = parcel.readInt();
         for (int i = 0; i < size; i++) {
             map.put(Objects.requireNonNull(kClass.cast(parcel.readSerializable())),
                 Objects.requireNonNull(vClass.cast(parcel.readSerializable())));
         }
+    }
+
+    @NonNull
+    public static byte[] marshall(@NonNull final Parcelable parcelable) {
+        final Parcel parcel = Parcel.obtain();
+        parcelable.writeToParcel(parcel, 0);
+        final byte[] bytes = parcel.marshall();
+        parcel.recycle();
+        return bytes;
+    }
+
+    @Nullable
+    public static <T> T unmarshall(@NonNull final byte[] bytes, @NonNull final Parcelable.Creator<T> creator) {
+        final Parcel parcel = unmarshall(bytes);
+        final T result = creator.createFromParcel(parcel);
+        parcel.recycle();
+        return result;
+    }
+
+    @NonNull
+    private static Parcel unmarshall(@NonNull final byte[] bytes) {
+        final Parcel parcel = Parcel.obtain();
+        parcel.unmarshall(bytes, 0, bytes.length);
+        parcel.setDataPosition(0); // This is extremely important!
+        return parcel;
     }
 }

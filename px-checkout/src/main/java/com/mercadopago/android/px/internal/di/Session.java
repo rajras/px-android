@@ -205,7 +205,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         return initRepository;
     }
 
-    private ExperimentsRepository getExperimentsRepository() {
+    public ExperimentsRepository getExperimentsRepository() {
         if (experimentsRepository == null) {
             experimentsRepository = new ExperimentsService(getSharedPreferences());
         }
@@ -291,8 +291,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     private Cache<InitResponse> getInitCache() {
         if (initCache == null) {
             initCache =
-                new InitCacheCoordinator(new InitDiskCache(getFileManager(), getCacheDir()),
-                    new InitMemCache());
+                new InitCacheCoordinator(new InitDiskCache(getFileManager()), new InitMemCache());
         }
         return initCache;
     }
