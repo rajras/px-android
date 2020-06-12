@@ -63,7 +63,6 @@ import com.mercadopago.android.px.internal.services.InstructionsClient;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Device;
 import com.mercadopago.android.px.model.internal.InitResponse;
-import com.mercadopago.android.px.model.internal.SecurityType;
 import com.mercadopago.android.px.services.MercadoPagoServices;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 
@@ -206,7 +205,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
         return initRepository;
     }
 
-    private ExperimentsRepository getExperimentsRepository() {
+    public ExperimentsRepository getExperimentsRepository() {
         if (experimentsRepository == null) {
             experimentsRepository = new ExperimentsService(getSharedPreferences());
         }
@@ -292,8 +291,7 @@ public final class Session extends ApplicationModule implements AmountComponent 
     private Cache<InitResponse> getInitCache() {
         if (initCache == null) {
             initCache =
-                new InitCacheCoordinator(new InitDiskCache(getFileManager(), getCacheDir()),
-                    new InitMemCache());
+                new InitCacheCoordinator(new InitDiskCache(getFileManager()), new InitMemCache());
         }
         return initCache;
     }
@@ -468,11 +466,9 @@ public final class Session extends ApplicationModule implements AmountComponent 
             : checkout.getAdvancedConfiguration().getProductId();
         networkModule.getSessionIdProvider().configure(checkout.getTrackingConfiguration().getSessionId());
         MPTracker.getInstance().setSessionId(checkout.getTrackingConfiguration().getSessionId());
-        boolean securityEnabled = BehaviourProvider.getSecurityBehaviour()
+        final boolean securityEnabled = BehaviourProvider.getSecurityBehaviour()
             .isSecurityEnabled(new SecurityValidationData.Builder(productId).build());
         MPTracker.getInstance().setSecurityEnabled(securityEnabled);
         networkModule.getProductIdProvider().configure(productId);
-        getConfigurationModule().getPaymentSettings().configure(
-            securityEnabled ? SecurityType.SECOND_FACTOR : SecurityType.NONE);
     }
 }

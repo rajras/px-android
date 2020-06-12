@@ -60,4 +60,17 @@
         <attr name="px_civ_stroke_width" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="PulseView">
+        <attr name="pulse_color" format="color" />
+        <attr name="pulse_strokeWidth" format="dimension"/>
+        <attr name="pulse_radius" format="dimension"/>
+        <attr name="pulse_duration" format="integer"/>
+        <attr name="pulse_rippleAmount" format="integer"/>
+        <attr name="pulse_scale" format="float"/>
+        <attr name="pulse_type" format="enum">
+            <enum name="fillRipple" value="0"/>
+            <enum name="strokeRipple" value="1"/>
+        </attr>
+    </declare-styleable>
+
 </resources>

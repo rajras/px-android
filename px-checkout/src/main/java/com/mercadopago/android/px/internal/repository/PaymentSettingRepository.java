@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.repository;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.model.internal.SecurityType;
+import com.mercadopago.android.px.internal.model.SecurityType;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.model.Currency;
@@ -27,7 +27,7 @@ public interface PaymentSettingRepository {
 
     void configure(@Nullable final CheckoutPreference checkoutPreference);
 
-    void configure(@Nullable final PaymentConfiguration paymentConfiguration);
+    void configure(@NonNull final PaymentConfiguration paymentConfiguration);
 
     void configure(@NonNull final Configuration configuration);
 

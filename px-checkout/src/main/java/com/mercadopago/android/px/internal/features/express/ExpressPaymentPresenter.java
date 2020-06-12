@@ -10,6 +10,9 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.core.FlowIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
+import com.mercadopago.android.px.internal.experiments.BadgeVariant;
+import com.mercadopago.android.px.internal.experiments.PulseVariant;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter;
@@ -23,6 +26,7 @@ import com.mercadopago.android.px.internal.repository.ChargeRepository;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
+import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PayerComplianceRepository;
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository;
@@ -35,6 +39,7 @@ import com.mercadopago.android.px.internal.view.AmountDescriptorView;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.SummaryView;
+import com.mercadopago.android.px.internal.view.experiments.ExperimentHelper;
 import com.mercadopago.android.px.internal.viewmodel.ConfirmButtonViewModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
@@ -92,6 +97,7 @@ import java.util.Set;
     @NonNull private final ChargeRepository chargeRepository;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final CongratsRepository congratsRepository;
+    @NonNull private final ExperimentsRepository experimentsRepository;
     @NonNull private final PayerComplianceRepository payerComplianceRepository;
     @NonNull private final SessionIdProvider sessionIdProvider;
     @NonNull private final FlowIdProvider flowIdProvider;
@@ -121,6 +127,7 @@ import java.util.Set;
         @NonNull final ESCManagerBehaviour escManagerBehaviour,
         @NonNull final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper,
         @NonNull final CongratsRepository congratsRepository,
+        @NonNull final ExperimentsRepository experimentsRepository,
         @NonNull final PayerComplianceRepository payerComplianceRepository,
         @NonNull final SessionIdProvider sessionIdProvider,
         @NonNull final FlowIdProvider flowIdProvider,
@@ -138,6 +145,7 @@ import java.util.Set;
         this.escManagerBehaviour = escManagerBehaviour;
         this.paymentMethodDrawableItemMapper = paymentMethodDrawableItemMapper;
         this.congratsRepository = congratsRepository;
+        this.experimentsRepository = experimentsRepository;
         this.payerComplianceRepository = payerComplianceRepository;
         this.sessionIdProvider = sessionIdProvider;
         this.flowIdProvider = flowIdProvider;
@@ -175,8 +183,8 @@ import java.util.Set;
         final HubAdapter.Model model =
             new HubAdapter.Model(paymentModels, summaryModels, splitHeaderModels, confirmButtonViewModels);
 
+        getView().configurePaymentMethodHeader(getExperiment());
         getView().showToolbarElementDescriptor(elementDescriptorModel);
-
         getView().configureAdapters(paymentSettingRepository.getSite(), paymentSettingRepository.getCurrency());
         getView().updateAdapters(model);
         updateElements();
@@ -525,5 +533,10 @@ import java.util.Set;
     @Override
     public void onCardFormResult() {
         postDisableModelUpdate();
+    }
+
+    private List<Variant> getExperiment() {
+        return ExperimentHelper.INSTANCE
+            .getVariantsFrom(experimentsRepository.getExperiments(), new PulseVariant(), new BadgeVariant());
     }
 }

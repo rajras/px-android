@@ -10,6 +10,8 @@ import com.mercadopago.android.px.addons.model.SecurityValidationData;
 
 public final class SecurityDefaultBehaviour implements SecurityBehaviour {
 
+    private static final String VALIDATED_SCREEN_LOCK = "VALIDATED_SCREEN_LOCK";
+
     @Override
     public boolean isSecurityEnabled(@NonNull final SecurityValidationData data) {
         return false;
@@ -31,5 +33,11 @@ public final class SecurityDefaultBehaviour implements SecurityBehaviour {
     @NonNull
     private Intent getIntent(@NonNull final Context context) {
         return new Intent(context, MockValidationActivity.class);
+    }
+
+    @NonNull
+    @Override
+    public String getExtraResultKey() {
+        return VALIDATED_SCREEN_LOCK;
     }
 }

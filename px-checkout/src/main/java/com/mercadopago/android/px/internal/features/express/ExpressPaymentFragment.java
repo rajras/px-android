@@ -27,6 +27,7 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OfflineMethodsFragment;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OtherPaymentMethodFragment;
@@ -242,6 +243,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         slideUpAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, VISIBLE));
 
         paymentMethodHeaderView = view.findViewById(R.id.installments_header);
+
         paymentMethodHeaderView.setListener(new PaymentMethodHeaderView.Listener() {
             @Override
             public void onDescriptorViewClicked() {
@@ -362,6 +364,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getMercadoPagoESC(),
             MapperProvider.INSTANCE.getPaymentMethodDrawableItemMapper(getContext()),
             session.getCongratsRepository(),
+            session.getExperimentsRepository(),
             configurationModule.getPayerComplianceRepository(),
             Session.getInstance().getNetworkModule().getSessionIdProvider(),
             Session.getInstance().getNetworkModule().getFlowIdProvider(),
@@ -645,5 +648,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void hideLoading() {
         loading.setVisibility(GONE);
+    }
+
+    @Override
+    public void configurePaymentMethodHeader(@NonNull final List<Variant> variants) {
+        paymentMethodHeaderView.configureExperiment(variants);
     }
 }

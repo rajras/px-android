@@ -4,19 +4,24 @@ import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.text.SpannableStringBuilder;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.internal.util.ViewUtils;
+import com.mercadopago.android.px.internal.view.experiments.ExperimentHelper;
 import com.mercadopago.android.px.model.PayerCost;
 
-public class PaymentMethodDescriptorView extends ConstraintLayout {
+public class PaymentMethodDescriptorView extends LinearLayout {
 
     final MPTextView leftText;
-    final MPTextView rightText;
+    final FrameLayout experimentContainer;
+    MPTextView rightText;
 
     public PaymentMethodDescriptorView(final Context context) {
         this(context, null);
@@ -32,9 +37,9 @@ public class PaymentMethodDescriptorView extends ConstraintLayout {
         super(context, attrs, defStyleAttr);
         inflate(context, R.layout.px_view_payment_method_descriptor, this);
         leftText = findViewById(R.id.left_text);
-        rightText = findViewById(R.id.right_text);
+        experimentContainer = findViewById(R.id.badge_experiment_container);
         leftText.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        rightText.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        experimentContainer.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     public void update(@NonNull final Model model) {
@@ -45,6 +50,12 @@ public class PaymentMethodDescriptorView extends ConstraintLayout {
         model.updateRightSpannable(rightSpannableBuilder, leftText);
         rightText.setText(rightSpannableBuilder);
         setContentDescription(TextUtil.EMPTY);
+        model.updateDrawableBackground(rightText);
+    }
+
+    public void configureExperiment(Variant variant) {
+        ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+        rightText = experimentContainer.findViewById(R.id.right_text);
     }
 
     public void updateContentDescription(@NonNull final Model model) {
@@ -64,6 +75,11 @@ public class PaymentMethodDescriptorView extends ConstraintLayout {
 
         public final void setCurrentPayerCost(final int payerCostSelected) {
             this.payerCostSelected = payerCostSelected;
+        }
+
+        @CallSuper
+        public void updateDrawableBackground(@NonNull final TextView textView) {
+            ViewUtils.resetDrawableBackgroundColor(textView);
         }
 
         public int getCurrentInstalment() {

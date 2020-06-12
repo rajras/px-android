@@ -46,6 +46,7 @@ public final class PaymentResultBody extends LinearLayout {
         void onClickViewReceipt(@NonNull final String deeLink);
 
         void onClickTouchPoint(@Nullable String deepLink);
+
         @Override
         default void onClick(@Nullable final String deepLink) {
             onClickTouchPoint(deepLink);
@@ -63,11 +64,17 @@ public final class PaymentResultBody extends LinearLayout {
     public PaymentResultBody(final Context context, @Nullable final AttributeSet attrs,
         final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inflate(context, R.layout.px_payment_result_body, this);
+    }
+
+    public void initView(@NonNull final Model model) {
+        final int layout = model.congratsViewModel.getCustomOrder() ?
+            R.layout.px_payment_result_body_custom_order : R.layout.px_payment_result_body;
+        inflate(getContext(), layout, this);
         setOrientation(VERTICAL);
     }
 
     public void init(@NonNull final Model model, @NonNull final Listener listener) {
+        initView(model);
         renderTopTextBox(model.congratsViewModel.getTopTextBox());
         renderFragment(R.id.px_fragment_container_important, model.importantFragment);
         renderLoyalty(model.congratsViewModel.getLoyaltyRingData(), listener);
@@ -131,7 +138,7 @@ public final class PaymentResultBody extends LinearLayout {
             touchpointView.setOnClickCallback(onClickDiscountBox);
             touchpointView.setTracker(discountData.getTracker());
             touchpointView.init(discountData.getTouchpoint());
-        } else if(discountData != null && !discountData.getDiscountBoxData().getItems().isEmpty()) {
+        } else if (discountData != null && !discountData.getDiscountBoxData().getItems().isEmpty()) {
             discountBoxView.setVisibility(VISIBLE);
             discountBoxView.init(discountData.getDiscountBoxData(), onClickDiscountBox);
         } else {

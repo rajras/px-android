@@ -41,7 +41,7 @@ public class CongratsResponseMapper extends Mapper<CongratsResponse, CongratsVie
         return new CongratsViewModel(getLoyaltyData(congratsResponse.getScore()),
             getDiscountBoxData(discount), getShowAllDiscount(discount), getDownloadAppData(discount),
             getCrossSellingBoxData(congratsResponse.getCrossSellings()), congratsResponse.getTopTextBox(),
-            congratsResponse.getViewReceipt());
+            congratsResponse.getViewReceipt(), congratsResponse.hasCustomOrder());
     }
 
     @Nullable

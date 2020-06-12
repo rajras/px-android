@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,7 +11,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.experiments.BadgeVariant;
+import com.mercadopago.android.px.internal.experiments.PulseVariant;
+import com.mercadopago.android.px.internal.experiments.Variant;
+import com.mercadopago.android.px.internal.experiments.VariantHandler;
+import com.mercadopago.android.px.internal.view.experiments.ExperimentHelper;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 import static com.mercadopago.android.px.internal.util.ViewUtils.hasEndedAnim;
 
@@ -18,13 +26,17 @@ public class PaymentMethodHeaderView extends FrameLayout {
 
     /* default */ final View titleView;
 
-    /* default */ final ImageView arrow;
-
     /* default */ final ImageView helper;
 
     /* default */ final Animation rotateUp;
 
     /* default */ final Animation rotateDown;
+
+    private FrameLayout experimentContainer;
+
+    private PulseView pulse;
+
+    private ImageView arrow;
 
     private final TitlePager titlePager;
 
@@ -49,8 +61,8 @@ public class PaymentMethodHeaderView extends FrameLayout {
         rotateUp = AnimationUtils.loadAnimation(context, R.anim.px_rotate_up);
         rotateDown = AnimationUtils.loadAnimation(context, R.anim.px_rotate_down);
         titleView = findViewById(R.id.installments_title);
+        experimentContainer = findViewById(R.id.pulse_experiment_container);
         titlePager = findViewById(R.id.title_pager);
-        arrow = findViewById(R.id.arrow);
         helper = findViewById(R.id.helper);
         titleView.setVisibility(GONE);
     }
@@ -77,9 +89,42 @@ public class PaymentMethodHeaderView extends FrameLayout {
                 } else {
                     arrow.startAnimation(rotateUp);
                     listener.onDescriptorViewClicked();
+                    if (pulse != null) {
+                        pulse.stopRippleAnimation();
+                    }
                 }
             }
         });
+    }
+
+    public void configureExperiment(@NonNull final List<Variant> variants) {
+        for(Variant variant: variants) {
+            variant.process(new VariantHandler() {
+                @Override
+                public void visit(@NotNull final PulseVariant variant) {
+                    configurePulseExperiment(variant);
+                }
+
+                @Override
+                public void visit(@NotNull final BadgeVariant variant) {
+                    configureBadgeExperiment(variant);
+                }
+            });
+        }
+    }
+
+    private void configureBadgeExperiment(@NonNull final BadgeVariant variant) {
+        titlePager.setBadgeExperimentVariant(variant);
+    }
+
+    private void configurePulseExperiment(@NonNull final PulseVariant variant) {
+        ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+
+        pulse = experimentContainer.findViewById(R.id.pulse);
+        if (pulse != null) {
+            pulse.startRippleAnimation();
+        }
+        arrow = experimentContainer.findViewById(R.id.arrow);
     }
 
     public void showInstallmentsListTitle() {
@@ -105,21 +150,21 @@ public class PaymentMethodHeaderView extends FrameLayout {
 
         if (model.currentIsExpandable) {
             if (model.nextIsExpandable) {
-                arrow.setAlpha(1.0f);
+                experimentContainer.setAlpha(1.0f);
             } else {
-                arrow.setAlpha(1.0f - positionOffset);
+                experimentContainer.setAlpha(1.0f - positionOffset);
             }
         } else {
             if (model.nextIsExpandable) {
-                arrow.setAlpha(positionOffset);
+                experimentContainer.setAlpha(positionOffset);
             } else {
-                arrow.setAlpha(0.0f);
+                experimentContainer.setAlpha(0.0f);
             }
         }
     }
 
     public void setArrowVisibility(final boolean visible) {
-        arrow.setAlpha(visible ? 1.0f : 0.0f);
+        experimentContainer.setAlpha(visible ? 1.0f : 0.0f);
     }
 
     public void setHelperVisibility(final boolean visible) {
