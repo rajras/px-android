@@ -1,3 +1,7 @@
+## VERSION 4.47.1
+_12_06_2020_
+* ENHANCEMENT - Update CFTFormatter for CFTNA
+
 ## VERSION 4.47.0
 _04_06_2020_
 * FEATURE - Send security type of payment as header of payment wrapper api call
