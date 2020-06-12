@@ -1,3 +1,11 @@
+## VERSION 4.48.1
+_12_06_2020_
+* ENHANCEMENT - Update CFTFormatter for CFTNA
+
+## VERSION 4.46.4
+_12_06_2020_
+* ENHANCEMENT - Update CFTFormatter for CFTNA
+
 ## VERSION 4.48.0
 _11_06_2020_
 * FEATURE - experiments with installments row
@@ -11,10 +19,6 @@ _04_06_2020_
 * ENHANCEMENT - Added amount to security validation data
 * ENHANCEMENT - Change account money logo
 * ENHANCEMENT - Take security required parameter from biometrics lib callback
-
-## VERSION 4.46.4
-_12_06_2020_
-* ENHANCEMENT - Update CFTFormatter for CFTNA
 
 ## VERSION 4.46.3
 _03_06_2020_
