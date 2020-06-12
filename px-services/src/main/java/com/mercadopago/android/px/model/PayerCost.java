@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.mercadopago.android.px.internal.util.RateParser;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -61,24 +62,7 @@ public final class PayerCost implements Parcelable, Serializable {
     }
 
     public Map<String, String> getRates() {
-        final Map<String, String> ratesMap = new HashMap<>();
-
-        if (hasValidLabels()) {
-            for (final String label : labels) {
-                if (label.contains(CFT) || label.contains(TEA)) {
-                    final String[] ratesRaw = label.split("\\|");
-                    for (final String rate : ratesRaw) {
-                        final String[] rates = rate.split("_");
-                        ratesMap.put(rates[0], rates[1]);
-                    }
-                }
-            }
-        }
-        return ratesMap;
-    }
-
-    private boolean hasValidLabels() {
-        return labels != null && !labels.isEmpty();
+        return RateParser.INSTANCE.getRates(labels);
     }
 
     public boolean hasMultipleInstallments() {
