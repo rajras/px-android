@@ -54,7 +54,9 @@ public class PaymentMethodDescriptorView extends LinearLayout {
     }
 
     public void configureExperiment(Variant variant) {
-        ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+        if (experimentContainer.getChildCount() == 0) {
+            ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+        }
         rightText = experimentContainer.findViewById(R.id.right_text);
     }
 
