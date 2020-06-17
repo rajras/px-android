@@ -42,6 +42,7 @@
             android:paddingLeft="@dimen/px_m_margin"
             android:paddingRight="@dimen/px_title_pager_padding_right"
             android:textSize="@dimen/px_s_text" />
+
     </com.mercadopago.android.px.internal.view.TitlePager>
 
     <FrameLayout
@@ -70,16 +71,12 @@
             android:background="@color/px_expressCheckoutSeparatorLine" />
     </FrameLayout>
 
-    <ImageView
-        android:id="@+id/arrow"
-        android:layout_width="15dp"
-        android:layout_height="10dp"
-        android:layout_gravity="center_vertical|end|right"
-        android:layout_marginEnd="@dimen/px_l_margin"
-        android:layout_marginRight="@dimen/px_l_margin"
-        android:scaleType="center"
-        android:src="@drawable/px_arrow_down"
-        android:tint="@color/ui_components_primary_color"/>
+    <FrameLayout
+        android:id="@+id/pulse_experiment_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical|end"
+        />
 
     <ImageView
         android:id="@+id/helper"

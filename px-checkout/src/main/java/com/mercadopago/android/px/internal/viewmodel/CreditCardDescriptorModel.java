@@ -8,7 +8,9 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.util.RateType;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.util.textformatter.AmountLabeledFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.CFTFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.PayerCostFormatter;
@@ -66,6 +68,7 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         updateTotalAmountDescriptionSpannable(spannableStringBuilder, context);
         updateInterestDescriptionSpannable(spannableStringBuilder, context);
         updateCFTSpannable(spannableStringBuilder, context);
+        updateCFTNASpannable(spannableStringBuilder, context);
     }
 
     @Override
@@ -73,6 +76,14 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         @NonNull final TextView textView) {
         super.updateRightSpannable(spannableStringBuilder, textView);
         updateInstallmentsInfo(spannableStringBuilder, textView.getContext());
+    }
+
+    @Override
+    public void updateDrawableBackground(@NonNull final TextView textView) {
+        super.updateDrawableBackground(textView);
+        if (payerCostSelected == PayerCost.NO_SELECTED && installmentsRightHeader != null) {
+            ViewUtils.setDrawableBackgroundColor(textView, installmentsRightHeader.getBackgroundColor());
+        }
     }
 
     private void updateInstallmentsInfo(@NonNull final SpannableStringBuilder spannableStringBuilder,
@@ -132,7 +143,15 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
 
     private void updateCFTSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
         @NonNull final Context context) {
-        new CFTFormatter(spannableStringBuilder, context, getCurrent())
+        new CFTFormatter(spannableStringBuilder, context, getCurrent().getRates())
+            .withRate(RateType.CFT)
+            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey)).build();
+    }
+
+    private void updateCFTNASpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
+        @NonNull final Context context) {
+        new CFTFormatter(spannableStringBuilder, context, getCurrent().getRates())
+            .withRate(RateType.CFTNA)
             .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey)).build();
     }
 

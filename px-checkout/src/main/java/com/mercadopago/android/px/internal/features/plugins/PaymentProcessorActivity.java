@@ -29,7 +29,7 @@ import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.model.internal.IParcelablePaymentDescriptor;
+import com.mercadopago.android.px.model.internal.GenericPaymentDescriptor;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 import java.util.List;
@@ -205,7 +205,7 @@ public final class PaymentProcessorActivity extends PXActivity
 
     @Override
     public void onPaymentFinished(@NonNull final GenericPayment genericPayment) {
-        paymentServiceHandlerWrapper.onPaymentFinished(IParcelablePaymentDescriptor.with(genericPayment));
+        paymentServiceHandlerWrapper.onPaymentFinished(GenericPaymentDescriptor.with(genericPayment));
     }
 
     @Override

@@ -6,37 +6,31 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.app.Fragment
 import com.mercadopago.android.px.core.SplitPaymentProcessor
-import com.mercadopago.android.px.model.BusinessPayment
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor
 import com.mercadopago.android.px.model.IPayment
-import com.mercadopago.android.px.model.IPaymentDescriptor
-import com.mercadopago.android.px.model.internal.IParcelablePaymentDescriptor
+import com.mercadopago.android.px.model.internal.GenericPaymentDescriptor
 import com.mercadopago.android.px.preferences.CheckoutPreference
 
-open class SamplePaymentProcessor() : SplitPaymentProcessor {
-    val visualProcessor = false
-    private var genericPayment: IParcelablePaymentDescriptor? = null
-    private var businessPayment: BusinessPayment? = null
+open class SamplePaymentProcessor @JvmOverloads constructor(private val visualProcessor: Boolean = false,
+    private vararg val payments: IParcelablePaymentDescriptor) : SplitPaymentProcessor {
     private val handler = Handler()
+    private var index = 0
 
-    constructor(payment: IPayment) : this() {
-        genericPayment = IParcelablePaymentDescriptor.with(payment)
-    }
+    @JvmOverloads constructor(visualProcessor: Boolean = false, vararg payments: IPayment) : this(
+        visualProcessor,
+        *payments.map { GenericPaymentDescriptor.with(it) }.toTypedArray())
 
-    constructor(payment: IPaymentDescriptor) : this() {
-        when(payment) {
-            is IParcelablePaymentDescriptor -> genericPayment = payment
-            is BusinessPayment -> businessPayment = payment
-        }
-    }
-
-    protected constructor(parcel: Parcel) : this() {
-        genericPayment = parcel.readParcelable(IParcelablePaymentDescriptor::class.java.classLoader)
-        businessPayment = parcel.readParcelable(BusinessPayment::class.java.classLoader)
+    private constructor(parcel: Parcel) : this(
+        parcel.readInt() == 1,
+        *listOf<IParcelablePaymentDescriptor>().apply {
+            parcel.readList(this, IParcelablePaymentDescriptor::class.java.classLoader)
+        }.toTypedArray()) {
+        index = parcel.readInt()
     }
 
     override fun startPayment(context: Context, data: SplitPaymentProcessor.CheckoutData,
         paymentListener: SplitPaymentProcessor.OnPaymentListener) {
-        handler.postDelayed({ paymentListener.onPaymentFinished(getPayment()) }, LOADING_TIME.toLong())
+        handler.postDelayed({ paymentListener.onPaymentFinished(getCurrentPayment()) }, LOADING_TIME.toLong())
     }
 
     override fun getPaymentTimeout(checkoutPreference: CheckoutPreference) = TIMEOUT
@@ -46,22 +40,21 @@ open class SamplePaymentProcessor() : SplitPaymentProcessor {
     override fun supportsSplitPayment(checkoutPreference: CheckoutPreference?) = true
 
     override fun getFragment(data: SplitPaymentProcessor.CheckoutData, context: Context): Fragment? {
-        return SamplePaymentProcessorFragment.with(getPayment() as Parcelable)
+        return SamplePaymentProcessorFragment.with(getCurrentPayment())
+    }
+
+    private fun getCurrentPayment() : IParcelablePaymentDescriptor {
+        val currentIndex = index++
+        val fixedIndex = currentIndex % payments.size
+        return payments[fixedIndex]
     }
 
     override fun describeContents() = 0
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeParcelable(genericPayment, flags)
-        parcel.writeParcelable(businessPayment, flags)
-    }
-
-    protected open fun getPayment(): IPaymentDescriptor {
-        return if (genericPayment != null) {
-            genericPayment as IPaymentDescriptor
-        } else {
-            businessPayment as IPaymentDescriptor
-        }
+        parcel.writeList(payments.toList())
+        parcel.writeInt(if (visualProcessor) 1 else 0)
+        parcel.writeInt(index)
     }
 
     companion object {

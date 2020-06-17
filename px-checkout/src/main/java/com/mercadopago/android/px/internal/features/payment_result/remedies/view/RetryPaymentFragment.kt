@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.di.MapperProvider
+import com.mercadopago.android.px.internal.experiments.BadgeVariant
 import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.visible
 import com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragment
@@ -69,6 +70,7 @@ internal class RetryPaymentFragment : Fragment(), PaymentMethodFragment.Disabled
         val model = MapperProvider.getPaymentMethodDescriptorMapper().map(methodData)
         model.formatForRemedy()
         payerCost?.let { model.setCurrentPayerCost(it.payerCostIndex) }
+        paymentMethodDescriptor.configureExperiment(BadgeVariant().default)
         paymentMethodDescriptor.update(model)
     }
 

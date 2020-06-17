@@ -3,7 +3,6 @@ package com.mercadopago.android.px.feature.custom_initialize
 import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import com.mercadopago.SamplePaymentProcessor
-import com.mercadopago.SamplePaymentProcessorNoView
 import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
 import com.mercadopago.android.px.configuration.PaymentConfiguration
@@ -71,9 +70,9 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
         val paymentConfiguration: PaymentConfiguration = when (initializationData.processor.value) {
             ProcessorType.DEFAULT -> MercadoPagoPaymentConfiguration.create()
             ProcessorType.VISUAL ->
-                PaymentConfiguration.Builder(SamplePaymentProcessor(getGenericPaymentApproved())).build()
+                PaymentConfiguration.Builder(SamplePaymentProcessor(true, getGenericPaymentApproved())).build()
             ProcessorType.NO_VISUAL ->
-                PaymentConfiguration.Builder(SamplePaymentProcessorNoView(getGenericPaymentApproved())).build()
+                PaymentConfiguration.Builder(SamplePaymentProcessor(false, getGenericPaymentApproved())).build()
         }
 
         val builder = MercadoPagoCheckout.Builder(

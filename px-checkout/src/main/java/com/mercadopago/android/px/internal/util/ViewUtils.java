@@ -6,7 +6,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
@@ -14,6 +16,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
@@ -213,6 +216,27 @@ public final class ViewUtils {
                 view.setBackgroundColor(Color.parseColor(color));
             } catch (final Exception e) {
                 logParseColorError(color);
+            }
+        }
+    }
+
+    public static void resetDrawableBackgroundColor(@NonNull final View view) {
+        final int transparentColor = ContextCompat.getColor(view.getContext(), R.color.px_transparent);
+        final Drawable background = view.getBackground();
+
+        if (background != null) {
+            background.setColorFilter(transparentColor, PorterDuff.Mode.SRC);
+        }
+    }
+
+    public static void setDrawableBackgroundColor(@NonNull final View view, @Nullable final String color) {
+        final int transparentColor = ContextCompat.getColor(view.getContext(), R.color.px_transparent);
+        final Drawable background = view.getBackground();
+        if (background != null) {
+            try {
+                background.setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC);
+            } catch (final Exception e) {
+                background.setColorFilter(transparentColor, PorterDuff.Mode.SRC);
             }
         }
     }

@@ -8,7 +8,7 @@ import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.GenericPayment;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.model.internal.IParcelablePaymentDescriptor;
+import com.mercadopago.android.px.model.internal.GenericPaymentDescriptor;
 
 public class PaymentListenerMapper
     extends Mapper<SplitPaymentProcessor.OnPaymentListener, PaymentProcessor.OnPaymentListener> {
@@ -23,7 +23,7 @@ public class PaymentListenerMapper
 
             @Override
             public void onPaymentFinished(@NonNull final GenericPayment genericPayment) {
-                val.onPaymentFinished(IParcelablePaymentDescriptor.with(genericPayment));
+                val.onPaymentFinished(GenericPaymentDescriptor.with(genericPayment));
             }
 
             @Override
