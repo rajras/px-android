@@ -118,7 +118,9 @@ public class PaymentMethodHeaderView extends FrameLayout {
     }
 
     private void configurePulseExperiment(@NonNull final PulseVariant variant) {
-        ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+        if (experimentContainer.getChildCount() == 0) {
+            ExperimentHelper.INSTANCE.applyExperimentViewBy(experimentContainer, variant);
+        }
 
         pulse = experimentContainer.findViewById(R.id.pulse);
         if (pulse != null) {
