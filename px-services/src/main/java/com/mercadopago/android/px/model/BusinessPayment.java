@@ -2,7 +2,6 @@ package com.mercadopago.android.px.model;
 
 import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class BusinessPayment implements IPaymentDescriptor, Parcelable {
+public class BusinessPayment implements IParcelablePaymentDescriptor {
 
     @NonNull private final String title;
     @NonNull private final Decorator decorator;
