@@ -5,14 +5,17 @@ internal data class InitializationData(
     var publicKey: ConfigurationStringData.PublicKey,
     var preferenceId: ConfigurationStringData.PreferenceId,
     var accessToken: ConfigurationStringData.AccessToken,
-    var oneTap: ConfigurationBooleanData.OneTap) {
+    var oneTap: ConfigurationBooleanData.OneTap,
+    var processor: ConfigurationDataType.Processor) {
 
-    fun updateModel(locale: String, publicKey: String, preferenceId: String, accessToken: String, oneTap: Boolean) {
+    fun updateModel(locale: String, publicKey: String, preferenceId: String, accessToken: String, oneTap: Boolean,
+        processor: String) {
         this.locale = ConfigurationStringData.Locale(locale)
         this.publicKey = ConfigurationStringData.PublicKey(publicKey)
         this.preferenceId = ConfigurationStringData.PreferenceId(preferenceId)
         this.accessToken = ConfigurationStringData.AccessToken(accessToken)
         this.oneTap = ConfigurationBooleanData.OneTap(oneTap)
+        this.processor = ConfigurationDataType.Processor(ProcessorType.valueOf(processor))
     }
 
     fun updateModel(data: ConfigurationDataType) {
@@ -22,6 +25,7 @@ internal data class InitializationData(
             is ConfigurationStringData.PreferenceId -> preferenceId = data
             is ConfigurationStringData.AccessToken -> accessToken = data
             is ConfigurationBooleanData.OneTap -> oneTap = data
+            is ConfigurationDataType.Processor -> processor = data
         }
     }
 }
