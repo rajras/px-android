@@ -101,7 +101,8 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         final Session session = Session.getInstance();
         final PaymentSettingRepository configuration = session.getConfigurationModule().getPaymentSettings();
         presenter = new PaymentVaultPresenter(configuration,
@@ -125,7 +126,6 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
         if (!automaticSelection) {
             initialize();
         }
-        validatePaymentConfiguration();
     }
 
     @Override
@@ -139,13 +139,6 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
         this.automaticSelection = automaticSelection;
     }
 
-    //TODO remove method after session is persisted
-    private void validatePaymentConfiguration() {
-        final Session session = Session.getInstance();
-        session.getConfigurationModule().getPaymentSettings().getPaymentConfiguration().getCharges();
-        session.getConfigurationModule().getPaymentSettings().getPaymentConfiguration().getPaymentProcessor();
-    }
-
     private void configurePresenter() {
         presenter.attachView(this);
     }
@@ -156,7 +149,7 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
 
     protected void getActivityParameters() {
         final Intent intent = getIntent();
-        PaymentMethodSearchItem item =
+        final PaymentMethodSearchItem item =
             (PaymentMethodSearchItem) intent.getSerializableExtra(EXTRA_SELECTED_SEARCH_ITEM);
         if (item != null) {
             presenter.setSelectedSearchItem(item);
@@ -315,7 +308,7 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
         if (mSelectedIssuer != null) {
             returnIntent.putExtra(EXTRA_ISSUER, (Serializable) mSelectedIssuer);
         }
-        returnIntent.putExtra(EXTRA_CARD, mSelectedCard);
+        returnIntent.putExtra(EXTRA_CARD, (Parcelable) mSelectedCard);
         finishWithResult(returnIntent);
     }
 
