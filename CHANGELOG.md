@@ -1,3 +1,8 @@
+## VERSION 4.50.0
+_18_06_2020_
+* FEATURE - Added tracking behaviour new signature.
+* ENHANCEMENT - Removed session initialization check
+
 ## VERSION 4.48.2
 _17_06_2020_
 * FIX - Crash silverbullet remedy
