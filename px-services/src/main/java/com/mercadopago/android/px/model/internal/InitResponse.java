@@ -3,6 +3,7 @@ package com.mercadopago.android.px.model.internal;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
+import com.mercadopago.android.px.addons.model.internal.Experiment;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.PayerCompliance;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
