@@ -1,10 +1,10 @@
 package com.mercadopago.android.px.model
 
 import android.os.Parcel
-import com.mercadopago.android.px.internal.extensions.readDate
-import com.mercadopago.android.px.internal.extensions.readNullableInt
-import com.mercadopago.android.px.internal.extensions.writeDate
-import com.mercadopago.android.px.internal.extensions.writeNullableInt
+import com.mercadopago.android.px.internal.core.extensions.readDate
+import com.mercadopago.android.px.internal.core.extensions.readNullableInt
+import com.mercadopago.android.px.internal.core.extensions.writeDate
+import com.mercadopago.android.px.internal.core.extensions.writeNullableInt
 import com.mercadopago.android.px.internal.util.KParcelable
 import com.mercadopago.android.px.internal.util.parcelableCreator
 import java.util.*

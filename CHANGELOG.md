@@ -1,4 +1,8 @@
-## VERSION 4.50.0
+## VERSION 4.49.1
+_18_06_2020_
+* FIX - Moved module extensions to avoid clashing
+
+## VERSION 4.49.0
 _18_06_2020_
 * FEATURE - Added tracking behaviour new signature.
 * ENHANCEMENT - Removed session initialization check
