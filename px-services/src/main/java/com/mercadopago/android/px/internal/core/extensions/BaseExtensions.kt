@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.extensions
+package com.mercadopago.android.px.internal.core.extensions
 
 import android.app.Activity
 import android.graphics.Rect

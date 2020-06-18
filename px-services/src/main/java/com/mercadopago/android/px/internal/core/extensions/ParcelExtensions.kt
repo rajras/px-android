@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.extensions
+package com.mercadopago.android.px.internal.core.extensions
 
 import android.os.Parcel
 import java.math.BigDecimal
