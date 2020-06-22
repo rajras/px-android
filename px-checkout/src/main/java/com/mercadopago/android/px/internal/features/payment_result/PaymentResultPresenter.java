@@ -8,7 +8,6 @@ import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
-import com.mercadopago.android.px.internal.features.payment_result.remedies.RemedyType;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ChangePaymentMethodAction;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
@@ -27,7 +26,6 @@ import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.exceptions.ApiException;
-import com.mercadopago.android.px.model.internal.remedies.RemediesResponse;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.events.AbortEvent;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
@@ -39,7 +37,6 @@ import com.mercadopago.android.px.tracking.internal.events.ScoreEvent;
 import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
-import java.util.ArrayList;
 import java.util.List;
 
 /* default */ class PaymentResultPresenter extends BasePresenter<PaymentResultContract.View>
@@ -63,21 +60,7 @@ import java.util.List;
         screenConfiguration =
             paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
         resultViewTrack =
-            new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, getRemedies(paymentModel.getRemedies()));
-    }
-
-
-    private List<String> getRemedies(@NonNull final RemediesResponse remedies) {
-        final List<String> remedyList = new ArrayList<>();
-
-        if (remedies.getSuggestedPaymentMethod() != null) {
-            remedyList.add(RemedyType.PAYMENT_METHOD_SUGGESTION.getType());
-        } else if (remedies.getCvv() != null) {
-            remedyList.add(RemedyType.CVV_REQUEST.getType());
-        } else if (remedies.getHighRisk() != null) {
-            remedyList.add(RemedyType.KYC_REQUEST.getType());
-        }
-        return remedyList;
+            new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings);
     }
 
     @Override
