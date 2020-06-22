@@ -26,25 +26,23 @@ import kotlinx.coroutines.withContext
 
 internal class RemediesViewModel(
     private val remediesModel: RemediesModel,
-    paymentModel: PaymentModel,
+    private val previousPaymentModel: PaymentModel,
     private val paymentRepository: PaymentRepository,
     private val paymentSettingRepository: PaymentSettingRepository,
     private val cardTokenRepository: CardTokenRepository,
     private val escManagerBehaviour: ESCManagerBehaviour,
-    private val congratsRepository: CongratsRepository,
     private val initRepository: InitRepository,
     private val amountConfigurationRepository: AmountConfigurationRepository
 ) : BaseViewModel(), Remedies.ViewModel {
 
     val remedyState: MutableLiveData<RemedyState> = MutableLiveData()
     private val isSilverBullet = remediesModel.retryPayment?.isAnotherMethod == true
-    private val methodIds: MethodIds
     private var cvv = ""
     private var paymentConfiguration: PaymentConfiguration? = null
     private var card: Card? = null
 
     init {
-        methodIds = getMethodIds(paymentModel)!!
+        val methodIds = getMethodIds()
         val customOptionId = methodIds.customOptionId
         CoroutineScope(Dispatchers.IO).launch {
             loadInitResponse()?.let {initResponse ->
@@ -54,7 +52,7 @@ internal class RemediesViewModel(
                     card = initResponse.getCardById(customOptionId)
                 }
                 paymentConfiguration = PaymentConfiguration(methodIds.methodId, methodIds.typeId, customOptionId, isCard, false,
-                    getPayerCost(customOptionId, paymentModel))
+                    getPayerCost(customOptionId))
                 withContext(Dispatchers.Main) {
                     remediesModel.retryPayment?.let {
                         remedyState.value = RemedyState.ShowRetryPaymentRemedy(Pair(it, methodData))
@@ -79,10 +77,10 @@ internal class RemediesViewModel(
         callback.call(paymentConfiguration!!)
     }
 
-    private fun getMethodIds(paymentModel: PaymentModel): MethodIds? {
-        return paymentModel.run {
+    private fun getMethodIds(): MethodIds {
+        return previousPaymentModel.run {
             if (isSilverBullet) {
-                remedies.suggestedPaymentMethod?.alternativePaymentMethod?.let {
+                remedies.suggestedPaymentMethod!!.alternativePaymentMethod.let {
                     MethodIds.with(it)
                 }
             } else {
@@ -91,8 +89,8 @@ internal class RemediesViewModel(
         }
     }
 
-    private fun getPayerCost(customOptionId: String, paymentModel: PaymentModel): PayerCost? {
-        return paymentModel.run {
+    private fun getPayerCost(customOptionId: String): PayerCost? {
+        return previousPaymentModel.run {
             if (isSilverBullet) {
                 remedies.suggestedPaymentMethod?.alternativePaymentMethod?.installmentsList?.run {
                     if (isNotEmpty()) {
@@ -123,8 +121,7 @@ internal class RemediesViewModel(
         }
 
     private fun startPayment(callback: PayButton.OnEnqueueResolvedCallback) {
-        RemedyEvent(RemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION.getType(),
-            remediesModel.trackingData)).track()
+        RemedyEvent(getRemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION)).track()
         paymentSettingRepository.clearToken()
         remediesModel.retryPayment?.cvvModel?.let {
             CoroutineScope(Dispatchers.IO).launch {
@@ -150,7 +147,7 @@ internal class RemediesViewModel(
                 .recoverWithCVV(cvv)?.let {
                     paymentSettingRepository.configure(it)
                     withContext(Dispatchers.Main) {
-                        RemedyEvent(RemedyTrackData(RemedyType.CVV_REQUEST.getType(), remediesModel.trackingData)).track()
+                        RemedyEvent(getRemedyTrackData(RemedyType.CVV_REQUEST)).track()
                         callback.success()
                     }
                 } ?: withContext(Dispatchers.Main) {
@@ -163,7 +160,7 @@ internal class RemediesViewModel(
         when(action) {
             RemedyButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod
             RemedyButton.Action.KYC -> remediesModel.highRisk?.let {
-                RemedyEvent(RemedyTrackData(RemedyType.KYC_REQUEST.getType(), remediesModel.trackingData)).track()
+                RemedyEvent(getRemedyTrackData(RemedyType.KYC_REQUEST)).track()
                 remedyState.value = RemedyState.GoToKyc(it.deepLink)
             }
             else -> TODO()
@@ -182,6 +179,10 @@ internal class RemediesViewModel(
     override fun storeInBundle(bundle: Bundle) {
         super.storeInBundle(bundle)
         bundle.putString(EXTRA_CVV, cvv)
+    }
+
+    private fun getRemedyTrackData(type: RemedyType) = previousPaymentModel.payment!!.let {
+        RemedyTrackData(type.getType(), remediesModel.trackingData, it.paymentStatus, it.paymentStatusDetail)
     }
 
     private data class MethodIds(val methodId: String, val typeId: String, val customOptionId: String) {
