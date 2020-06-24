@@ -162,11 +162,7 @@ import java.util.List;
 
     @Override
     public void resolveInstallmentsRequest() {
-        if (getCard() == null) {
-            getView().finishWithResult();
-        } else {
-            startSecurityCodeFlowIfNeeded(Reason.SAVED_CARD);
-        }
+        getView().finishWithResult();
     }
 
     @Override
@@ -278,7 +274,7 @@ import java.util.List;
             getView().showEmptyPayerCostScreen();
         } else if (payerCosts.size() == 1) {
             userSelectionRepository.select(payerCosts.get(0));
-            startSecurityCodeFlowIfNeeded(Reason.SAVED_CARD);
+            getView().finishWithResult();
         } else {
             getView().askForInstallments(getCardInfo());
         }
