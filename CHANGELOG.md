@@ -1,3 +1,7 @@
+## VERSION 4.48.6
+_24_06_2020_
+* FIX - Avoid to ask for cvv preventively on groups flow
+
 ## VERSION 4.48.5
 _24_06_2020_
 * FIX - Avoid clear token for old card association flow
