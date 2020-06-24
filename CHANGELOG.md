@@ -1,3 +1,7 @@
+## VERSION 4.48.4
+_24_06_2020_
+* FIX - Clear token on prepare payment
+
 ## VERSION 4.48.3
 _24_06_2020_
 * FIX - DisplayInfo within PaymentMethod was not parcelized
