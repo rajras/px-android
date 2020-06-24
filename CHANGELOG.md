@@ -1,3 +1,7 @@
+## VERSION 4.48.5
+_24_06_2020_
+* FIX - Avoid clear token for old card association flow
+
 ## VERSION 4.48.4
 _24_06_2020_
 * FIX - Clear token on prepare payment
