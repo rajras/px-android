@@ -11,6 +11,7 @@ import com.mercadopago.android.px.internal.callbacks.Event
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler
 import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.core.ProductIdProvider
+import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
@@ -78,12 +79,14 @@ internal class PayButtonViewModel(
     }
 
     override fun preparePayment() {
-        paymentSettingRepository.clearToken()
         paymentConfiguration = null
         confirmTrackerData = null
         if (connectionHelper.checkConnection()) {
             handler?.prePayment(object : OnReadyForPaymentCallback {
                 override fun call(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData?) {
+                    if(paymentConfiguration.customOptionId.isNotNullNorEmpty()) {
+                        paymentSettingRepository.clearToken()
+                    }
                     startSecuredPayment(paymentConfiguration, confirmTrackerData)
                 }
             })
