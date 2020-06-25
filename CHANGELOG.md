@@ -1,3 +1,8 @@
+## VERSION 4.50.0
+_25_06_2020_
+* FEATURE - Money split view in congrats
+* ENHANCEMENT - Remedies tracking changes
+
 ## VERSION 4.48.6
 _24_06_2020_
 * FIX - Avoid to ask for cvv preventively on groups flow
