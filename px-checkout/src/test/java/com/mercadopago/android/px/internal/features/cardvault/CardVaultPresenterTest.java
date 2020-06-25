@@ -109,18 +109,6 @@ public class CardVaultPresenterTest {
      */
 
     @Test
-    public void whenGuessingCardHasInstallmentSelectedAndWithoutTokenThenStartSecurityCodeFlow() {
-        configureMockedCard();
-        final Card card = userSelectionRepository.getCard();
-        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
-            .thenReturn(TextUtil.EMPTY);
-
-        presenter.resolveInstallmentsRequest();
-
-        verify(view).startSecurityCodeActivity(Reason.SAVED_CARD);
-    }
-
-    @Test
     public void whenGuessingHasIssuerAndPayerCostThenFinishWithResult() {
         when(userSelectionRepository.getIssuer()).thenReturn(mock(Issuer.class));
         when(userSelectionRepository.getPayerCost()).thenReturn(mock(PayerCost.class));
@@ -200,15 +188,12 @@ public class CardVaultPresenterTest {
     @Test
     public void whenOnlyOnePayerCostThenSelectsAndAsksForSecCode() {
         configureMockedCard();
-        final Card card = userSelectionRepository.getCard();
-        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
-            .thenReturn(TextUtil.EMPTY);
         final List<PayerCost> payerCosts = Collections.singletonList(mock(PayerCost.class));
         when(amountConfiguration.getPayerCosts()).thenReturn(payerCosts);
 
         presenter.initialize();
 
-        verify(view).startSecurityCodeActivity(Reason.SAVED_CARD);
+        verify(view).finishWithResult();
         verifyNoMoreInteractions(view);
     }
 

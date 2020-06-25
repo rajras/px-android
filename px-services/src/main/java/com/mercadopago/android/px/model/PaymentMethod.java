@@ -213,7 +213,7 @@ public class PaymentMethod implements Parcelable, Serializable {
         String maxString = in.readString();
         maxAllowedAmount = maxString != null ? new BigDecimal(maxString) : null;
         processingModes = in.createTypedArray(ProcessingMode.CREATOR);
-        in.readParcelable(DisplayInfo.class.getClassLoader());
+        displayInfo = in.readParcelable(DisplayInfo.class.getClassLoader());
     }
 
     public static final Creator<PaymentMethod> CREATOR = new Creator<PaymentMethod>() {

@@ -1,3 +1,19 @@
+## VERSION 4.48.6
+_24_06_2020_
+* FIX - Avoid to ask for cvv preventively on groups flow
+
+## VERSION 4.48.5
+_24_06_2020_
+* FIX - Avoid clear token for old card association flow
+
+## VERSION 4.48.4
+_24_06_2020_
+* FIX - Clear token on prepare payment
+
+## VERSION 4.48.3
+_24_06_2020_
+* FIX - DisplayInfo within PaymentMethod was not parcelized
+
 ## VERSION 4.49.1
 _18_06_2020_
 * FIX - Moved module extensions to avoid clashing
