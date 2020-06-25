@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.mercadopago.android.px.internal.experiments.Variant
-import com.mercadopago.android.px.model.internal.Experiment
+import com.mercadopago.android.px.addons.model.internal.Experiment
 
 object ExperimentHelper {
 

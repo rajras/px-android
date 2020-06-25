@@ -31,7 +31,7 @@ internal class CVVRecoveryWrapper(cardTokenRepository: CardTokenRepository,
         } catch (exception: CardTokenException) {
             card?.let {
                 FrictionEventTracker.with(FrictionEventTracker.Id.INVALID_CVV,
-                    CvvAskViewTracker(it, it.paymentMethod.paymentTypeId, Reason.from(paymentRecovery)),
+                    CvvAskViewTracker(it, it.paymentMethod!!.paymentTypeId, Reason.from(paymentRecovery)),
                     FrictionEventTracker.Style.CUSTOM_COMPONENT, it.paymentMethod).track()
             }
         } finally {

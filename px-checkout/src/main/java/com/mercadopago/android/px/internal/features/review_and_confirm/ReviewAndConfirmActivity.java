@@ -81,7 +81,8 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.px_view_container_review_and_confirm);
         initializeViews();
         final Session session = Session.getInstance();

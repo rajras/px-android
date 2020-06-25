@@ -91,7 +91,8 @@ public class IssuersActivity extends PXActivity<IssuersPresenter> implements Iss
     protected ViewGroup mProgressLayout;
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         getActivityParameters();
 
         presenter.attachView(this);

@@ -7,7 +7,7 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.model.CheckoutType;
 import com.mercadopago.android.px.model.Event;
 import com.mercadopago.android.px.model.ScreenViewEvent;
-import com.mercadopago.android.px.model.internal.Experiment;
+import com.mercadopago.android.px.addons.model.internal.Experiment;
 import com.mercadopago.android.px.tracking.PXEventListener;
 import com.mercadopago.android.px.tracking.PXTrackingListener;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -202,7 +202,7 @@ public final class MPTracker {
     }
 
     private String getExperimentsLabel() {
-        StringBuilder label = new StringBuilder();
+        final StringBuilder label = new StringBuilder();
 
         for (final Experiment experiment : experiments) {
             if (!isEmpty(label)) {

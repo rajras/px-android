@@ -4,17 +4,17 @@ import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 
-fun CharSequence?.isNotNullNorEmpty() = !isNullOrEmpty()
+internal fun CharSequence?.isNotNullNorEmpty() = !isNullOrEmpty()
 
-fun CharSequence?.orIfEmpty(fallback: String) = if (isNotNullNorEmpty()) this!! else fallback
+internal fun CharSequence?.orIfEmpty(fallback: String) = if (isNotNullNorEmpty()) this!! else fallback
 
-fun View.gone() = apply { visibility = View.GONE }
+internal fun View.gone() = apply { visibility = View.GONE }
 
-fun View.visible() = apply { visibility = View.VISIBLE }
+internal fun View.visible() = apply { visibility = View.VISIBLE }
 
-fun View.invisible() = apply { visibility = View.INVISIBLE }
+internal fun View.invisible() = apply { visibility = View.INVISIBLE }
 
-fun Any?.runIfNull(action: ()->Unit) {
+internal fun Any?.runIfNull(action: ()->Unit) {
     if(this == null) {
         action.invoke()
     }

@@ -77,8 +77,8 @@ public class InstallmentsActivity extends PXActivity<InstallmentsPresenter> impl
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
-
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         final Session session = Session.getInstance();
         final ConfigurationModule configurationModule = session.getConfigurationModule();
         configuration = configurationModule.getPaymentSettings();

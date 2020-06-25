@@ -20,8 +20,8 @@ public class CardAssociationResultSuccessActivity extends PXActivity {
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
-
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.px_card_association_result_success);
 
         ViewUtils.setStatusBarColor(ContextCompat.getColor(this, R.color.ui_components_success_color), getWindow());

@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.model.internal;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor;
 import com.mercadopago.android.px.model.IPayment;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.IPaymentDescriptorHandler;
@@ -11,7 +11,7 @@ import com.mercadopago.android.px.model.IPaymentDescriptorHandler;
 /**
  * Parcelable version for IPayment description.
  */
-public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, Parcelable {
+public final class GenericPaymentDescriptor implements IParcelablePaymentDescriptor {
 
     private final String paymentTypeId;
     private final String paymentMethodId;
@@ -20,7 +20,7 @@ public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, P
     private final String paymentStatus;
     private final String paymentStatusDetail;
 
-    private IParcelablePaymentDescriptor(@NonNull final String paymentStatus,
+    private GenericPaymentDescriptor(@NonNull final String paymentStatus,
         @NonNull final String paymentStatusDetail,
         @NonNull final String paymentTypeId,
         @NonNull final String paymentMethodId,
@@ -34,8 +34,8 @@ public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, P
         this.paymentStatusDetail = paymentStatusDetail;
     }
 
-    public static IParcelablePaymentDescriptor with(@NonNull final IPayment iPayment) {
-        return new IParcelablePaymentDescriptor(
+    public static GenericPaymentDescriptor with(@NonNull final IPayment iPayment) {
+        return new GenericPaymentDescriptor(
             iPayment.getPaymentStatus(),
             iPayment.getPaymentStatusDetail(),
             null, null,
@@ -44,8 +44,8 @@ public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, P
         );
     }
 
-    public static IParcelablePaymentDescriptor with(@NonNull final IPaymentDescriptor iPaymentDescriptor) {
-        return new IParcelablePaymentDescriptor(
+    public static GenericPaymentDescriptor with(@NonNull final IPaymentDescriptor iPaymentDescriptor) {
+        return new GenericPaymentDescriptor(
             iPaymentDescriptor.getPaymentStatus(),
             iPaymentDescriptor.getPaymentStatusDetail(),
             iPaymentDescriptor.getPaymentTypeId(),
@@ -55,7 +55,7 @@ public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, P
         );
     }
 
-    private IParcelablePaymentDescriptor(final Parcel in) {
+    private GenericPaymentDescriptor(final Parcel in) {
         paymentTypeId = in.readString();
         paymentMethodId = in.readString();
         if (in.readByte() == 0) {
@@ -68,15 +68,15 @@ public final class IParcelablePaymentDescriptor implements IPaymentDescriptor, P
         paymentStatusDetail = in.readString();
     }
 
-    public static final Creator<IParcelablePaymentDescriptor> CREATOR = new Creator<IParcelablePaymentDescriptor>() {
+    public static final Creator<GenericPaymentDescriptor> CREATOR = new Creator<GenericPaymentDescriptor>() {
         @Override
-        public IParcelablePaymentDescriptor createFromParcel(final Parcel in) {
-            return new IParcelablePaymentDescriptor(in);
+        public GenericPaymentDescriptor createFromParcel(final Parcel in) {
+            return new GenericPaymentDescriptor(in);
         }
 
         @Override
-        public IParcelablePaymentDescriptor[] newArray(final int size) {
-            return new IParcelablePaymentDescriptor[size];
+        public GenericPaymentDescriptor[] newArray(final int size) {
+            return new GenericPaymentDescriptor[size];
         }
     };
 

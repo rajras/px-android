@@ -24,5 +24,9 @@
     <string name="hint_access_token">Access token</string>
     <string name="hint_preference_id">Preference Id</string>
     <string name="one_tap_check">Show One Tap</string>
+    <string name="payment_processor_type">Payment processor type</string>
     <string name="clear_label">clear</string>
+    <string name="processor_type_default">default</string>
+    <string name="processor_type_visual">visual</string>
+    <string name="processor_type_no_visual">no visual</string>
 </resources>

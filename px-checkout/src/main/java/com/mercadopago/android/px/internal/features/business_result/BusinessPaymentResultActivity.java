@@ -60,7 +60,8 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.px_activity_payment_result);
 
         presenter = createPresenter();

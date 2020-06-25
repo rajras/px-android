@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.mercadopago.android.px.addons.model.** { *; } #dtos
+-dontnote com.mercadopago.android.px.addons.model.**

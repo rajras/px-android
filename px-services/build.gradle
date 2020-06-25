@@ -28,6 +28,7 @@ android {
 dependencies {
     androidTestImplementation project(":testlib")
 
+    implementation project(':px-addons')
     implementation "com.android.support:appcompat-v7:$support_library_version"
     implementation "com.google.code.gson:gson:$gson"
     api "com.squareup.retrofit2:retrofit:$retrofit"

@@ -190,7 +190,8 @@ public class GuessingCardActivity extends PXActivity<GuessingCardPresenter> impl
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    public void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mActivityActive = true;
         mButtonContainerMustBeShown = true;
         analizeLowRes();
@@ -263,16 +264,6 @@ public class GuessingCardActivity extends PXActivity<GuessingCardPresenter> impl
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         presenter.onRestoreInstanceState(savedInstanceState);
-        if (getIntent().getExtras().getBoolean(GuessingCardActivity.PARAM_INCLUDES_PAYMENT)) {
-            validatePaymentConfiguration();
-        }
-    }
-
-    //TODO remove method after session is persisted
-    private void validatePaymentConfiguration() {
-        final Session session = Session.getInstance();
-        session.getConfigurationModule().getPaymentSettings().getPaymentConfiguration().getCharges();
-        session.getConfigurationModule().getPaymentSettings().getPaymentConfiguration().getPaymentProcessor();
     }
 
     private void analizeLowRes() {

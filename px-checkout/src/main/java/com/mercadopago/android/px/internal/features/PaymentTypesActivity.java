@@ -72,7 +72,8 @@ public class PaymentTypesActivity extends PXActivity implements PaymentTypesActi
     }
 
     @Override
-    public void onCreated(@Nullable final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (mPresenter == null) {
             mPresenter = new PaymentTypesPresenter();
         }

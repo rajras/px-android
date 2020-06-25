@@ -14,6 +14,15 @@ _24_06_2020_
 _24_06_2020_
 * FIX - DisplayInfo within PaymentMethod was not parcelized
 
+## VERSION 4.49.1
+_18_06_2020_
+* FIX - Moved module extensions to avoid clashing
+
+## VERSION 4.49.0
+_18_06_2020_
+* FEATURE - Added tracking behaviour new signature.
+* ENHANCEMENT - Removed session initialization check
+
 ## VERSION 4.48.2
 _17_06_2020_
 * FIX - Crash silverbullet remedy
