@@ -17,16 +17,16 @@ class ResultViewTrack : ViewTracker {
     private val remediesResponse: RemediesResponse
 
     constructor(paymentModel: PaymentModel, screenConfiguration: PaymentResultScreenConfiguration,
-        paymentSetting: PaymentSettingRepository) {
+        paymentSetting: PaymentSettingRepository, isMP: Boolean) {
         resultViewTrackModel = ResultViewTrackModel(paymentModel, screenConfiguration, paymentSetting.checkoutPreference!!,
-            paymentSetting.currency.id)
+            paymentSetting.currency.id, isMP)
         paymentStatus = getMappedResult(paymentModel.paymentResult)
         this.remediesResponse = paymentModel.remedies
     }
 
-    constructor(paymentModel: BusinessPaymentModel, paymentSetting: PaymentSettingRepository) {
+    constructor(paymentModel: BusinessPaymentModel, paymentSetting: PaymentSettingRepository, isMP: Boolean) {
         resultViewTrackModel = ResultViewTrackModel(paymentModel, paymentSetting.checkoutPreference!!,
-            paymentSetting.currency.id)
+            paymentSetting.currency.id, isMP)
         paymentStatus = getMappedResult(paymentModel.paymentResult)
         this.remediesResponse = paymentModel.remedies
     }
