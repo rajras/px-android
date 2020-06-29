@@ -148,7 +148,7 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
         final View rootView = getView();
         final DynamicHeightViewPager parent;
         if (rootView != null && rootView.getParent() instanceof DynamicHeightViewPager) {
-            if ((parent = (DynamicHeightViewPager) rootView.getParent()) != null && parent.hasAccessibilityFocus()) {
+            if ((parent = (DynamicHeightViewPager) rootView.getParent()).hasAccessibilityFocus()) {
                 parent.announceForAccessibility(description);
             }
         }
