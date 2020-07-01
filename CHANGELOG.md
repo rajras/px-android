@@ -1,3 +1,10 @@
+## VERSION 4.50.1
+_01_07_2020_
+* FIX - Last four digits ends with null
+* FIX - Prevent back when pay button is exploding
+* FIX - Cloning token when no token is present (remedies)
+* FIX - GSON Concurrent modification because bad cache handling
+
 ## VERSION 4.50.0
 _25_06_2020_
 * FEATURE - Money split view in congrats
