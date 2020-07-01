@@ -146,7 +146,7 @@ class OfflineMethodsPresenter extends BasePresenter<OfflineMethods.OffMethodsVie
     }
 
     @Override
-    public void trackAbort() {
+    public void onBack() {
         tracker.trackAbort();
     }
 

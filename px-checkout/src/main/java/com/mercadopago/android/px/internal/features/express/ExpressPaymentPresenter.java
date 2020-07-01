@@ -251,11 +251,12 @@ import java.util.Set;
 
     @Override
     public void cancel() {
-        trackAbort();
+        tracker.trackBack();
         getView().cancel();
     }
 
-    public void trackAbort() {
+    @Override
+    public void onBack() {
         tracker.trackAbort();
     }
 
