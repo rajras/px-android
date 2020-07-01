@@ -39,7 +39,7 @@ internal class CVVRecoveryWrapper(cardTokenRepository: CardTokenRepository,
         }
     }
 
-    private fun hasToCloneToken() = token?.cardId.isNullOrEmpty()
+    private fun hasToCloneToken() = token?.run { cardId.isNullOrEmpty() } ?: false
 
     private fun hasToRecoverTokenFromESC() = paymentRecovery.isStatusDetailInvalidESC &&
             (token?.cardId.isNotNullNorEmpty() || card?.id.isNotNullNorEmpty())
