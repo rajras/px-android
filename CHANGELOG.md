@@ -1,3 +1,7 @@
+## VERSION 4.50.2
+_01_07_2020_
+* FIX - No token in remedies after guessing card flow
+
 ## VERSION 4.50.1
 _01_07_2020_
 * FIX - Last four digits ends with null
