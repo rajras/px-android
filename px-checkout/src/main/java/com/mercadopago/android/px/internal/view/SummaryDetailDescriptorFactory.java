@@ -17,6 +17,7 @@ import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.Discount;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
+import com.mercadopago.android.px.model.internal.AmountDescriptor;
 import com.mercadopago.android.px.model.internal.SummaryInfo;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,23 +51,15 @@ public class SummaryDetailDescriptorFactory {
         if (chargeRule != null && !ChargeRuleHelper.isHighlightCharge(chargeRule)) {
             addChargesRow(list);
         }
-        addTotalRow(list);
+        addPurchaseRow(list);
 
         return list;
     }
 
     private void addDiscountRow(@NonNull final Collection<AmountDescriptorView.Model> list) {
-        final Discount discount = discountModel.getDiscount();
-        if (!discountModel.isAvailable()) {
-            final AmountDescriptorView.Model model = discountModel.getReason() != null ?
-                new AmountDescriptorView.Model(discountModel.getReason().getSummary(), new SummaryViewDefaultColor()) :
-                new AmountDescriptorView.Model(new SoldOutDiscountLocalized(), new SummaryViewDefaultColor());
-            list.add(model
-                .setDetailDrawable(new SummaryViewDetailDrawable(), new SummaryViewDefaultColor())
-                .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));
-        } else if (discount != null) {
-            list.add(new AmountDescriptorView.Model(new DiscountDescriptionLocalized(discount),
-                new DiscountAmountLocalized(discount.getCouponAmount(), currency), new DiscountDetailColor())
+        final AmountDescriptor amountDescriptor = discountModel.getDiscountAmountDescriptor();
+        if (amountDescriptor != null) {
+            list.add(new AmountDescriptorView.Model(amountDescriptor, new DiscountDetailColor())
                 .setDetailDrawable(new SummaryViewDetailDrawable(), new DiscountDetailColor())
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));
         }
@@ -82,7 +75,7 @@ public class SummaryDetailDescriptorFactory {
         list.add(model);
     }
 
-    private void addTotalRow(@NonNull final List<AmountDescriptorView.Model> list) {
+    private void addPurchaseRow(@NonNull final List<AmountDescriptorView.Model> list) {
         if (!list.isEmpty()) {
             list.add(0, new AmountDescriptorView.Model(new ItemLocalized(summaryInfo),
                 new AmountLocalized(amountRepository.getItemsAmount(), currency), new SummaryViewDefaultColor()));

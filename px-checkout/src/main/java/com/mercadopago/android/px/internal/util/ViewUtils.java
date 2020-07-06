@@ -19,6 +19,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.Gravity;
@@ -100,6 +101,15 @@ public final class ViewUtils {
 
     public static void loadOrGone(@Nullable final CharSequence text, @NonNull final TextView textView) {
         if (TextUtil.isEmpty(text)) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(text);
+            textView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public static void loadOrGone(@Nullable final Text text, @NonNull final MPTextView textView) {
+        if (text ==  null || TextUtil.isEmpty(text.getMessage())) {
             textView.setVisibility(View.GONE);
         } else {
             textView.setText(text);
@@ -189,11 +199,30 @@ public final class ViewUtils {
         }
     }
 
+    public static void setBackgroundColorInSpannable(final int color, final int indexStart, final int indexEnd,
+        @NonNull final Spannable spannable) {
+        if (color != 0) {
+            spannable.setSpan(new BackgroundColorSpan(color), indexStart, indexEnd,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
     public static void setColorInSpannable(@Nullable final String color, final int indexStart, final int indexEnd,
         @NonNull final Spannable spannable) {
         if (TextUtil.isNotEmpty(color)) {
             try {
                 setColorInSpannable(Color.parseColor(color), indexStart, indexEnd, spannable);
+            } catch (final Exception e) {
+                logParseColorError(color);
+            }
+        }
+    }
+
+    public static void setBackgroundColorInSpannable(@Nullable final String color, final int indexStart, final int indexEnd,
+        @NonNull final Spannable spannable) {
+        if (TextUtil.isNotEmpty(color)) {
+            try {
+                setBackgroundColorInSpannable(Color.parseColor(color), indexStart, indexEnd, spannable);
             } catch (final Exception e) {
                 logParseColorError(color);
             }
