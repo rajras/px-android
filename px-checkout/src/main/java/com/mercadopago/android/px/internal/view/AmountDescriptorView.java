@@ -135,7 +135,7 @@ public class AmountDescriptorView extends ConstraintLayout {
         final int endIndex = spannableStringBuilder.length();
         ViewUtils.setFontInSpannable(getContext(), PxFont.from(text.getWeight()), spannableStringBuilder, startIndex, endIndex);
         ViewUtils.setColorInSpannable(text.getTextColor(), startIndex, endIndex, spannableStringBuilder);
-        //ViewUtils.setBackgroundColorInSpannable(text.getBackgroundColor(), startIndex, endIndex, spannableStringBuilder);
+        ViewUtils.setBackgroundColorInSpannable(text.getBackgroundColor(), startIndex, endIndex, spannableStringBuilder);
     }
 
     private void updateRightLabel(@NonNull final AmountDescriptorView.Model model) {

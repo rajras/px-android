@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.internal.AmountDescriptor;
+import com.mercadopago.android.px.model.internal.DiscountDescriptionDetail;
 import java.math.BigDecimal;
 
 public class DiscountConfigurationModel implements Parcelable {
@@ -16,6 +17,7 @@ public class DiscountConfigurationModel implements Parcelable {
     private final boolean isAvailable;
     private final Reason reason;
     private final AmountDescriptor discountAmountDescriptor;
+    private final DiscountDescriptionDetail discountDescriptionDetail;
 
     public static final Creator<DiscountConfigurationModel> CREATOR = new Creator<DiscountConfigurationModel>() {
         @Override
@@ -36,6 +38,7 @@ public class DiscountConfigurationModel implements Parcelable {
         this.isAvailable = isAvailable;
         reason = null;
         discountAmountDescriptor = null;
+        discountDescriptionDetail = null;
     }
 
     protected DiscountConfigurationModel(final Parcel in) {
@@ -44,6 +47,7 @@ public class DiscountConfigurationModel implements Parcelable {
         isAvailable = in.readByte() != 0;
         reason = in.readParcelable(Reason.class.getClassLoader());
         discountAmountDescriptor = in.readParcelable(AmountDescriptor.class.getClassLoader());
+        discountDescriptionDetail = in.readParcelable(DiscountDescriptionDetail.class.getClassLoader());
     }
 
     @Override
@@ -53,6 +57,7 @@ public class DiscountConfigurationModel implements Parcelable {
         dest.writeByte((byte) (isAvailable ? 1 : 0));
         dest.writeParcelable(reason, flags);
         dest.writeParcelable(discountAmountDescriptor, flags);
+        dest.writeParcelable(discountDescriptionDetail, flags);
     }
 
     public Discount getDiscount() {
@@ -76,31 +81,35 @@ public class DiscountConfigurationModel implements Parcelable {
             "    \"descriptions\": [\n" +
             "      {\n" +
             "        \"message\": \"70% OFF \",\n" +
-            "        \"background_color\": \"#ffffff\",\n" +
+            "        \"background_color\": \"#00000000\",\n" +
             "        \"text_color\": \"#ffffff\",\n" +
             "        \"weight\": \"semi_bold\"\n" +
             "      },\n" +
             "      {\n" +
             "        \"message\": \"(Tope: $400)\",\n" +
-            "        \"background_color\": \"#ffffff\",\n" +
+            "        \"background_color\": \"#00000000\",\n" +
             "        \"text_color\": \"#ffffff\",\n" +
             "        \"weight\": \"regular\"\n" +
             "      }\n" +
             "    ],\n" +
             "    \"amount\": {\n" +
             "      \"message\": \"- $400\",\n" +
-            "      \"background_color\": \"#ffffff\",\n" +
+            "      \"background_color\": \"#00000000\",\n" +
             "      \"text_color\": \"#ffffff\",\n" +
             "      \"weight\": \"semi_bold\"\n" +
             "    },\n" +
             "    \"brief\": {\n" +
-            "      \"message\": \"Podés usar este descuento una sola vez\",\n" +
+            "      \"message\": \"El descuento se aplica sobre el total de tu compra. Los descuentos no son acumulables\",\n" +
             "      \"background_color\": \"#ffffff\",\n" +
             "      \"text_color\": \"#ccededed\",\n" +
             "      \"weight\": \"regular\"\n" +
             "    },\n" +
-            "    \"icon_url\": \"\"\n" +
+            "    \"icon_url\": \"https://i.imgur.com/pzuLnbt.png\"\n" +
             "  }", AmountDescriptor.class);
+    }
+
+    public DiscountDescriptionDetail getDiscountDescriptionDetail() {
+        return discountDescriptionDetail;
     }
 
     public boolean hasValidDiscount() {

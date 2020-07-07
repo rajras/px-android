@@ -1,29 +1,21 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.features.TermsAndConditionsActivity;
-import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
-import com.mercadopago.android.px.internal.util.textformatter.TextFormatter;
-import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.Reason;
-import java.util.Locale;
+import com.mercadopago.android.px.model.internal.DiscountDescriptionDetail;
+import com.mercadopago.android.px.model.internal.TextUrl;
 
 public class DiscountDetail extends CompactComponent<DiscountDetail.Props, Void> {
 
     public static class Props {
-        @NonNull /* default */ final Currency currency;
-        @NonNull /* default */ final DiscountConfigurationModel discountModel;
+        @NonNull /* default */ final DiscountDescriptionDetail discountDescriptionDetail;
 
-        public Props(@NonNull final Currency currency, @NonNull final DiscountConfigurationModel discountModel) {
-            this.currency = currency;
-            this.discountModel = discountModel;
+        public Props(@NonNull final DiscountDescriptionDetail discountDescriptionDetail) {
+            this.discountDescriptionDetail = discountDescriptionDetail;
         }
     }
 
@@ -34,93 +26,27 @@ public class DiscountDetail extends CompactComponent<DiscountDetail.Props, Void>
     @Override
     public View render(@NonNull final ViewGroup parent) {
         final View mainContainer = ViewUtils.inflate(parent, R.layout.px_view_discount_detail);
-        configureSubtitleMessage(mainContainer);
-        configureDetailMessage(mainContainer);
+        configureSummary(mainContainer);
+        configureDescription(mainContainer);
         configureTermsAndConditions(mainContainer);
-        configureSubDetailsMessage(mainContainer);
         return mainContainer;
     }
 
-    private void configureSubDetailsMessage(final View mainContainer) {
-        if (!props.discountModel.isAvailable()) {
-            mainContainer.findViewById(R.id.px_discount_detail_line).setVisibility(View.GONE);
-            mainContainer.findViewById(R.id.px_discount_sub_details).setVisibility(View.GONE);
-        }
+    private void configureSummary(@NonNull final View mainContainer) {
+        final MPTextView summary = mainContainer.findViewById(R.id.summary);
+        summary.setText(props.discountDescriptionDetail.getSummary());
     }
 
-    private void configureSubtitleMessage(final View mainContainer) {
-        final TextView subtitleMessage = mainContainer.findViewById(R.id.subtitle);
-        if (isMaxCouponAmountApplicable(props.discountModel)) {
-            TextFormatter.withCurrency(props.currency)
-                .withSpace()
-                .amount(props.discountModel.getCampaign().getMaxCouponAmount())
-                .normalDecimals()
-                .into(subtitleMessage)
-                .holder(R.string.px_max_coupon_amount);
-        } else {
-            subtitleMessage.setVisibility(View.GONE);
-        }
+    private void configureDescription(@NonNull final View mainContainer) {
+        final MPTextView description = mainContainer.findViewById(R.id.description);
+        description.setText(props.discountDescriptionDetail.getDescription());
     }
 
-    private void configureDetailMessage(final View mainContainer) {
-        final MPTextView detailTextView = mainContainer.findViewById(R.id.detail);
-        if (!props.discountModel.isAvailable()) {
-            configureNotAvailableDiscountDetail(detailTextView, mainContainer);
-        } else if (isMaxCouponAmountApplicable(props.discountModel)) {
-            if (isAlwaysOnApplicable(props.discountModel)) {
-                setDetailMessage(detailTextView, R.string.px_always_on_discount_detail, mainContainer);
-            } else {
-                setDetailMessage(detailTextView, R.string.px_one_shot_discount_detail, mainContainer);
-            }
-        } else {
-            detailTextView.setVisibility(View.GONE);
-        }
-    }
-
-    private void configureTermsAndConditions(final View mainContainer) {
-        final TextView linkText = mainContainer.findViewById(R.id.linkText);
+    private void configureTermsAndConditions(@NonNull final View mainContainer) {
+        final MPTextView linkText = mainContainer.findViewById(R.id.legal_terms);
+        final TextUrl legalTerms = props.discountDescriptionDetail.getLegalTerms();
+        linkText.setText(legalTerms.getContainer());
         linkText.setOnClickListener(v -> TermsAndConditionsActivity
-            .start(mainContainer.getContext(), props.discountModel.getCampaign().getLegalTermsUrl()));
-    }
-
-    private void configureNotAvailableDiscountDetail(final MPTextView detailTextView, final View mainContainer) {
-        setDetailMessage(detailTextView, R.string.px_used_up_discount_detail, mainContainer);
-        ViewUtils.setMarginBottomInView(detailTextView,
-            mainContainer.getContext().getResources().getDimensionPixelSize(R.dimen.px_xxs_margin));
-    }
-
-    private void setDetailMessage(final MPTextView detailTextView, final int detailId, final View view) {
-        final String detailMessage = view.getResources().getString(detailId);
-
-        if (isEndDateApplicable(props.discountModel)) {
-            final String endDateMessage = TextUtil.format(view.getContext(), R.string.px_discount_detail_end_date,
-                props.discountModel.getCampaign().getPrettyEndDate());
-            detailTextView.setText(String.format(Locale.getDefault(), "%s %s", detailMessage, endDateMessage));
-        } else {
-            final Reason reason = props.discountModel.getReason();
-            if (reason != null) {
-                detailTextView.setText(reason.getDescription());
-            } else {
-                detailTextView.setText(detailMessage);
-            }
-        }
-    }
-
-    @VisibleForTesting
-    private boolean isEndDateApplicable(final DiscountConfigurationModel discountModel) {
-        return discountModel.hasValidDiscount() && (discountModel.getCampaign().hasEndDate() &&
-            discountModel.isAvailable());
-    }
-
-    @VisibleForTesting
-    private boolean isMaxCouponAmountApplicable(final DiscountConfigurationModel discountModel) {
-        return discountModel.hasValidDiscount() && (discountModel.getCampaign().hasMaxCouponAmount() &&
-            discountModel.isAvailable());
-    }
-
-    @VisibleForTesting
-    private boolean isAlwaysOnApplicable(final DiscountConfigurationModel discountModel) {
-        return discountModel.hasValidDiscount() && (discountModel.getCampaign().isAlwaysOnDiscount() &&
-            discountModel.isAvailable());
+            .start(mainContainer.getContext(), legalTerms.getUrl()));
     }
 }

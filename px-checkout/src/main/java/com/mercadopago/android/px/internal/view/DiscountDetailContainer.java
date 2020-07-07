@@ -5,30 +5,18 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.DiscountHelper;
 import com.mercadopago.android.px.internal.util.ViewUtils;
-import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.Discount;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.Reason;
+import com.mercadopago.android.px.model.internal.DiscountDescriptionDetail;
+import com.mercadopago.android.px.model.internal.TextUrl;
 import javax.annotation.Nonnull;
 
 public class DiscountDetailContainer extends CompactComponent<DiscountDetailContainer.Props, Void> {
 
     public static final class Props {
-        @NonNull /* default */ final DialogTitleType dialogTitleType;
-        @NonNull /* default */ final Currency currency;
-        @NonNull /* default */ final DiscountConfigurationModel discountModel;
+        @NonNull /* default */ final DiscountDescriptionDetail discountDescriptionDetail;
 
-        public Props(@NonNull final DialogTitleType dialogTitleType, @NonNull final Currency currency,
-            @Nonnull final DiscountConfigurationModel discountModel) {
-            this.dialogTitleType = dialogTitleType;
-            this.currency = currency;
-            this.discountModel = discountModel;
-        }
-
-        public enum DialogTitleType {
-            BIG, SMALL
+        public Props(@Nonnull final DiscountDescriptionDetail discountDescriptionDetail) {
+            this.discountDescriptionDetail = discountDescriptionDetail;
         }
     }
 
@@ -41,44 +29,27 @@ public class DiscountDetailContainer extends CompactComponent<DiscountDetailCont
     public View render(@NonNull final ViewGroup parent) {
         addDiscountTitle(parent);
         addDiscountDetail(parent);
-        return null;
+        return parent;
     }
 
     private void addDiscountDetail(@NonNull final ViewGroup parent) {
-        final View discountView =
-            new DiscountDetail(new DiscountDetail.Props(props.currency, props.discountModel))
-                .render(parent);
-
+        final View discountView = new DiscountDetail(new DiscountDetail.Props(props.discountDescriptionDetail)).render(parent);
         parent.addView(discountView);
     }
 
-    private void addDiscountTitle(final ViewGroup parent) {
-        final MPTextView title = getTitleTextView(parent);
+    private void addDiscountTitle(@NonNull final ViewGroup parent) {
+        final View headerView = ViewUtils.inflate(parent, R.layout.px_view_big_modal_title);
+        final DiscountDescriptionDetail discountDescriptionDetail = props.discountDescriptionDetail;
+        final TextUrl textUrl = props.discountDescriptionDetail.getBadge();
+        ((MPTextView) headerView.findViewById(R.id.title)).setText(discountDescriptionDetail.getTitle());
+        ViewUtils.loadOrGone(discountDescriptionDetail.getSubTitle(), (headerView.findViewById(R.id.subtitle)));
 
-        if (!props.discountModel.isAvailable()) {
-            configureNotAvailableDiscountTitle(title);
-        } else {
-            configureOffTitle(title, props.discountModel.getDiscount());
+        if (textUrl != null) {
+            final Badge badge = headerView.findViewById(R.id.badge);
+            badge.setText(textUrl.getContainer());
+            badge.setIconUrl(textUrl.getUrl());
         }
-        parent.addView(title);
-    }
 
-    private void configureNotAvailableDiscountTitle(final MPTextView textView) {
-        final Reason reason = props.discountModel.getReason();
-        if (reason != null) {
-            textView.setText(reason.getTitle());
-        } else {
-            textView.setText(R.string.px_used_up_discount_title);
-        }
-    }
-
-    private void configureOffTitle(final MPTextView textView, final Discount discount) {
-        textView.setText(DiscountHelper.getDiscountDescription(textView.getContext(), discount));
-    }
-
-    private MPTextView getTitleTextView(final ViewGroup parent) {
-        return props.dialogTitleType == Props.DialogTitleType.BIG ? (MPTextView) ViewUtils.inflate(parent,
-            R.layout.px_view_big_modal_title)
-            : (MPTextView) ViewUtils.inflate(parent, R.layout.px_view_small_modal_title);
+        parent.addView(headerView);
     }
 }

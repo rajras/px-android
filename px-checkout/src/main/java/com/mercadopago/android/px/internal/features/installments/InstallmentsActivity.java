@@ -340,6 +340,6 @@ public class InstallmentsActivity extends PXActivity<InstallmentsPresenter> impl
     @Override
     public void showDetailDialog(@NonNull final Currency currency,
         @NonNull final DiscountConfigurationModel discountModel) {
-        DiscountDetailDialog.showDialog(getSupportFragmentManager(), currency, discountModel);
+        DiscountDetailDialog.showDialog(getSupportFragmentManager(), discountModel);
     }
 }

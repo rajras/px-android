@@ -18,9 +18,13 @@ public class AppliedDiscountViewTracker extends ViewTracker {
     @Override
     public Map<String, Object> getData() {
         final Map<String, Object> data = super.getData();
-        data.put("discount",
-            DiscountInfo.with(discountModel.getDiscount(), discountModel.getCampaign(),
-                discountModel.isAvailable()).toMap());
+        final DiscountInfo discountInfo = DiscountInfo.with(discountModel.getDiscount(), discountModel.getCampaign(),
+            discountModel.isAvailable());
+
+        if (discountInfo != null) {
+            data.put("discount",discountInfo.toMap());
+        }
+
         return data;
     }
 

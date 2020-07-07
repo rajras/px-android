@@ -33,7 +33,7 @@
             android:id="@+id/icon_descriptor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/px_xxxs_margin"
+            android:layout_marginStart="@dimen/px_xxs_margin"
             android:importantForAccessibility="no"
             app:layout_constraintBottom_toTopOf="@+id/brief"
             app:layout_constraintEnd_toStartOf="@+id/guide_line"
