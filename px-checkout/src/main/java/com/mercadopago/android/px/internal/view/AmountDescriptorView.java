@@ -18,6 +18,7 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
+import com.mercadopago.android.px.internal.viewmodel.DiscountBriefColor;
 import com.mercadopago.android.px.internal.viewmodel.EmptyLocalized;
 import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.IDetailDrawable;
@@ -25,7 +26,6 @@ import com.mercadopago.android.px.internal.viewmodel.ILocalizedCharSequence;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.internal.AmountDescriptor;
 import com.mercadopago.android.px.model.internal.Text;
-import java.util.List;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 import static com.mercadopago.android.px.internal.util.TextUtil.isEmpty;
@@ -61,6 +61,7 @@ public class AmountDescriptorView extends ConstraintLayout {
 
     public interface OnClickListener {
         void onDiscountAmountDescriptorClicked(@NonNull final DiscountConfigurationModel discountModel);
+
         void onChargesAmountDescriptorClicked(@NonNull final DynamicDialogCreator dynamicDialogCreator);
     }
 
@@ -83,7 +84,7 @@ public class AmountDescriptorView extends ConstraintLayout {
     public void update(@NonNull final AmountDescriptorView.Model model) {
 
         if (model.amountDescriptor != null) {
-            updateAmountDescriptor(model.amountDescriptor);
+            updateAmountDescriptor(model.amountDescriptor, model.detailColor, model.briefColor);
         } else {
             updateTextColor(model.detailColor);
             updateLeftLabel(model);
@@ -111,31 +112,16 @@ public class AmountDescriptorView extends ConstraintLayout {
         });
     }
 
-    private void updateAmountDescriptor(@NonNull final AmountDescriptor amountDescriptor) {
-        final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-        final List<Text> descriptions = amountDescriptor.getDescriptions();
-        int startIndex = 0;
+    private void updateAmountDescriptor(@NonNull final AmountDescriptor amountDescriptor,
+        @NonNull final IDetailColor descriptorColor, @NonNull final IDetailColor briefColor) {
+        ViewUtils.loadTextListOrGone(descriptor, amountDescriptor.getDescriptions(), descriptorColor.getColor(getContext()));
+        ViewUtils.loadTextListOrGone(brief, amountDescriptor.getBrief(), briefColor.getColor(getContext()));
 
-        for (Text description : descriptions) {
-            spannableStringBuilder.append(description.getMessage());
-            setFontAndColor(description, spannableStringBuilder, startIndex);
-            startIndex = spannableStringBuilder.length();
-        }
-
-        descriptor.setText(spannableStringBuilder);
         amount.setText(amountDescriptor.getAmount());
-        ViewUtils.loadOrGone(amountDescriptor.getBrief(), brief);
 
-        if(TextUtil.isNotEmpty(amountDescriptor.getIconUrl())) {
+        if (TextUtil.isNotEmpty(amountDescriptor.getIconUrl())) {
             PicassoDiskLoader.get(getContext()).load(amountDescriptor.getIconUrl()).into(icon_descriptor);
         }
-    }
-
-    private void setFontAndColor(@NonNull final Text text, @NonNull final SpannableStringBuilder spannableStringBuilder, final int startIndex) {
-        final int endIndex = spannableStringBuilder.length();
-        ViewUtils.setFontInSpannable(getContext(), PxFont.from(text.getWeight()), spannableStringBuilder, startIndex, endIndex);
-        ViewUtils.setColorInSpannable(text.getTextColor(), startIndex, endIndex, spannableStringBuilder);
-        ViewUtils.setBackgroundColorInSpannable(text.getBackgroundColor(), startIndex, endIndex, spannableStringBuilder);
     }
 
     private void updateRightLabel(@NonNull final AmountDescriptorView.Model model) {
@@ -212,6 +198,7 @@ public class AmountDescriptorView extends ConstraintLayout {
         /* default */ @Nullable final ILocalizedCharSequence left;
         /* default */ @Nullable final ILocalizedCharSequence right;
         /* default */ @NonNull final IDetailColor detailColor;
+        /* default */ @NonNull final IDetailColor briefColor;
         /* default */ @Nullable final Text leftText;
         /* default */ @Nullable final AmountDescriptor amountDescriptor;
         /* default */ @Nullable IDetailDrawable detailDrawable;
@@ -221,6 +208,7 @@ public class AmountDescriptorView extends ConstraintLayout {
         public Model(@NonNull final AmountDescriptor amountDescriptor, @NonNull final IDetailColor detailColor) {
             this.amountDescriptor = amountDescriptor;
             this.detailColor = detailColor;
+            this.briefColor = new DiscountBriefColor();
             this.leftText = null;
             this.left = null;
             this.right = null;
@@ -231,6 +219,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             this.left = left;
             this.right = right;
             this.detailColor = detailColor;
+            this.briefColor = new DiscountBriefColor();
             this.leftText = null;
             this.amountDescriptor = null;
         }
@@ -238,6 +227,7 @@ public class AmountDescriptorView extends ConstraintLayout {
         public Model(@NonNull final ILocalizedCharSequence left, @NonNull final IDetailColor detailColor) {
             this.left = left;
             this.detailColor = detailColor;
+            this.briefColor = new DiscountBriefColor();
             this.right = new EmptyLocalized();
             this.leftText = null;
             this.amountDescriptor = null;
@@ -246,6 +236,7 @@ public class AmountDescriptorView extends ConstraintLayout {
         public Model(@NonNull final Text leftText, @NonNull final IDetailColor detailColor) {
             this.leftText = leftText;
             this.detailColor = detailColor;
+            this.briefColor = new DiscountBriefColor();
             this.left = new EmptyLocalized();
             this.right = new EmptyLocalized();
             this.amountDescriptor = null;

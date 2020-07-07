@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.mercadopago.android.px.internal.util.KParcelable
 
 data class TextUrl(
-        val container: Text,
+        val content: Text,
         val url: String
 ): KParcelable {
     constructor(parcel: Parcel) : this(
@@ -13,7 +13,7 @@ data class TextUrl(
             parcel.readString()!!)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeParcelable(container, flags)
+        parcel.writeParcelable(content, flags)
         parcel.writeString(url)
     }
 

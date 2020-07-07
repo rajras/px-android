@@ -6,15 +6,12 @@ import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.util.ChargeRuleHelper;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.ChargeLocalized;
-import com.mercadopago.android.px.internal.viewmodel.DiscountAmountLocalized;
-import com.mercadopago.android.px.internal.viewmodel.DiscountDescriptionLocalized;
 import com.mercadopago.android.px.internal.viewmodel.DiscountDetailColor;
+import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.ItemLocalized;
-import com.mercadopago.android.px.internal.viewmodel.SoldOutDiscountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDefaultColor;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDetailDrawable;
 import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.Discount;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.model.internal.AmountDescriptor;
@@ -58,9 +55,11 @@ public class SummaryDetailDescriptorFactory {
 
     private void addDiscountRow(@NonNull final Collection<AmountDescriptorView.Model> list) {
         final AmountDescriptor amountDescriptor = discountModel.getDiscountAmountDescriptor();
+        final IDetailColor detailColor =
+            discountModel.isAvailable() ? new DiscountDetailColor() : new SummaryViewDefaultColor();
         if (amountDescriptor != null) {
-            list.add(new AmountDescriptorView.Model(amountDescriptor, new DiscountDetailColor())
-                .setDetailDrawable(new SummaryViewDetailDrawable(), new DiscountDetailColor())
+            list.add(new AmountDescriptorView.Model(amountDescriptor, detailColor)
+                .setDetailDrawable(new SummaryViewDetailDrawable(), detailColor)
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));
         }
     }

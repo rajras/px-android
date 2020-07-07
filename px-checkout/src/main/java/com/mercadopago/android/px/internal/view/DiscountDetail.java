@@ -19,7 +19,7 @@ public class DiscountDetail extends CompactComponent<DiscountDetail.Props, Void>
         }
     }
 
-    /* default */ DiscountDetail(final Props props) {
+    /* default */ DiscountDetail(@NonNull final Props props) {
         super(props);
     }
 
@@ -45,7 +45,7 @@ public class DiscountDetail extends CompactComponent<DiscountDetail.Props, Void>
     private void configureTermsAndConditions(@NonNull final View mainContainer) {
         final MPTextView linkText = mainContainer.findViewById(R.id.legal_terms);
         final TextUrl legalTerms = props.discountDescriptionDetail.getLegalTerms();
-        linkText.setText(legalTerms.getContainer());
+        linkText.setText(legalTerms.getContent());
         linkText.setOnClickListener(v -> TermsAndConditionsActivity
             .start(mainContainer.getContext(), legalTerms.getUrl()));
     }

@@ -20,12 +20,12 @@ public interface CheckoutService {
     String CHECKOUT_VERSION = "v2";
     String ENVIRONMENT = BuildConfig.API_ENVIRONMENT_NEW;
 
-    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout")
+    @POST("https://run.mocky.io/v3/984ff14c-f129-4dc9-8a45-cec00e9bd9f0/"+ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout")
     MPCall<InitResponse> checkout(
         @Query("access_token") String privateKey,
         @Body Map<String, Object> body);
 
-    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
+    @POST("https://run.mocky.io/v3/984ff14c-f129-4dc9-8a45-cec00e9bd9f0/"+ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
     MPCall<InitResponse> checkout(
         @Path(value = "preference_id", encoded = true) String preferenceId,
         @Query("access_token") String privateKey,

@@ -6,7 +6,7 @@ import com.mercadopago.android.px.internal.util.KParcelable
 
 data class DiscountDescriptionDetail(
         val title: Text,
-        val subTitle: Text?,
+        val subtitle: Text?,
         val badge: TextUrl?,
         val summary: Text,
         val description: Text,
@@ -23,7 +23,7 @@ data class DiscountDescriptionDetail(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(title, flags)
-        parcel.writeParcelable(subTitle, flags)
+        parcel.writeParcelable(subtitle, flags)
         parcel.writeParcelable(badge, flags)
         parcel.writeParcelable(summary, flags)
         parcel.writeParcelable(description, flags)

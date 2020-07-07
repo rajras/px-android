@@ -19,6 +19,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -41,6 +42,10 @@ import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.model.internal.Text;
 import com.squareup.picasso.Callback;
+import java.util.List;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public final class ViewUtils {
 
@@ -66,11 +71,11 @@ public final class ViewUtils {
     }
 
     public static boolean shouldVisibleAnim(@NonNull final View viewToAnimate) {
-        return hasEndedAnim(viewToAnimate) && viewToAnimate.getVisibility() != View.VISIBLE;
+        return hasEndedAnim(viewToAnimate) && viewToAnimate.getVisibility() != VISIBLE;
     }
 
     public static boolean shouldGoneAnim(@NonNull final View viewToAnimate) {
-        return hasEndedAnim(viewToAnimate) && viewToAnimate.getVisibility() != View.GONE;
+        return hasEndedAnim(viewToAnimate) && viewToAnimate.getVisibility() != GONE;
     }
 
     public static boolean hasEndedAnim(@NonNull final View viewToAnimate) {
@@ -94,26 +99,26 @@ public final class ViewUtils {
             return false;
         } else {
             view.setText(text);
-            view.setVisibility(View.VISIBLE);
+            view.setVisibility(VISIBLE);
             return true;
         }
     }
 
     public static void loadOrGone(@Nullable final CharSequence text, @NonNull final TextView textView) {
         if (TextUtil.isEmpty(text)) {
-            textView.setVisibility(View.GONE);
+            textView.setVisibility(GONE);
         } else {
             textView.setText(text);
-            textView.setVisibility(View.VISIBLE);
+            textView.setVisibility(VISIBLE);
         }
     }
 
     public static void loadOrGone(@Nullable final Text text, @NonNull final MPTextView textView) {
         if (text ==  null || TextUtil.isEmpty(text.getMessage())) {
-            textView.setVisibility(View.GONE);
+            textView.setVisibility(GONE);
         } else {
             textView.setText(text);
-            textView.setVisibility(View.VISIBLE);
+            textView.setVisibility(VISIBLE);
         }
     }
 
@@ -124,10 +129,10 @@ public final class ViewUtils {
 
     public static void loadOrGone(@DrawableRes final int resId, final ImageView imageView) {
         if (resId == 0) {
-            imageView.setVisibility(View.GONE);
+            imageView.setVisibility(GONE);
         } else {
             imageView.setImageResource(resId);
-            imageView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(VISIBLE);
         }
     }
 
@@ -175,11 +180,11 @@ public final class ViewUtils {
         final View progress = activity.findViewById(R.id.mpsdkProgressLayout);
 
         if (progress != null) {
-            progress.setVisibility(showLayout ? View.GONE : View.VISIBLE);
+            progress.setVisibility(showLayout ? GONE : VISIBLE);
         }
 
         if (form != null) {
-            form.setVisibility(showProgress ? View.GONE : View.VISIBLE);
+            form.setVisibility(showProgress ? GONE : VISIBLE);
         }
     }
 
@@ -272,6 +277,27 @@ public final class ViewUtils {
 
     private static void logParseColorError(@Nullable final String color) {
         Logger.debug(TAG, "Cannot parse color" + color);
+    }
+
+    public static void loadTextListOrGone(@NonNull final MPTextView textView,
+        @Nullable final List<Text> texts, @ColorInt final int color) {
+        if (texts != null && !texts.isEmpty()) {
+            final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+            int startIndex = 0, endIndex;
+
+            for (Text text : texts) {
+                spannableStringBuilder.append(text.getMessage());
+                endIndex = spannableStringBuilder.length();
+                ViewUtils.setFontInSpannable(textView.getContext(), PxFont.from(text.getWeight()), spannableStringBuilder, startIndex, endIndex);
+                ViewUtils.setColorInSpannable(color, startIndex, endIndex, spannableStringBuilder);
+                startIndex = spannableStringBuilder.length();
+            }
+
+            textView.setText(spannableStringBuilder);
+            textView.setVisibility(VISIBLE);
+        } else {
+            textView.setVisibility(GONE);
+        }
     }
 
     public static void setFontInSpannable(@NonNull final Context context, @NonNull final PxFont font,

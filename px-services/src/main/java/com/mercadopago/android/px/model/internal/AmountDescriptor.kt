@@ -6,18 +6,18 @@ import com.mercadopago.android.px.internal.util.KParcelable
 
 data class AmountDescriptor(val descriptions: List<Text>,
                             val amount: Text,
-                            val brief: Text?,
+                            val brief: List<Text>?,
                             val iconUrl: String?): KParcelable {
     constructor(parcel: Parcel) : this(
             parcel.createTypedArrayList(Text.CREATOR)!!,
             parcel.readParcelable(Text::class.java.classLoader)!!,
-            parcel.readParcelable(Text::class.java.classLoader),
+            parcel.createTypedArrayList(Text.CREATOR),
             parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeList(descriptions)
         parcel.writeParcelable(amount, flags)
-        parcel.writeParcelable(brief, flags)
+        parcel.writeList(brief)
         parcel.writeString(iconUrl)
     }
 

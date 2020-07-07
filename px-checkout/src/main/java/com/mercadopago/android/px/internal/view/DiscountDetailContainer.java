@@ -42,12 +42,13 @@ public class DiscountDetailContainer extends CompactComponent<DiscountDetailCont
         final DiscountDescriptionDetail discountDescriptionDetail = props.discountDescriptionDetail;
         final TextUrl textUrl = props.discountDescriptionDetail.getBadge();
         ((MPTextView) headerView.findViewById(R.id.title)).setText(discountDescriptionDetail.getTitle());
-        ViewUtils.loadOrGone(discountDescriptionDetail.getSubTitle(), (headerView.findViewById(R.id.subtitle)));
+        ViewUtils.loadOrGone(discountDescriptionDetail.getSubtitle(), (headerView.findViewById(R.id.subtitle)));
 
         if (textUrl != null) {
             final Badge badge = headerView.findViewById(R.id.badge);
-            badge.setText(textUrl.getContainer());
+            badge.setText(textUrl.getContent());
             badge.setIconUrl(textUrl.getUrl());
+            badge.setVisibility(View.VISIBLE);
         }
 
         parent.addView(headerView);

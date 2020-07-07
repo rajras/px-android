@@ -3,7 +3,7 @@ package com.mercadopago.android.px.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.internal.util.JsonUtil;
+import com.google.gson.annotations.SerializedName;
 import com.mercadopago.android.px.model.internal.AmountDescriptor;
 import com.mercadopago.android.px.model.internal.DiscountDescriptionDetail;
 import java.math.BigDecimal;
@@ -16,7 +16,9 @@ public class DiscountConfigurationModel implements Parcelable {
     private final Campaign campaign;
     private final boolean isAvailable;
     private final Reason reason;
+    @SerializedName("discount_overview")
     private final AmountDescriptor discountAmountDescriptor;
+    @SerializedName("discount_description")
     private final DiscountDescriptionDetail discountDescriptionDetail;
 
     public static final Creator<DiscountConfigurationModel> CREATOR = new Creator<DiscountConfigurationModel>() {
@@ -77,35 +79,7 @@ public class DiscountConfigurationModel implements Parcelable {
     }
 
     public AmountDescriptor getDiscountAmountDescriptor() {
-        return JsonUtil.fromJson("{\n" +
-            "    \"descriptions\": [\n" +
-            "      {\n" +
-            "        \"message\": \"70% OFF \",\n" +
-            "        \"background_color\": \"#00000000\",\n" +
-            "        \"text_color\": \"#ffffff\",\n" +
-            "        \"weight\": \"semi_bold\"\n" +
-            "      },\n" +
-            "      {\n" +
-            "        \"message\": \"(Tope: $400)\",\n" +
-            "        \"background_color\": \"#00000000\",\n" +
-            "        \"text_color\": \"#ffffff\",\n" +
-            "        \"weight\": \"regular\"\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"amount\": {\n" +
-            "      \"message\": \"- $400\",\n" +
-            "      \"background_color\": \"#00000000\",\n" +
-            "      \"text_color\": \"#ffffff\",\n" +
-            "      \"weight\": \"semi_bold\"\n" +
-            "    },\n" +
-            "    \"brief\": {\n" +
-            "      \"message\": \"El descuento se aplica sobre el total de tu compra. Los descuentos no son acumulables\",\n" +
-            "      \"background_color\": \"#ffffff\",\n" +
-            "      \"text_color\": \"#ccededed\",\n" +
-            "      \"weight\": \"regular\"\n" +
-            "    },\n" +
-            "    \"icon_url\": \"https://i.imgur.com/pzuLnbt.png\"\n" +
-            "  }", AmountDescriptor.class);
+        return discountAmountDescriptor;
     }
 
     public DiscountDescriptionDetail getDiscountDescriptionDetail() {
