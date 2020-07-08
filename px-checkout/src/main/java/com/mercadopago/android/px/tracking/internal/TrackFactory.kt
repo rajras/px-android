@@ -5,7 +5,7 @@ import com.mercadopago.android.px.addons.tracking.Tracker
 
 object TrackFactory {
 
-    private const val APPLICATION_CONTEXT = "PX"
+    private const val APPLICATION_CONTEXT = "px"
 
     @JvmStatic
     fun withView(path: String) =
