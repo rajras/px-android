@@ -8,7 +8,7 @@ abstract class CongratsDeepLink : TrackWrapper() {
     protected abstract val deepLinkType: DeepLinkType
     protected abstract val deepLink: String
 
-    private fun getPath() = "$BASE_PATH/congrats/$congratsType/deep_link"
+    private fun getPath() = "$BASE_PATH/result/$congratsType/deep_link"
     private fun getData() = mutableMapOf("type" to deepLinkType.type, "deep_link" to deepLink)
 
     override fun getTrack() = TrackFactory.withEvent(getPath()).addData(getData()).build()
