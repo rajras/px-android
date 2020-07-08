@@ -7,11 +7,13 @@ import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
+import com.mercadopago.android.px.tracking.internal.TrackFactory
+import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.model.RemedyTrackData
 import com.mercadopago.android.px.tracking.internal.model.ResultViewTrackModel
 import java.util.*
 
-class ResultViewTrack : ViewTracker {
+class ResultViewTrack : TrackWrapper {
     private val resultViewTrackModel: ResultViewTrackModel
     private val paymentStatus: String
     private val remediesResponse: RemediesResponse
@@ -31,7 +33,9 @@ class ResultViewTrack : ViewTracker {
         this.remediesResponse = paymentModel.remedies
     }
 
-    override fun getData(): Map<String, Any> {
+    override fun getTrack() = TrackFactory.withView(getViewPath()).addData(getData()).build()
+
+    private fun getData(): Map<String, Any> {
         val map = resultViewTrackModel.toMap()
         if (paymentStatus == ERROR) {
             map["remedies"] = getRemedies()
@@ -39,7 +43,7 @@ class ResultViewTrack : ViewTracker {
         return map
     }
 
-    override fun getViewPath() = String.format(Locale.US, PATH, paymentStatus)
+    private fun getViewPath() = String.format(Locale.US, PATH, paymentStatus)
 
     private fun getMappedResult(payment: PaymentResult): String {
         return when {
@@ -69,7 +73,7 @@ class ResultViewTrack : ViewTracker {
     private fun getRemedyData(type: RemedyType) = RemedyTrackData(type.getType(), remediesResponse.trackingData)
 
     companion object {
-        private const val PATH = "$BASE_VIEW_PATH/result/%s"
+        private const val PATH = "$BASE_PATH/result/%s"
         private const val SUCCESS = "success"
         private const val PENDING = "further_action_needed"
         private const val ERROR = "error"

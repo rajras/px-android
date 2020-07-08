@@ -48,7 +48,7 @@ public class ErrorActivity extends PXActivity {
         final ErrorViewTracker errorViewTracker = new ErrorViewTracker(errorMessage, error);
         errorViewTracker.track();
 
-        FrictionEventTracker.with(errorViewTracker.getViewPath(), FrictionEventTracker.Id.GENERIC,
+        FrictionEventTracker.with(FrictionEventTracker.Id.GENERIC, errorViewTracker,
             FrictionEventTracker.Style.SCREEN,
             error)
             .track();

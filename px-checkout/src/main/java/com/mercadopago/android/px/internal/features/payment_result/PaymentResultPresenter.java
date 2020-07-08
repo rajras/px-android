@@ -168,7 +168,7 @@ import java.util.List;
             new ContinueEvent(resultViewTrack).track();
             getView().finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
         } else if (action instanceof ChangePaymentMethodAction) {
-            ChangePaymentMethodEvent.with(resultViewTrack).track();
+            new ChangePaymentMethodEvent(resultViewTrack).track();
             getView().changePaymentMethod();
         } else if (action instanceof RecoverPaymentAction) {
             getView().recoverPayment();
