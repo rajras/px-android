@@ -24,7 +24,7 @@ import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.IDetailDrawable;
 import com.mercadopago.android.px.internal.viewmodel.ILocalizedCharSequence;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.internal.AmountDescriptor;
+import com.mercadopago.android.px.model.AmountDescriptor;
 import com.mercadopago.android.px.model.internal.Text;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;

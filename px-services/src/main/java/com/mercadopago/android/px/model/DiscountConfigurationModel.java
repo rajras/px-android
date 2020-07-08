@@ -4,8 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
-import com.mercadopago.android.px.model.internal.AmountDescriptor;
-import com.mercadopago.android.px.model.internal.DiscountDescriptionDetail;
 import java.math.BigDecimal;
 
 public class DiscountConfigurationModel implements Parcelable {

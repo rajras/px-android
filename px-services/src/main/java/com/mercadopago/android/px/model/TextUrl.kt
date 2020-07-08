@@ -1,8 +1,9 @@
-package com.mercadopago.android.px.model.internal
+package com.mercadopago.android.px.model
 
 import android.os.Parcel
 import android.os.Parcelable
 import com.mercadopago.android.px.internal.util.KParcelable
+import com.mercadopago.android.px.model.internal.Text
 
 data class TextUrl(
         val content: Text,

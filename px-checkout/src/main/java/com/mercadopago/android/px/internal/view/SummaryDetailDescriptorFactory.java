@@ -14,7 +14,7 @@ import com.mercadopago.android.px.internal.viewmodel.SummaryViewDetailDrawable;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
-import com.mercadopago.android.px.model.internal.AmountDescriptor;
+import com.mercadopago.android.px.model.AmountDescriptor;
 import com.mercadopago.android.px.model.internal.SummaryInfo;
 import java.util.ArrayList;
 import java.util.Collection;

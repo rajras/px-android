@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.mercadolibre.android.ui.widgets.MeliDialog;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.viewmodel.mappers.DiscountConfigurationMapper;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.tracking.internal.views.AppliedDiscountViewTracker;
 
@@ -33,7 +34,7 @@ public class DiscountDetailDialog extends MeliDialog {
         if (arguments != null && (discountModel = arguments.getParcelable(ARG_DISCOUNT)) != null) {
             new AppliedDiscountViewTracker(discountModel).track();
             final DiscountDetailContainer discountDetailContainer = new DiscountDetailContainer(
-                new DiscountDetailContainer.Props(discountModel.getDiscountDescriptionDetail()));
+                DiscountConfigurationMapper.INSTANCE.map(discountModel.getDiscountDescriptionDetail()));
 
             discountDetailContainer.render(container);
         }
