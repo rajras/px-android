@@ -3,10 +3,13 @@ package com.mercadopago.android.px.internal.util;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -286,7 +289,7 @@ public final class ViewUtils {
             int startIndex = 0, endIndex;
 
             for (Text text : texts) {
-                spannableStringBuilder.append(text.getMessage());
+                spannableStringBuilder.append(text.getMessage()).append(" ");
                 endIndex = spannableStringBuilder.length();
                 ViewUtils.setFontInSpannable(textView.getContext(), PxFont.from(text.getWeight()), spannableStringBuilder, startIndex, endIndex);
                 ViewUtils.setColorInSpannable(color, startIndex, endIndex, spannableStringBuilder);
@@ -406,5 +409,33 @@ public final class ViewUtils {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(getDarkPrimaryColor(color));
         }
+    }
+
+    public static boolean isViewOverlapping(View firstView, View secondView) {
+        int[] firstPosition = new int[2];
+        int[] secondPosition = new int[2];
+
+        firstView.getLocationOnScreen(firstPosition);
+        secondView.getLocationOnScreen(secondPosition);
+
+        // Rect constructor parameters: left, top, right, bottom
+        Rect rectFirstView = new Rect(firstPosition[0], firstPosition[1],
+            firstPosition[0] + firstView.getMeasuredWidth(), firstPosition[1] + firstView.getMeasuredHeight());
+        Rect rectSecondView = new Rect(secondPosition[0], secondPosition[1],
+            secondPosition[0] + secondView.getMeasuredWidth(), secondPosition[1] + secondView.getMeasuredHeight());
+        return rectFirstView.intersect(rectSecondView);
+    }
+
+    public static boolean deviceScreenSizeIs(@NonNull final Context context, final int... screenLayoutSize) {
+        final int screenLayout = context.getResources().getConfiguration().screenLayout;
+        final int value = (screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK);
+
+        for (int screenValue: screenLayoutSize) {
+            if (screenValue == value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

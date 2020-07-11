@@ -10,12 +10,16 @@
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="@dimen/ui_050m"
+        android:layout_marginTop="1dp"
         tools:src="@drawable/cf_icon_check"/>
 
     <com.mercadopago.android.px.internal.view.MPTextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         app:customStyle="semi_bold"
         tools:text="Nivel 2"/>
 </merge>

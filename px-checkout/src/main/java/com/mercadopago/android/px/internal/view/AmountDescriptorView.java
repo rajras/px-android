@@ -24,7 +24,7 @@ import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.IDetailDrawable;
 import com.mercadopago.android.px.internal.viewmodel.ILocalizedCharSequence;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.AmountDescriptor;
+import com.mercadopago.android.px.model.DiscountOverview;
 import com.mercadopago.android.px.model.internal.Text;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
@@ -82,9 +82,8 @@ public class AmountDescriptorView extends ConstraintLayout {
     }
 
     public void update(@NonNull final AmountDescriptorView.Model model) {
-
-        if (model.amountDescriptor != null) {
-            updateAmountDescriptor(model.amountDescriptor, model.detailColor, model.briefColor);
+        if (model.discountOverview != null) {
+            updateAmountDescriptor(model.discountOverview, model.detailColor, model.briefColor);
         } else {
             updateTextColor(model.detailColor);
             updateLeftLabel(model);
@@ -112,15 +111,15 @@ public class AmountDescriptorView extends ConstraintLayout {
         });
     }
 
-    private void updateAmountDescriptor(@NonNull final AmountDescriptor amountDescriptor,
+    private void updateAmountDescriptor(@NonNull final DiscountOverview discountOverview,
         @NonNull final IDetailColor descriptorColor, @NonNull final IDetailColor briefColor) {
-        ViewUtils.loadTextListOrGone(descriptor, amountDescriptor.getDescriptions(), descriptorColor.getColor(getContext()));
-        ViewUtils.loadTextListOrGone(brief, amountDescriptor.getBrief(), briefColor.getColor(getContext()));
+        ViewUtils.loadTextListOrGone(descriptor, discountOverview.getDescription(), descriptorColor.getColor(getContext()));
+        ViewUtils.loadTextListOrGone(brief, discountOverview.getBrief(), briefColor.getColor(getContext()));
 
-        amount.setText(amountDescriptor.getAmount());
+        amount.setText(discountOverview.getAmount());
 
-        if (TextUtil.isNotEmpty(amountDescriptor.getIconUrl())) {
-            PicassoDiskLoader.get(getContext()).load(amountDescriptor.getIconUrl()).into(icon_descriptor);
+        if (TextUtil.isNotEmpty(discountOverview.getUrl())) {
+            PicassoDiskLoader.get(getContext()).load(discountOverview.getUrl()).into(icon_descriptor);
         }
     }
 
@@ -200,13 +199,13 @@ public class AmountDescriptorView extends ConstraintLayout {
         /* default */ @NonNull final IDetailColor detailColor;
         /* default */ @NonNull final IDetailColor briefColor;
         /* default */ @Nullable final Text leftText;
-        /* default */ @Nullable final AmountDescriptor amountDescriptor;
+        /* default */ @Nullable final DiscountOverview discountOverview;
         /* default */ @Nullable IDetailDrawable detailDrawable;
         /* default */ @Nullable IDetailColor detailDrawableColor;
         /* default */ @Nullable View.OnClickListener listener;
 
-        public Model(@NonNull final AmountDescriptor amountDescriptor, @NonNull final IDetailColor detailColor) {
-            this.amountDescriptor = amountDescriptor;
+        public Model(@NonNull final DiscountOverview discountOverview, @NonNull final IDetailColor detailColor) {
+            this.discountOverview = discountOverview;
             this.detailColor = detailColor;
             this.briefColor = new DiscountBriefColor();
             this.leftText = null;
@@ -221,7 +220,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             this.detailColor = detailColor;
             this.briefColor = new DiscountBriefColor();
             this.leftText = null;
-            this.amountDescriptor = null;
+            this.discountOverview = null;
         }
 
         public Model(@NonNull final ILocalizedCharSequence left, @NonNull final IDetailColor detailColor) {
@@ -230,7 +229,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             this.briefColor = new DiscountBriefColor();
             this.right = new EmptyLocalized();
             this.leftText = null;
-            this.amountDescriptor = null;
+            this.discountOverview = null;
         }
 
         public Model(@NonNull final Text leftText, @NonNull final IDetailColor detailColor) {
@@ -239,7 +238,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             this.briefColor = new DiscountBriefColor();
             this.left = new EmptyLocalized();
             this.right = new EmptyLocalized();
-            this.amountDescriptor = null;
+            this.discountOverview = null;
         }
 
         AmountDescriptorView.Model setDetailDrawable(@Nullable final IDetailDrawable detailDrawable,

@@ -298,8 +298,9 @@ import java.util.Set;
     @Override
     public void onSliderOptionSelected(final int paymentMethodIndex) {
         this.paymentMethodIndex = paymentMethodIndex;
+        final String customOptionId = getCurrentExpressMetadata().getCustomOptionId();
         new SwipeOneTapEventTracker().track();
-        updateElementPosition(payerCostSelectionRepository.get(getCurrentExpressMetadata().getCustomOptionId()));
+        updateElementPosition(payerCostSelectionRepository.get(customOptionId));
     }
 
     private void updateElements() {

@@ -14,7 +14,7 @@ import com.mercadopago.android.px.internal.viewmodel.SummaryViewDetailDrawable;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
-import com.mercadopago.android.px.model.AmountDescriptor;
+import com.mercadopago.android.px.model.DiscountOverview;
 import com.mercadopago.android.px.model.internal.SummaryInfo;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,11 +54,11 @@ public class SummaryDetailDescriptorFactory {
     }
 
     private void addDiscountRow(@NonNull final Collection<AmountDescriptorView.Model> list) {
-        final AmountDescriptor amountDescriptor = discountModel.getDiscountAmountDescriptor();
-        final IDetailColor detailColor =
-            discountModel.isAvailable() ? new DiscountDetailColor() : new SummaryViewDefaultColor();
-        if (amountDescriptor != null) {
-            list.add(new AmountDescriptorView.Model(amountDescriptor, detailColor)
+        final DiscountOverview discountOverview = discountModel.getDiscountOverview();
+        final IDetailColor detailColor = new DiscountDetailColor();
+
+        if (discountOverview != null) {
+            list.add(new AmountDescriptorView.Model(discountOverview, detailColor)
                 .setDetailDrawable(new SummaryViewDetailDrawable(), detailColor)
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));
         }

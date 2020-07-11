@@ -3,7 +3,6 @@ package com.mercadopago.android.px.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class DiscountConfigurationModel implements Parcelable {
@@ -14,10 +13,8 @@ public class DiscountConfigurationModel implements Parcelable {
     private final Campaign campaign;
     private final boolean isAvailable;
     private final Reason reason;
-    @SerializedName("discount_overview")
-    private final AmountDescriptor discountAmountDescriptor;
-    @SerializedName("discount_description")
-    private final DiscountDescriptionDetail discountDescriptionDetail;
+    private final DiscountOverview discountOverview;
+    private final DiscountDescription discountDescription;
 
     public static final Creator<DiscountConfigurationModel> CREATOR = new Creator<DiscountConfigurationModel>() {
         @Override
@@ -37,8 +34,8 @@ public class DiscountConfigurationModel implements Parcelable {
         this.campaign = campaign;
         this.isAvailable = isAvailable;
         reason = null;
-        discountAmountDescriptor = null;
-        discountDescriptionDetail = null;
+        discountOverview = null;
+        discountDescription = null;
     }
 
     protected DiscountConfigurationModel(final Parcel in) {
@@ -46,8 +43,8 @@ public class DiscountConfigurationModel implements Parcelable {
         campaign = in.readParcelable(Campaign.class.getClassLoader());
         isAvailable = in.readByte() != 0;
         reason = in.readParcelable(Reason.class.getClassLoader());
-        discountAmountDescriptor = in.readParcelable(AmountDescriptor.class.getClassLoader());
-        discountDescriptionDetail = in.readParcelable(DiscountDescriptionDetail.class.getClassLoader());
+        discountOverview = in.readParcelable(DiscountOverview.class.getClassLoader());
+        discountDescription = in.readParcelable(DiscountDescription.class.getClassLoader());
     }
 
     @Override
@@ -56,8 +53,8 @@ public class DiscountConfigurationModel implements Parcelable {
         dest.writeParcelable(campaign, flags);
         dest.writeByte((byte) (isAvailable ? 1 : 0));
         dest.writeParcelable(reason, flags);
-        dest.writeParcelable(discountAmountDescriptor, flags);
-        dest.writeParcelable(discountDescriptionDetail, flags);
+        dest.writeParcelable(discountOverview, flags);
+        dest.writeParcelable(discountDescription, flags);
     }
 
     public Discount getDiscount() {
@@ -76,12 +73,12 @@ public class DiscountConfigurationModel implements Parcelable {
         return reason;
     }
 
-    public AmountDescriptor getDiscountAmountDescriptor() {
-        return discountAmountDescriptor;
+    public DiscountOverview getDiscountOverview() {
+        return discountOverview;
     }
 
-    public DiscountDescriptionDetail getDiscountDescriptionDetail() {
-        return discountDescriptionDetail;
+    public DiscountDescription getDiscountDescription() {
+        return discountDescription;
     }
 
     public boolean hasValidDiscount() {

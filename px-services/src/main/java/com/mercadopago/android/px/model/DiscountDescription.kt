@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.mercadopago.android.px.internal.util.KParcelable
 import com.mercadopago.android.px.model.internal.Text
 
-data class DiscountDescriptionDetail(
+data class DiscountDescription(
         val title: Text,
         val subtitle: Text?,
         val badge: TextUrl?,
@@ -33,8 +33,8 @@ data class DiscountDescriptionDetail(
 
     override fun describeContents() = 0
 
-    companion object CREATOR : Parcelable.Creator<DiscountDescriptionDetail> {
-        override fun createFromParcel(parcel: Parcel) = DiscountDescriptionDetail(parcel)
-        override fun newArray(size: Int) = arrayOfNulls<DiscountDescriptionDetail?>(size)
+    companion object CREATOR : Parcelable.Creator<DiscountDescription> {
+        override fun createFromParcel(parcel: Parcel) = DiscountDescription(parcel)
+        override fun newArray(size: Int) = arrayOfNulls<DiscountDescription?>(size)
     }
 }

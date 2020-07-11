@@ -34,7 +34,7 @@ public class DiscountDetailDialog extends MeliDialog {
         if (arguments != null && (discountModel = arguments.getParcelable(ARG_DISCOUNT)) != null) {
             new AppliedDiscountViewTracker(discountModel).track();
             final DiscountDetailContainer discountDetailContainer = new DiscountDetailContainer(
-                DiscountConfigurationMapper.INSTANCE.map(discountModel.getDiscountDescriptionDetail()));
+                DiscountConfigurationMapper.INSTANCE.map(discountModel.getDiscountDescription()));
 
             discountDetailContainer.render(container);
         }

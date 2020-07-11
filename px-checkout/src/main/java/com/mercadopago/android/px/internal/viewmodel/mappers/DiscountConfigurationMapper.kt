@@ -3,11 +3,11 @@ package com.mercadopago.android.px.internal.viewmodel.mappers
 import com.mercadopago.android.px.internal.viewmodel.DiscountBody
 import com.mercadopago.android.px.internal.viewmodel.DiscountDetailModel
 import com.mercadopago.android.px.internal.viewmodel.DiscountHeader
-import com.mercadopago.android.px.model.DiscountDescriptionDetail
+import com.mercadopago.android.px.model.DiscountDescription
 
-object DiscountConfigurationMapper: Mapper<DiscountDescriptionDetail, DiscountDetailModel>() {
+object DiscountConfigurationMapper: Mapper<DiscountDescription, DiscountDetailModel>() {
 
-    override fun map(model: DiscountDescriptionDetail): DiscountDetailModel {
+    override fun map(model: DiscountDescription): DiscountDetailModel {
         return DiscountDetailModel(
                 DiscountHeader(model.title, model.subtitle, model.badge),
                 DiscountBody(model.summary, model.description, model.legalTerms)
