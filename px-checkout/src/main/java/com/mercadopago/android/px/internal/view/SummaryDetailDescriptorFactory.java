@@ -11,6 +11,7 @@ import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.ItemLocalized;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDefaultColor;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDetailDrawable;
+import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
@@ -28,17 +29,19 @@ public class SummaryDetailDescriptorFactory {
     @NonNull private final SummaryInfo summaryInfo;
     @NonNull private final Currency currency;
     @Nullable private final PaymentTypeChargeRule chargeRule;
+    @Nullable private final AmountConfiguration amountConfiguration;
 
     public SummaryDetailDescriptorFactory(@NonNull final AmountDescriptorView.OnClickListener listener,
         @NonNull final DiscountConfigurationModel discountModel, @NonNull final AmountRepository amountRepository,
         @NonNull final SummaryInfo summaryInfo, @NonNull final Currency currency,
-        @Nullable final PaymentTypeChargeRule chargeRule) {
+        @Nullable final PaymentTypeChargeRule chargeRule, @Nullable final AmountConfiguration amountConfiguration) {
         this.listener = listener;
         this.discountModel = discountModel;
         this.amountRepository = amountRepository;
         this.summaryInfo = summaryInfo;
         this.currency = currency;
         this.chargeRule = chargeRule;
+        this.amountConfiguration = amountConfiguration;
     }
 
     public List<AmountDescriptorView.Model> create() {
@@ -56,9 +59,9 @@ public class SummaryDetailDescriptorFactory {
     private void addDiscountRow(@NonNull final Collection<AmountDescriptorView.Model> list) {
         final DiscountOverview discountOverview = discountModel.getDiscountOverview();
         final IDetailColor detailColor = new DiscountDetailColor();
-
+        final boolean hasSplit = amountConfiguration != null && amountConfiguration.allowSplit();
         if (discountOverview != null) {
-            list.add(new AmountDescriptorView.Model(discountOverview, detailColor)
+            list.add(new AmountDescriptorView.Model(discountOverview, detailColor, hasSplit)
                 .setDetailDrawable(new SummaryViewDetailDrawable(), detailColor)
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));
         }

@@ -28,12 +28,12 @@ public interface CheckoutService {
 //"https://run.mocky.io/v3/22ecd520-fe81-4f79-b42f-5e4723415b14/" varios descuentos hdpi
 //"https://run.mocky.io/v3/5351208f-213d-4ef0-afd2-7729b92144da/" varios descuentos con split hdpi
 
-    @POST("https://run.mocky.io/v3/5351208f-213d-4ef0-afd2-7729b92144da/"+ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout")
+    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout")
     MPCall<InitResponse> checkout(
         @Query("access_token") String privateKey,
         @Body Map<String, Object> body);
 
-    @POST("https://run.mocky.io/v3/5351208f-213d-4ef0-afd2-7729b92144da/"+ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
+    @POST(ENVIRONMENT + "/px_mobile/" + CHECKOUT_VERSION + "/checkout/{preference_id}")
     MPCall<InitResponse> checkout(
         @Path(value = "preference_id", encoded = true) String preferenceId,
         @Query("access_token") String privateKey,

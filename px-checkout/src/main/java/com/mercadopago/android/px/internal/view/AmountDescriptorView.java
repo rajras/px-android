@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -83,7 +84,7 @@ public class AmountDescriptorView extends ConstraintLayout {
 
     public void update(@NonNull final AmountDescriptorView.Model model) {
         if (model.discountOverview != null) {
-            updateAmountDescriptor(model.discountOverview, model.detailColor, model.briefColor);
+            updateAmountDescriptor(model.discountOverview, model.detailColor, model.briefColor, model.hasSplit);
         } else {
             updateTextColor(model.detailColor);
             updateLeftLabel(model);
@@ -112,9 +113,14 @@ public class AmountDescriptorView extends ConstraintLayout {
     }
 
     private void updateAmountDescriptor(@NonNull final DiscountOverview discountOverview,
-        @NonNull final IDetailColor descriptorColor, @NonNull final IDetailColor briefColor) {
-        ViewUtils.loadTextListOrGone(descriptor, discountOverview.getDescription(), descriptorColor.getColor(getContext()));
-        ViewUtils.loadTextListOrGone(brief, discountOverview.getBrief(), briefColor.getColor(getContext()));
+        @NonNull final IDetailColor descriptorColor, @NonNull final IDetailColor briefColor, final boolean hasSplit) {
+        ViewUtils
+            .loadTextListOrGone(descriptor, discountOverview.getDescription(), descriptorColor.getColor(getContext()));
+
+        if (!hasSplit || !ViewUtils.isDeviceScreenSize(getContext(), Configuration.SCREENLAYOUT_SIZE_NORMAL,
+            Configuration.SCREENLAYOUT_SIZE_SMALL)) {
+            ViewUtils.loadTextListOrGone(brief, discountOverview.getBrief(), briefColor.getColor(getContext()));
+        }
 
         amount.setText(discountOverview.getAmount());
 
@@ -203,11 +209,14 @@ public class AmountDescriptorView extends ConstraintLayout {
         /* default */ @Nullable IDetailDrawable detailDrawable;
         /* default */ @Nullable IDetailColor detailDrawableColor;
         /* default */ @Nullable View.OnClickListener listener;
+        /* default */ boolean hasSplit = false;
 
-        public Model(@NonNull final DiscountOverview discountOverview, @NonNull final IDetailColor detailColor) {
+        public Model(@NonNull final DiscountOverview discountOverview, @NonNull final IDetailColor detailColor,
+            final boolean hasSplit) {
             this.discountOverview = discountOverview;
             this.detailColor = detailColor;
             this.briefColor = new DiscountBriefColor();
+            this.hasSplit = hasSplit;
             this.leftText = null;
             this.left = null;
             this.right = null;
