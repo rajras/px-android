@@ -70,8 +70,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_activity_checkout);
         if (savedInstanceState == null) {
             initPresenter();
