@@ -408,7 +408,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         expandAndCollapseAnimation = null;
         slideDownAndFadeAnimation = null;
         slideUpAndFadeAnimation = null;
-        presenter.detachView();
+        if(presenter!=null) {
+            presenter.detachView();
+        }
         super.onDetach();
     }
 
