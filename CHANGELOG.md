@@ -1,3 +1,8 @@
+## VERSION 4.51.0
+_08_07_2020_
+* FEATURE - Added tracking behaviour to customize tracking from application
+* FIX - fixed CongratsDeepLink track path
+
 ## VERSION 4.50.2
 _01_07_2020_
 * FIX - No token in remedies after guessing card flow
