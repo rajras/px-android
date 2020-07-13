@@ -1,4 +1,8 @@
 ## VERSION 4.50.2
+_13_07_2020_
+* FIX - Re-added session check due to integrator's bad implementation of SplitPaymentProcessor
+
+## VERSION 4.50.2
 _01_07_2020_
 * FIX - No token in remedies after guessing card flow
 
