@@ -1,4 +1,8 @@
-## VERSION 4.50.2
+## VERSION 4.50.4
+_13_07_2020_
+* FIX - Re-added session check in fragment due to integrator's bad implementation of SplitPaymentProcessor
+
+## VERSION 4.50.3
 _13_07_2020_
 * FIX - Re-added session check due to integrator's bad implementation of SplitPaymentProcessor
 
