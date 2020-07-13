@@ -19,7 +19,6 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPayment;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
-import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultActivity;
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity;
 import com.mercadopago.android.px.internal.features.review_and_confirm.ReviewAndConfirmBuilder;
@@ -147,18 +146,18 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         final FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager != null) {
             final int backStackEntryCount = fragmentManager.getBackStackEntryCount();
-            Fragment fragment = fragmentManager.findFragmentByTag(TAG_OFFLINE_METHODS_FRAGMENT);
 
-            if (fragment instanceof BackHandler) {
-                final boolean shouldHandleBack = ((BackHandler) fragment).handleBack();
-                if (!shouldHandleBack) {
-                    return;
-                }
+            if(earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_OFFLINE_METHODS_FRAGMENT))) {
+                return;
             }
 
-            fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
+            Fragment fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
             if (fragment != null && fragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
                 fragment.getChildFragmentManager().popBackStack();
+                return;
+            }
+
+            if(earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_ONETAP_FRAGMENT))) {
                 return;
             }
 
@@ -167,12 +166,15 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
                 return;
             }
 
-            fragment =
-                FragmentUtil.getFragmentByTag(fragmentManager, PayButtonFragment.TAG, PayButtonFragment.class);
-            if (fragment == null || !((PayButtonFragment) fragment).isExploding()) {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
+    }
+
+    private boolean earlyExitFromBackHandler(@Nullable final Fragment fragment) {
+        if (fragment instanceof BackHandler) {
+            return ((BackHandler) fragment).handleBack();
+        }
+        return false;
     }
 
     protected CheckoutPresenter getActivityParameters() {
