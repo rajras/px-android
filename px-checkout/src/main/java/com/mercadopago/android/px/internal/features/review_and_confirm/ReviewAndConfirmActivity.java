@@ -82,8 +82,7 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     }
 
     @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_view_container_review_and_confirm);
         payButton = (PayButtonFragment) getSupportFragmentManager().findFragmentById(R.id.pay_button);
         initializeViews();

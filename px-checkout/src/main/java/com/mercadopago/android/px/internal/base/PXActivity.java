@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
+import com.mercadopago.android.px.core.MercadoPagoCheckout;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.font.FontHelper;
 
 public abstract class PXActivity<P extends BasePresenter> extends AppCompatActivity implements MvpView {
@@ -14,10 +16,18 @@ public abstract class PXActivity<P extends BasePresenter> extends AppCompatActiv
     protected P presenter;
 
     @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+    protected final void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FontHelper.init(getApplicationContext());
+        if (!Session.getInstance().isInitialized()) {
+            setResult(MercadoPagoCheckout.SESSION_EXPIRED_RESULT_CODE);
+            finish();
+        } else {
+            onCreated(savedInstanceState);
+        }
     }
+
+    protected abstract void onCreated(@Nullable final Bundle savedInstanceState);
 
     @Override
     protected void onDestroy() {
