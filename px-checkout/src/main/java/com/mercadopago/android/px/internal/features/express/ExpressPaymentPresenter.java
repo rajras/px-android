@@ -449,7 +449,7 @@ import java.util.Set;
                 new FromModalToGenericDialogItem(actionTypeWrapper.getActionType(), behaviour.getModal()).map(modal));
             return true;
         } else if (isMethodSuspended && TextUtil.isNotEmpty(target)) {
-            tracker.trackEvent(new TargetBehaviourEvent(new TargetBehaviourTrackData(behaviourType, target)));
+            new TargetBehaviourEvent(viewTracker, new TargetBehaviourTrackData(behaviourType, target)).track();
             getView().startDeepLink(target);
             return true;
         } else if (isMethodSuspended) {
