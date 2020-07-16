@@ -56,7 +56,7 @@ public final class OneTapSamples {
     private static final String ONE_TAP_MERCHANT_PUBLIC_KEY = "APP_USR-648a260d-6fd9-4ad7-9284-90f22262c18d";
     private static final String ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY =
         "APP_USR-ef65214d-59a2-4c82-be23-6cf6eb945d4c";
-    private static final String PAYER_EMAIL_DUMMY = "prueba@gmail.com";
+    private static final String PAYER_EMAIL_DUMMY = "prueba@test_user_84540917@testuser.com";
     private static final String SAVED_CARD_MERCHANT_PUBLIC_KEY_1 = "TEST-92f16019-1533-4f21-aaf9-70482692f41e";
     private static final String SAVED_CARD_PAYER_PRIVATE_KEY_1 =
         "TEST-4008515596580497-071112-4d6622f6fb95cb093fd38760751ec98d-335851940";
