@@ -1,3 +1,9 @@
+## VERSION 4.51.1
+_14_07_2020_
+* FIX - Re-added session check due to integrator's bad implementation of SplitPaymentProcessor
+* FIX - Re-added session check in fragment due to integrator's bad implementation of SplitPaymentProcessor
+* ENHANCEMENT - Improved friction tracking to differentiate new frictions
+
 ## VERSION 4.50.4
 _13_07_2020_
 * FIX - Re-added session check in fragment due to integrator's bad implementation of SplitPaymentProcessor
