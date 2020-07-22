@@ -214,14 +214,14 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
         presenter = createPresenter();
         if (savedInstanceState != null) {
-            renderMode = (PaymentMethodFragmentAdapter.RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
+            renderMode =
+                (PaymentMethodFragmentAdapter.RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
             presenter.recoverFromBundle(savedInstanceState);
+        } else {
+            presenter.onFreshStart();
         }
+
         presenter.attachView(this);
-        if (savedInstanceState == null) {
-            //TODO if we need the view attached for tracking, then it should be done in another place
-            presenter.trackExpressView();
-        }
 
         summaryView.setOnLogoClickListener(v -> presenter.onHeaderClicked());
 

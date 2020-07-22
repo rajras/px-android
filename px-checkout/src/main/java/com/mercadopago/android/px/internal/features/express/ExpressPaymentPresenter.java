@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
+import com.mercadopago.android.px.core.internal.TriggerableQueue;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.core.FlowIdProvider;
 import com.mercadopago.android.px.internal.core.SessionIdProvider;
@@ -114,6 +115,7 @@ import java.util.Set;
     /* default */ PayerComplianceWrapper payerCompliance; //FIXME remove.
     /* default */ int paymentMethodIndex;
     /* default */ ActionTypeWrapper actionTypeWrapper;
+    /* default */ TriggerableQueue triggerableQueue;
 
     /* default */ ExpressPaymentPresenter(@NonNull final PaymentRepository paymentRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
@@ -152,6 +154,7 @@ import java.util.Set;
         this.paymentMethodDescriptorMapper = paymentMethodDescriptorMapper;
 
         splitSelectionState = new SplitSelectionState();
+        triggerableQueue = new TriggerableQueue();
     }
 
     /* default */ void onFailToRetrieveInitResponse() {
@@ -209,6 +212,7 @@ import java.util.Set;
                     payerCompliance = new PayerComplianceWrapper(initResponse.getPayerCompliance());
                     paymentMethodDrawableItemMapper.setCustomSearchItems(initResponse.getCustomSearchItems());
                     cardsWithSplit = initResponse.getIdsWithSplitAllowed();
+                    triggerableQueue.execute();
                     loadViewModel();
                 }
             }
@@ -237,7 +241,14 @@ import java.util.Set;
     }
 
     @Override
-    public void trackExpressView() {
+    public void onFreshStart() {
+        triggerableQueue.enqueue(() -> {
+            trackOneTapView();
+            return null;
+        });
+    }
+
+    private void trackOneTapView() {
         final OneTapViewTracker oneTapViewTracker =
             new OneTapViewTracker(expressMetadataList, paymentSettingRepository.getCheckoutPreference(),
                 discountRepository.getCurrentConfiguration(), escManagerBehaviour.getESCCardIds(), cardsWithSplit,
