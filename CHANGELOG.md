@@ -3,7 +3,7 @@ _23_07_2020_
 * ENHANCEMENT - Improvement as we count discounts in onetap.
 * FIX - Crash tracking fix by concurrency.
 * FIX - Friction track fixed to accept a nullable card object.
-* FIX - It is arranged parcelable in the payment processor.
+* FIX - Fix bad parcelable in payment processor mapper.
 
 ## VERSION 4.51.1
 _14_07_2020_
