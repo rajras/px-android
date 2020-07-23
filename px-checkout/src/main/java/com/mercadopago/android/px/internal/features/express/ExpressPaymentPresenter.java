@@ -171,7 +171,7 @@ import java.util.Set;
         final List<SummaryView.Model> summaryModels =
             new SummaryViewModelMapper(paymentSettingRepository.getCurrency(),
                 discountRepository, amountRepository, elementDescriptorModel, this, summaryInfo,
-                chargeRepository).map(new ArrayList<>(expressMetadataList));
+                chargeRepository, amountConfigurationRepository).map(new ArrayList<>(expressMetadataList));
 
         final List<PaymentMethodDescriptorView.Model> paymentModels =
             paymentMethodDescriptorMapper.map(expressMetadataList);
