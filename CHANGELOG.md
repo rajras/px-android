@@ -1,3 +1,10 @@
+## VERSION 4.52.0
+_23_07_2020_
+* ENHANCEMENT - Better discount info.
+* FIX - Crash tracking fix by concurrency.
+* FIX - Friction track fixed to accept a nullable card object.
+* FIX - Fix bad parcelable in payment processor mapper.
+
 ## VERSION 4.51.1
 _14_07_2020_
 * FIX - Re-added session check due to integrator's bad implementation of SplitPaymentProcessor
