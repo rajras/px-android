@@ -1,3 +1,10 @@
+## VERSION 4.53.0
+_30_07_2020_
+* ENHANCEMENT - Deprecated old groups' api
+* FIX - Exploding button listeners with destroy activity
+* FIX - Exploding button position with destroy activity
+* FIX - pay button not hidden when exploding with destroy activity
+
 ## VERSION 4.52.0
 _23_07_2020_
 * ENHANCEMENT - Better discount info.
