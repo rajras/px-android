@@ -14,7 +14,9 @@ import com.mercadopago.android.px.tracking.internal.MPTracker;
 
 /**
  * Provides access to card storage flow
+ * @deprecated this flow will no longer be available anymore
  */
+@Deprecated
 @SuppressWarnings("unused")
 public final class MercadoPagoCardStorage implements Parcelable {
 
@@ -75,7 +77,9 @@ public final class MercadoPagoCardStorage implements Parcelable {
      * informing that the card association failed.
      *
      * @param context Context.
+     * @deprecated this flow will no longer be available anymore
      */
+    @Deprecated
     public void start(@NonNull final Context context) {
         //start new session id
         final SessionIdProvider sessionIdProvider = Session.getInstance().getNetworkModule().getSessionIdProvider();
@@ -149,6 +153,10 @@ public final class MercadoPagoCardStorage implements Parcelable {
         dest.writeByte((byte) (skipResultScreen ? 1 : 0));
     }
 
+    /**
+     * @deprecated this flow will no longer be available anymore
+     */
+    @Deprecated
     public static final class Builder {
 
         /* default */ final String accessToken;
@@ -183,7 +191,9 @@ public final class MercadoPagoCardStorage implements Parcelable {
 
         /**
          * @return {@link MercadoPagoCardStorage} instance
+         * @deprecated this flow will no longer be available anymore
          */
+        @Deprecated
         public MercadoPagoCardStorage build() {
             return new MercadoPagoCardStorage(this);
         }
