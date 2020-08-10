@@ -20,6 +20,14 @@ internal fun Any?.runIfNull(action: ()->Unit) {
     }
 }
 
+internal fun <T : CharSequence>T?.runIfNotNullNorEmpty(action: (T) -> Unit): Boolean {
+    if (isNotNullNorEmpty()) {
+        action.invoke(this!!)
+        return true
+    }
+    return false
+}
+
 internal fun Activity.addKeyBoardListener(
     onKeyBoardOpen: (() -> Unit)? = null,
     onKeyBoardClose: (() -> Unit)? = null

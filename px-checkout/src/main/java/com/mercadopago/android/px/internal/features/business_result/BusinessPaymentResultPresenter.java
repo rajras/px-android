@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.FlowBehaviour;
 import com.mercadopago.android.px.internal.base.BasePresenter;
+import com.mercadopago.android.px.internal.features.payment_result.CongratsAutoReturn;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
@@ -27,16 +28,20 @@ import com.mercadopago.android.px.tracking.internal.events.SecondaryActionEvent;
 import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
+import kotlin.Unit;
 
 /* default */ class BusinessPaymentResultPresenter extends BasePresenter<BusinessPaymentResultContract.View>
     implements ActionDispatcher, BusinessPaymentResultContract.Presenter, PaymentResultBody.Listener {
 
+    @NonNull private final PaymentSettingRepository paymentSettings;
     private final BusinessPaymentModel model;
     private final ResultViewTrack viewTracker;
     private final FlowBehaviour flowBehaviour;
+    @Nullable private CongratsAutoReturn.Timer autoReturnTimer;
 
     /* default */ BusinessPaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final BusinessPaymentModel model, @NonNull final FlowBehaviour flowBehaviour, final boolean isMP) {
+        this.paymentSettings = paymentSettings;
         this.model = model;
         this.flowBehaviour = flowBehaviour;
         viewTracker = new ResultViewTrack(model, paymentSettings, isMP);
@@ -52,6 +57,20 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     public void onFreshStart() {
         viewTracker.track();
         flowBehaviour.trackConversion(new FlowBehaviourResultMapper().map(model.getPayment()));
+    }
+
+    @Override
+    public void onStart() {
+        if (autoReturnTimer != null) {
+            autoReturnTimer.start();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (autoReturnTimer != null) {
+            autoReturnTimer.cancel();
+        }
     }
 
     @Override
@@ -76,9 +95,21 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     }
 
     private void mapPaymentModel() {
-        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper().map(model);
+        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper(
+            paymentSettings.getCheckoutPreference().getAutoReturn()).map(model);
         getView().configureViews(viewModel, this);
         getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
+        initAutoReturn(viewModel.shouldAutoReturn);
+    }
+
+    private void initAutoReturn(final boolean shouldAutoReturn) {
+        if (shouldAutoReturn) {
+            autoReturnTimer = new CongratsAutoReturn.Timer(() -> {
+                autoReturnTimer = null;
+                onAbort();
+                return Unit.INSTANCE;
+            });
+        }
     }
 
     @Override

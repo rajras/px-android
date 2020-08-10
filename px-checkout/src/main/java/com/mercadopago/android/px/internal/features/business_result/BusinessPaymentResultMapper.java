@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.features.business_result;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.features.dummy_result.RedirectHelper;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.view.PaymentResultMethod;
@@ -16,12 +18,19 @@ import java.util.List;
 
 public class BusinessPaymentResultMapper extends Mapper<BusinessPaymentModel, BusinessPaymentResultViewModel> {
 
+    @Nullable private final String autoReturn;
+
+    /* default */ BusinessPaymentResultMapper(@Nullable final String autoReturn) {
+        this.autoReturn = autoReturn;
+    }
+
     @Override
     public BusinessPaymentResultViewModel map(@NonNull final BusinessPaymentModel model) {
         final PaymentResultHeader.Model headerModel = getHeaderModel(model.getPayment());
         final PaymentResultBody.Model bodyModel = getBodyModel(model);
         return new BusinessPaymentResultViewModel(headerModel, bodyModel,
-            model.getPayment().getPrimaryAction(), model.getPayment().getSecondaryAction());
+            model.getPayment().getPrimaryAction(), model.getPayment().getSecondaryAction(),
+            RedirectHelper.INSTANCE.shouldAutoReturn(autoReturn, model.getPayment().getPaymentStatus()));
     }
 
     @NonNull

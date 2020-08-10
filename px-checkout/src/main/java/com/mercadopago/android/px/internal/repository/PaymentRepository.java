@@ -40,8 +40,6 @@ public interface PaymentRepository {
     @Nullable
     IPaymentDescriptor getPayment();
 
-    boolean hasPayment();
-
     boolean hasRecoverablePayment();
 
     @NonNull
@@ -49,4 +47,6 @@ public interface PaymentRepository {
 
     @NonNull
     PaymentRecovery createPaymentRecovery();
+
+    void reset();
 }

@@ -25,6 +25,7 @@ import com.mercadopago.android.px.internal.features.review_and_confirm.ReviewAnd
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
+import com.mercadopago.android.px.internal.util.MercadoPagoUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
 import com.mercadopago.android.px.model.Card;
@@ -39,9 +40,7 @@ import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANC
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANCEL_PAYMENT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CHANGE_PAYMENT_METHOD;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUSTOM_EXIT;
-import static com.mercadopago.android.px.internal.features.Constants.RESULT_ERROR;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_SILENT_ERROR;
-import static com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment.TAG_OFFLINE_METHODS_FRAGMENT;
 import static com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity.EXTRA_RESULT_CODE;
 import static com.mercadopago.android.px.internal.util.ErrorUtil.isErrorResult;
 import static com.mercadopago.android.px.model.ExitAction.EXTRA_CLIENT_RES_CODE;
@@ -63,7 +62,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     public CheckoutPresenter presenter;
 
     private String merchantPublicKey;
-    private String privateKey;
+    @Nullable private String privateKey;
     private Intent customDataBundle;
 
     public static Intent getIntent(@NonNull final Context context) {
@@ -121,28 +120,26 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            final Session session = Session.getInstance();
-            final CheckoutConfigurationModule configurationModule = session.getConfigurationModule();
+    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
+        final Session session = Session.getInstance();
+        final CheckoutConfigurationModule configurationModule = session.getConfigurationModule();
 
-            presenter =
-                new CheckoutPresenter(CheckoutStateModel.fromBundle(savedInstanceState),
-                    configurationModule.getPaymentSettings(),
-                    configurationModule.getUserSelectionRepository(),
-                    session.getInitRepository(),
-                    session.getPluginRepository(),
-                    session.getPaymentRepository(),
-                    session.getCongratsRepository(),
-                    session.getInternalConfiguration());
+        presenter =
+            new CheckoutPresenter(CheckoutStateModel.fromBundle(savedInstanceState),
+                configurationModule.getPaymentSettings(),
+                configurationModule.getUserSelectionRepository(),
+                session.getInitRepository(),
+                session.getPluginRepository(),
+                session.getPaymentRepository(),
+                session.getCongratsRepository(),
+                session.getInternalConfiguration());
 
-            privateKey = savedInstanceState.getString(EXTRA_PRIVATE_KEY);
-            merchantPublicKey = savedInstanceState.getString(EXTRA_PUBLIC_KEY);
-            presenter.attachView(this);
+        privateKey = savedInstanceState.getString(EXTRA_PRIVATE_KEY);
+        merchantPublicKey = savedInstanceState.getString(EXTRA_PUBLIC_KEY);
+        presenter.attachView(this);
 
-            if (presenter.getState().isExpressCheckout) {
-                presenter.initialize();
-            }
+        if (presenter.getState().isExpressCheckout) {
+            presenter.initialize();
         }
     }
 
@@ -254,15 +251,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         case RESULT_CANCEL_PAYMENT:
             resolveCancelReviewAndConfirm(data);
             break;
-        case RESULT_ERROR:
-            //TODO crash when intent is null
-            // TODO verify scenario.
-            if (isErrorResult(data)) {
-                cancelCheckout((MercadoPagoError) data.getSerializableExtra(EXTRA_ERROR));
-            } else {
-                cancelCheckout();
-            }
-            break;
         case RESULT_CANCELED:
             handleCancel();
             break;
@@ -285,15 +273,15 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         if (data != null && data.hasExtra(EXTRA_CLIENT_RES_CODE)) {
             //Business custom exit
             final int resCode = data.getIntExtra(EXTRA_CLIENT_RES_CODE, RESULT_OK);
-            presenter.exitWithCode(resCode);
+            presenter.onPaymentResultResponse(resCode);
         } else if (data != null && data.hasExtra(EXTRA_RESULT_CODE)) {
             //Custom exit  - Result screen.
             final Integer finalResultCode = data.getIntExtra(EXTRA_RESULT_CODE, PAYMENT_RESULT_CODE);
             customDataBundle = data;
-            presenter.onCustomPaymentResultResponse(finalResultCode);
+            presenter.onPaymentResultResponse(finalResultCode);
         } else {
             //Normal exit - Result screen.
-            presenter.onPaymentResultResponse();
+            presenter.onPaymentResultResponse(null);
         }
     }
 
@@ -409,80 +397,65 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    public void finishWithPaymentResult() {
-        presenter.exitWithCode(RESULT_OK);
-    }
-
-    @Override
     public void onOneTapCanceled() {
         cancelCheckout();
     }
 
-    //TODO UNIFY
     @Override
     public void cancelCheckout(final Integer resultCode, final Boolean paymentMethodEdited) {
-        overrideTransitionOut();
         final Intent intent = new Intent();
         intent.putExtra(EXTRA_PAYMENT_METHOD_CHANGED, paymentMethodEdited);
         setResult(resultCode, intent);
         finish();
+        overrideTransitionOut();
     }
 
-    //TODO UNIFY
     @Override
-    public void finishWithPaymentResult(final Payment payment) {
-        final Intent data = new Intent();
-        data.putExtra(EXTRA_PAYMENT_RESULT, payment);
-        setResult(PAYMENT_RESULT_CODE, data);
-        finish();
+    public void goToLink(@NonNull final String link) {
+        final Intent intent = MercadoPagoUtil.getIntent(this, link);
+        if (intent != null) {
+            startActivity(intent);
+        }
     }
 
-    //TODO UNIFY
     @Override
-    public void finishWithPaymentResult(final Integer paymentResultCode) {
+    public void openInWebView(@NonNull final String link) {
+        final Intent intent = MercadoPagoUtil.getNativeOrWebViewIntent(this, link);
+        if (intent != null) {
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void finishWithPaymentResult(@Nullable final Integer resultCode, @Nullable final Payment payment) {
+        int defaultResultCode = RESULT_OK;
         final Intent intent = new Intent();
         if (customDataBundle != null) {
             intent.putExtras(customDataBundle);
         }
-        setResult(paymentResultCode, intent);
-        finish();
-    }
-
-    //TODO UNIFY
-    @Override
-    public void finishWithPaymentResult(final Integer resultCode, final Payment payment) {
-        final Intent intent = new Intent();
-        if (customDataBundle != null) {
-            intent.putExtras(customDataBundle);
+        if (payment != null) {
+            defaultResultCode = PAYMENT_RESULT_CODE;
+            intent.putExtra(EXTRA_PAYMENT_RESULT, payment);
         }
-        intent.putExtra(EXTRA_PAYMENT_RESULT, payment);
-        setResult(resultCode, intent);
+        setResult(resultCode != null ? resultCode : defaultResultCode, intent);
         finish();
+        overrideTransitionOut();
     }
 
-    //TODO UNIFY
     @Override
     public void cancelCheckout(final MercadoPagoError mercadoPagoError) {
-        overrideTransitionOut();
         final Intent intent = new Intent();
         intent.putExtra(EXTRA_ERROR, mercadoPagoError);
         setResult(RESULT_CANCELED, intent);
         finish();
-    }
-
-    //TODO UNIFY
-    @Override
-    public void exitCheckout(final int resCode) {
         overrideTransitionOut();
-        setResult(resCode);
-        finish();
     }
 
-    //TODO UNIFY
     @Override
     public void cancelCheckout() {
+        setResult(RESULT_CANCELED);
+        finish();
         overrideTransitionOut();
-        exitCheckout(RESULT_CANCELED);
     }
 
     @Override

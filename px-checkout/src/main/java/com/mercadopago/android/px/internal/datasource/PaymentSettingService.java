@@ -44,18 +44,20 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Nullable private CheckoutPreference pref;
     private PaymentConfiguration paymentConfiguration;
     private AdvancedConfiguration advancedConfiguration;
+    @NonNull private final File paymentConfigFile;
 
     public PaymentSettingService(@NonNull final SharedPreferences sharedPreferences,
         @NonNull final FileManager fileManager) {
         this.sharedPreferences = sharedPreferences;
         this.fileManager = fileManager;
+        paymentConfigFile = fileManager.create(FILE_PAYMENT_CONFIG);
     }
 
     @Override
     public void reset() {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.clear().apply();
-        fileManager.removeFile(fileManager.create(FILE_PAYMENT_CONFIG));
+        fileManager.removeFile(paymentConfigFile);
         pref = null;
         paymentConfiguration = null;
         advancedConfiguration = null;
@@ -134,8 +136,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public void configure(@NonNull final PaymentConfiguration paymentConfiguration) {
         this.paymentConfiguration = paymentConfiguration;
-        final File file = fileManager.create(FILE_PAYMENT_CONFIG);
-        fileManager.writeToFile(file, paymentConfiguration);
+        fileManager.writeToFile(paymentConfigFile, paymentConfiguration);
     }
 
     @Override
@@ -160,8 +161,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public PaymentConfiguration getPaymentConfiguration() {
         if (paymentConfiguration == null) {
-            final File file = fileManager.create(FILE_PAYMENT_CONFIG);
-            paymentConfiguration = fileManager.readParcelable(file, PaymentConfiguration.CREATOR);
+            paymentConfiguration = fileManager.readParcelable(paymentConfigFile, PaymentConfiguration.CREATOR);
         }
         return paymentConfiguration;
     }

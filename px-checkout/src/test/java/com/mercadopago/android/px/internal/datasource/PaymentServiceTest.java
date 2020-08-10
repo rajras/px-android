@@ -8,6 +8,7 @@ import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
+import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
@@ -88,6 +89,7 @@ public class PaymentServiceTest {
     @Mock private ExpressMetadata node;
     @Mock private PayerCost payerCost;
     @Mock private PaymentMethod paymentMethod;
+    @Mock private FileManager fileManager;
 
     private PaymentService paymentService;
 
@@ -102,7 +104,6 @@ public class PaymentServiceTest {
             pluginRepository,
             discountRepository,
             amountRepository,
-            paymentProcessor,
             context,
             escPaymentManager,
             escManagerBehaviour,
@@ -110,7 +111,8 @@ public class PaymentServiceTest {
             instructionsRepository,
             initRepository,
             amountConfigurationRepository,
-            congratsRepository);
+            congratsRepository,
+            fileManager);
 
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(mock(CheckoutPreference.class));
         when(discountRepository.getCurrentConfiguration()).thenReturn(WITHOUT_DISCOUNT);

@@ -72,6 +72,18 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
         new MLBusinessTouchpointListener().setOnTouchListener(findViewById(R.id.scroll_view));
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.onStop();
+    }
+
     @NonNull
     private BusinessPaymentResultPresenter createPresenter() {
         final BusinessPaymentModel model = getIntent().getParcelableExtra(EXTRA_BUSINESS_PAYMENT_MODEL);

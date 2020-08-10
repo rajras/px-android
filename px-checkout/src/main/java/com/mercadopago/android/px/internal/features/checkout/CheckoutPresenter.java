@@ -184,11 +184,6 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
     }
 
     @Override
-    public void onPaymentResultResponse() {
-        finishCheckout();
-    }
-
-    @Override
     public void onCardFlowResponse() {
         if (!paymentRepository.hasRecoverablePayment()) {
             onPaymentMethodSelected();
@@ -272,23 +267,26 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
         this.failureRecovery = failureRecovery;
     }
 
-    private void finishCheckout() {
-        //TODO improve this
-        if (paymentRepository.hasPayment() && paymentRepository.getPayment() instanceof Payment) {
-            getView().finishWithPaymentResult((Payment) paymentRepository.getPayment());
-        } else {
-            getView().finishWithPaymentResult();
-        }
-    }
-
     @Override
-    public void onCustomPaymentResultResponse(final Integer customResultCode) {
-        //TODO improve this
-        if (paymentRepository.hasPayment() && paymentRepository.getPayment() instanceof Payment) {
-            getView().finishWithPaymentResult(customResultCode, (Payment) paymentRepository.getPayment());
-        } else {
-            getView().finishWithPaymentResult(customResultCode);
-        }
+    public void onPaymentResultResponse(@Nullable final Integer customResultCode) {
+        new PostCongratsDriver.Builder(paymentSettingRepository, paymentRepository)
+            .customResponseCode(customResultCode)
+            .action(new PostCongratsDriver.Action() {
+                @Override
+                public void goToLink(@NonNull final String link) {
+                    getView().goToLink(link);
+                }
+
+                @Override
+                public void openInWebView(@NonNull final String link) {
+                    getView().openInWebView(link);
+                }
+
+                @Override
+                public void exitWith(@Nullable final Integer customResponseCode, @Nullable final Payment payment) {
+                    getView().finishWithPaymentResult(customResultCode, payment);
+                }
+            }).build().execute();
     }
 
     /**
@@ -306,14 +304,6 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
 
     private void saveIsExpressCheckout(final PaymentMethodSearch paymentMethodSearch) {
         state.isExpressCheckout = paymentMethodSearch.hasExpressCheckoutMetadata();
-    }
-
-    /**
-     * Close checkout with resCode
-     */
-    @Override
-    public void exitWithCode(final int resCode) {
-        getView().exitCheckout(resCode);
     }
 
     @Override
@@ -336,7 +326,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
 
                 @Override
                 public void driveToFinishWithoutPaymentResult(final Integer resultCode) {
-                    getView().finishWithPaymentResult(resultCode);
+                    getView().finishWithPaymentResult(resultCode, null);
                 }
 
                 @Override

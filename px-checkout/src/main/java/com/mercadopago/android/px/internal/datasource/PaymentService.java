@@ -5,9 +5,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.core.internal.PaymentWrapper;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandlerWrapper;
+import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.model.EscStatus;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
@@ -45,6 +47,7 @@ import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,13 +56,15 @@ import kotlin.Pair;
 
 public class PaymentService implements PaymentRepository {
 
+    private static final String FILE_PAYMENT = "file_payment";
+
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final DiscountRepository discountRepository;
     @NonNull private final AmountRepository amountRepository;
-    @NonNull private final SplitPaymentProcessor paymentProcessor;
     @NonNull private final Context context;
     @NonNull private final TokenRepository tokenRepository;
     @NonNull private final InitRepository initRepository;
+    @NonNull private final FileManager fileManager;
     @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
 
@@ -68,7 +73,8 @@ public class PaymentService implements PaymentRepository {
     @NonNull /* default */ final UserSelectionRepository userSelectionRepository;
     @NonNull /* default */ final PluginRepository pluginRepository;
 
-    @Nullable private IPaymentDescriptor payment;
+    @Nullable private PaymentWrapper payment;
+    @NonNull private final File paymentFile;
 
     public PaymentService(@NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
@@ -76,7 +82,6 @@ public class PaymentService implements PaymentRepository {
         @NonNull final PluginRepository pluginRepository,
         @NonNull final DiscountRepository discountRepository,
         @NonNull final AmountRepository amountRepository,
-        @NonNull final SplitPaymentProcessor paymentProcessor,
         @NonNull final Context context,
         @NonNull final EscPaymentManager escPaymentManager,
         @NonNull final ESCManagerBehaviour escManagerBehaviour,
@@ -84,7 +89,8 @@ public class PaymentService implements PaymentRepository {
         @NonNull final InstructionsRepository instructionsRepository,
         @NonNull final InitRepository initRepository,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
-        @NonNull final CongratsRepository congratsRepository) {
+        @NonNull final CongratsRepository congratsRepository,
+        @NonNull final FileManager fileManager) {
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.escPaymentManager = escPaymentManager;
         this.escManagerBehaviour = escManagerBehaviour;
@@ -93,10 +99,12 @@ public class PaymentService implements PaymentRepository {
         this.paymentSettingRepository = paymentSettingRepository;
         this.discountRepository = discountRepository;
         this.amountRepository = amountRepository;
-        this.paymentProcessor = paymentProcessor;
         this.context = context;
         this.tokenRepository = tokenRepository;
         this.initRepository = initRepository;
+        this.fileManager = fileManager;
+
+        paymentFile = fileManager.create(FILE_PAYMENT);
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
@@ -120,24 +128,35 @@ public class PaymentService implements PaymentRepository {
     }
 
     @Override
-    public void storePayment(@NonNull final IPaymentDescriptor iPayment) {
-        payment = iPayment;
+    public void reset() {
+        fileManager.removeFile(paymentFile);
+    }
+
+    @Override
+    public void storePayment(@NonNull final IPaymentDescriptor payment) {
+        this.payment = new PaymentWrapper(payment);
+        fileManager.writeToFile(paymentFile, this.payment);
     }
 
     @Nullable
     @Override
     public IPaymentDescriptor getPayment() {
+        final PaymentWrapper paymentWrapper = getPaymentWrapper();
+        return paymentWrapper != null ? paymentWrapper.get() : null;
+    }
+
+    @Nullable
+    private PaymentWrapper getPaymentWrapper() {
+        if (payment == null) {
+            payment = fileManager.readParcelable(paymentFile, PaymentWrapper.CREATOR);
+        }
         return payment;
     }
 
     @Override
-    public boolean hasPayment() {
-        return payment != null;
-    }
-
-    @Override
     public boolean hasRecoverablePayment() {
-        return hasPayment() && Payment.StatusDetail.isStatusDetailRecoverable(payment.getPaymentStatusDetail());
+        final PaymentWrapper payment = getPaymentWrapper();
+        return payment != null && payment.isStatusDetailRecoverable();
     }
 
     @NonNull
@@ -283,18 +302,18 @@ public class PaymentService implements PaymentRepository {
     private void pay() {
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
         final String securityType = paymentSettingRepository.getSecurityType().getValue();
-        if (paymentProcessor.shouldShowFragmentOnPayment(checkoutPreference)) {
+        if (getPaymentProcessor().shouldShowFragmentOnPayment(checkoutPreference)) {
             handlerWrapper.onVisualPayment();
         } else {
             final SplitPaymentProcessor.CheckoutData checkoutData =
                 new SplitPaymentProcessor.CheckoutData(getPaymentDataList(), checkoutPreference, securityType);
-            paymentProcessor.startPayment(context, checkoutData, handlerWrapper);
+            getPaymentProcessor().startPayment(context, checkoutData, handlerWrapper);
         }
     }
 
     @Override
     public boolean isExplodingAnimationCompatible() {
-        return !paymentProcessor.shouldShowFragmentOnPayment(paymentSettingRepository.getCheckoutPreference());
+        return !getPaymentProcessor().shouldShowFragmentOnPayment(paymentSettingRepository.getCheckoutPreference());
     }
 
     /**
@@ -382,9 +401,13 @@ public class PaymentService implements PaymentRepository {
             .build();
     }
 
+    private SplitPaymentProcessor getPaymentProcessor() {
+        return paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor();
+    }
+
     @Override
     public int getPaymentTimeout() {
-        return paymentProcessor.getPaymentTimeout(paymentSettingRepository.getCheckoutPreference());
+        return getPaymentProcessor().getPaymentTimeout(paymentSettingRepository.getCheckoutPreference());
     }
 
     public MercadoPagoError getError() {

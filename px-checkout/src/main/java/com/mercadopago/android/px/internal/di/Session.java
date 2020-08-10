@@ -169,6 +169,7 @@ public final class Session extends ApplicationModule {
     }
 
     private void clear() {
+        getPaymentRepository().reset();
         getExperimentsRepository().reset();
         getConfigurationModule().reset();
         getInitCache().evict();
@@ -295,15 +296,12 @@ public final class Session extends ApplicationModule {
     @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
-            final SplitPaymentProcessor paymentProcessor =
-                configurationModule.getPaymentSettings().getPaymentConfiguration().getPaymentProcessor();
             paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
                 configurationModule.getPaymentSettings(),
                 configurationModule.getDisabledPaymentMethodRepository(),
                 getPluginRepository(),
                 getDiscountRepository(),
                 getAmountRepository(),
-                paymentProcessor,
                 getApplicationContext(),
                 getEscPaymentManager(),
                 getMercadoPagoESC(),
@@ -311,7 +309,8 @@ public final class Session extends ApplicationModule {
                 getInstructionsRepository(),
                 getInitRepository(),
                 getAmountConfigurationRepository(),
-                getCongratsRepository());
+                getCongratsRepository(),
+                getFileManager());
         }
 
         return paymentRepository;
