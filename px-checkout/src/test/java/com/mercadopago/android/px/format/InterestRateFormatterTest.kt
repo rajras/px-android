@@ -1,8 +1,8 @@
 package com.mercadopago.android.px.format
 
-import android.support.v4.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import androidx.core.content.ContextCompat
 import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.font.PxFont

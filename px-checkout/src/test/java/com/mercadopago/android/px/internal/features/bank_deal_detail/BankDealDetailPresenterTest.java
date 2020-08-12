@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.bank_deal_detail;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 import org.junit.Before;
 import org.junit.Test;

@@ -39,11 +39,10 @@ dependencies {
     androidTestImplementation project(":testlib")
 
     implementation project(':px-addons')
-    implementation "com.android.support:appcompat-v7:$support_library_version"
+    implementation "androidx.appcompat:appcompat:$appcompat"
     implementation "com.google.code.gson:gson:$gson"
     api "com.squareup.retrofit2:retrofit:$retrofit"
     api "com.squareup.retrofit2:converter-gson:$retrofit"
-    api "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$retrofit_coroutines"
     api "com.squareup.okhttp3:logging-interceptor:$okhttp"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"

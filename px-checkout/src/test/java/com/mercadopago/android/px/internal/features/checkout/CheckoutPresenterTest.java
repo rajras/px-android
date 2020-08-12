@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.checkout;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
@@ -13,7 +13,6 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
-import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.mocks.ApiExceptionStubs;
 import com.mercadopago.android.px.mocks.InitResponseStub;
 import com.mercadopago.android.px.model.BusinessPayment;
@@ -21,7 +20,6 @@ import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.Setting;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -49,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

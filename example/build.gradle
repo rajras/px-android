@@ -15,7 +15,7 @@ android {
         versionCode 1
         versionName version_to_deploy as String
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -64,24 +64,22 @@ android {
 dependencies {
     implementation project(':px-checkout')
     implementation project(':px-addons')
-    implementation "com.android.support:multidex:$multidex"
+    implementation "androidx.multidex:multidex:$multidex"
     implementation "com.google.code.gson:gson:$gson"
     implementation "com.facebook.stetho:stetho:$stetho"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho"
-    implementation "com.android.support:appcompat-v7:$support_library_version"
-    implementation "com.android.support:design:$support_library_version"
-    implementation "com.squareup.picasso:picasso:2.71828" // intended to maintain compatibility
+    implementation "androidx.appcompat:appcompat:$appcompat"
+    implementation "androidx.recyclerview:recyclerview:$recycler_view"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.mercadolibre.android:ui:$meli_ui_lib"
 
-    implementation "com.android.support.constraint:constraint-layout:$constraint_layout"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_cannary"
-    debugBetaImplementation "com.squareup.leakcanary:leakcanary-android:$leak_cannary"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leak_cannary"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary"
+    debugBetaImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary"
     androidTestImplementation project(':px-testlib')
     androidTestImplementation project(':testlib')
 
-    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-    implementation "android.arch.lifecycle:livedata-core:$lifecycle_version"
-    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:$lifecycle"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle"
 }

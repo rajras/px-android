@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.base
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import android.os.Bundle
 
 abstract class BaseViewModel : ViewModel() {

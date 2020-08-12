@@ -2,8 +2,8 @@ package com.mercadopago.android.px.internal.util.textformatter
 
 import android.content.Context
 import android.graphics.Color
-import android.support.annotation.ColorInt
 import android.text.SpannableStringBuilder
+import androidx.annotation.ColorInt
 import com.mercadopago.android.px.internal.font.PxFont
 import com.mercadopago.android.px.internal.util.TextUtil
 import com.mercadopago.android.px.internal.util.ViewUtils
