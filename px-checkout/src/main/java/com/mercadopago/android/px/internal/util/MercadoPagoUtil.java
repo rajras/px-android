@@ -46,21 +46,6 @@ public final class MercadoPagoUtil {
         return resource;
     }
 
-    public static int getPaymentMethodSearchItemIcon(final Context context, final String itemId) {
-        int resource;
-        if (itemId != null && context != null) {
-            try {
-                resource =
-                    context.getResources().getIdentifier(SDK_PREFIX + itemId, "drawable", context.getPackageName());
-            } catch (final Exception e) {
-                resource = 0;
-            }
-        } else {
-            resource = 0;
-        }
-        return resource;
-    }
-
     public static boolean isCard(final String paymentTypeId) {
         return (paymentTypeId != null) &&
             (paymentTypeId.equals(PaymentTypes.CREDIT_CARD) || paymentTypeId.equals(PaymentTypes.DEBIT_CARD) ||

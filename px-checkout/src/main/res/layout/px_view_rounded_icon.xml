@@ -12,6 +12,6 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:padding="@dimen/px_xxs_margin"
-        tools:src="@drawable/px_rapipago"/>
+        tools:src="@drawable/px_rapipago_dynamic"/>
 
 </FrameLayout>

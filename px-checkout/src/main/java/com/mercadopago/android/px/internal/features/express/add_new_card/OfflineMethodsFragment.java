@@ -99,13 +99,17 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
                 case RecyclerView.SCROLL_STATE_DRAGGING:
                     if (atTop) {
                         panIndicator.clearAnimation();
-                        panIndicator.startAnimation(fadeOutAnimation);
+                        if (fadeOutAnimation != null) {
+                            panIndicator.startAnimation(fadeOutAnimation);
+                        }
                     }
                     break;
                 case RecyclerView.SCROLL_STATE_IDLE:
                     if (atTop) {
                         panIndicator.clearAnimation();
-                        panIndicator.startAnimation(fadeInAnimation);
+                        if (fadeInAnimation != null) {
+                            panIndicator.startAnimation(fadeInAnimation);
+                        }
                     }
                     break;
                 default:

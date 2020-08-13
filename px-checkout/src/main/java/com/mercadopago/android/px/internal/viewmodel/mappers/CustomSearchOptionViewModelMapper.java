@@ -8,6 +8,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.features.payment_vault.SearchItemOnClickListenerHandler;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.util.MercadoPagoUtil;
+import com.mercadopago.android.px.internal.util.ResourceUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.viewmodel.PaymentMethodViewModel;
@@ -66,7 +67,7 @@ public class CustomSearchOptionViewModelMapper
             @Override
             @DrawableRes
             public int getIconResourceId(@NonNull final Context context) {
-                return MercadoPagoUtil.getPaymentMethodSearchItemIcon(context, val.getPaymentMethodId());
+                return ResourceUtil.getIconResource(context, val.getPaymentMethodId());
             }
 
             @Override

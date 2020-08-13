@@ -17,7 +17,7 @@
         android:layout_marginBottom="3dp"
         android:layout_gravity="start|center_vertical"
         android:maxHeight="20dp"
-        tools:src="@drawable/px_amex"/>
+        tools:src="@drawable/px_amex_dynamic"/>
 
     <com.mercadopago.android.px.internal.view.MPTextView
         android:id="@+id/mpsdkPaymentMethodName"
