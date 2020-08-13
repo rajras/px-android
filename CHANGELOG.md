@@ -1,3 +1,8 @@
+## VERSION 4.55.0
+_13_08_2020_
+* FEATURE - Support is added so that resources that are obtained dynamically are not removed by Shrink.
+* ENHANCEMENT - The CFT, CFTEA and CFTEA texts begin to come as already formatted texts.
+
 ## VERSION 4.54.0
 _05_08_2020_
 * FEATURE - Added flowName configuration from preference
