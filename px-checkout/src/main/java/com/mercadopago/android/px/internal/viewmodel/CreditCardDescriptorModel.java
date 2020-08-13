@@ -8,11 +8,10 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.RateType;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.util.textformatter.AmountLabeledFormatter;
-import com.mercadopago.android.px.internal.util.textformatter.CFTFormatter;
+import com.mercadopago.android.px.internal.util.textformatter.InterestFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.PayerCostFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.SpannableFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.TextFormatter;
@@ -67,8 +66,7 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         updateInstallment(spannableStringBuilder, context, textView);
         updateTotalAmountDescriptionSpannable(spannableStringBuilder, context);
         updateInterestDescriptionSpannable(spannableStringBuilder, context);
-        updateCFTSpannable(spannableStringBuilder, context);
-        updateCFTNASpannable(spannableStringBuilder, context);
+        updateInterestRate(spannableStringBuilder, context);
     }
 
     @Override
@@ -76,6 +74,14 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         @NonNull final TextView textView) {
         super.updateRightSpannable(spannableStringBuilder, textView);
         updateInstallmentsInfo(spannableStringBuilder, textView.getContext());
+    }
+
+    private void updateInterestRate(@NonNull final SpannableStringBuilder spannableStringBuilder,
+        @NonNull final Context context) {
+        final Text interestRate;
+        if ((interestRate = getCurrentPayerCost().getInterestRate()) != null) {
+            new InterestFormatter(spannableStringBuilder).withText(interestRate).apply(context);
+        }
     }
 
     @Override
@@ -100,13 +106,13 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         @NonNull final TextView textView) {
 
         final Spannable amount = TextFormatter.withCurrency(currency)
-            .amount(getCurrent().getInstallmentAmount())
+            .amount(getCurrentPayerCost().getInstallmentAmount())
             .normalDecimals()
             .into(textView)
             .toSpannable();
 
         new AmountLabeledFormatter(spannableStringBuilder, context)
-            .withInstallment(getCurrent().getInstallments())
+            .withInstallment(getCurrentPayerCost().getInstallments())
             .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_black))
             .withSemiBoldStyle()
             .apply(amount);
@@ -118,18 +124,18 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
     private void updateTotalAmountDescriptionSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
         @NonNull final Context context) {
         if (hasAmountDescriptor()) {
-            new PayerCostFormatter(spannableStringBuilder, context, getCurrent(), currency)
+            new PayerCostFormatter(spannableStringBuilder, context, getCurrentPayerCost(), currency)
                 .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey))
                 .apply();
         }
     }
 
     private boolean hasAmountDescriptor() {
-        return BigDecimal.ZERO.compareTo(getCurrent().getInstallmentRate()) < 0;
+        return BigDecimal.ZERO.compareTo(getCurrentPayerCost().getInstallmentRate()) < 0;
     }
 
     private boolean hasInterestFree() {
-        return interestFree != null && interestFree.hasAppliedInstallment(getCurrent().getInstallments());
+        return interestFree != null && interestFree.hasAppliedInstallment(getCurrentPayerCost().getInstallments());
     }
 
     private void updateInterestDescriptionSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
@@ -141,34 +147,20 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         }
     }
 
-    private void updateCFTSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
-        @NonNull final Context context) {
-        new CFTFormatter(spannableStringBuilder, context, getCurrent().getRates())
-            .withRate(RateType.CFT)
-            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey)).build();
-    }
-
-    private void updateCFTNASpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
-        @NonNull final Context context) {
-        new CFTFormatter(spannableStringBuilder, context, getCurrent().getRates())
-            .withRate(RateType.CFTNA)
-            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey)).build();
-    }
-
     @NonNull
-    private PayerCost getCurrent() {
+    private PayerCost getCurrentPayerCost() {
         return amountConfiguration.getCurrentPayerCost(userWantToSplit, payerCostSelected);
     }
 
     @Override
     public int getCurrentInstalment() {
-        return getCurrent().getInstallments();
+        return getCurrentPayerCost().getInstallments();
     }
 
     @Override
     protected String getAccessibilityContentDescription(@NonNull final Context context) {
         final SpannableStringBuilder builder = new SpannableStringBuilder();
-        final PayerCost currentInstallment = getCurrent();
+        final PayerCost currentInstallment = getCurrentPayerCost();
         final String money = context.getResources().getString(R.string.px_money);
         builder
             .append(currentInstallment.getInstallments().toString())
@@ -182,7 +174,7 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
             .append(hasAmountDescriptor() ? currentInstallment.getTotalAmount().floatValue() + money : TextUtil.EMPTY)
             .append(hasInterestFree() ? interestFree.getInstallmentRow().getMessage() : TextUtil.EMPTY);
 
-        updateCFTSpannable(builder, context);
+        updateInterestRate(builder, context);
         updateInstallmentsInfo(builder, context);
 
         return builder.toString();

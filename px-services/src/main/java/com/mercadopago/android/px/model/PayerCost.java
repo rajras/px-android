@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.mercadopago.android.px.internal.util.RateParser;
+import com.mercadopago.android.px.model.internal.Text;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -21,6 +22,7 @@ public final class PayerCost implements Parcelable, Serializable {
     private static final String CFT = "CFT";
     private static final String TEA = "TEA";
     private List<String> labels;
+    private Text interestRate;
     private String recommendedMessage;
     private BigDecimal installmentRate;
     private BigDecimal totalAmount;
@@ -43,6 +45,10 @@ public final class PayerCost implements Parcelable, Serializable {
 
     public List<String> getLabels() {
         return labels;
+    }
+
+    public Text getInterestRate() {
+        return interestRate;
     }
 
     public BigDecimal getInstallmentAmount() {

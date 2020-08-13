@@ -54,7 +54,7 @@ public final class DebitCardDescriptorModel extends PaymentMethodDescriptorView.
         @NonNull final TextView textView) {
 
         final Spannable amount = TextFormatter.withCurrency(currency)
-            .amount(getCurrent().getInstallmentAmount())
+            .amount(getCurrentPayerCost().getInstallmentAmount())
             .normalDecimals()
             .into(textView)
             .toSpannable();
@@ -66,19 +66,19 @@ public final class DebitCardDescriptorModel extends PaymentMethodDescriptorView.
     }
 
     @NonNull
-    private PayerCost getCurrent() {
+    private PayerCost getCurrentPayerCost() {
         return amountConfiguration.getCurrentPayerCost(userWantToSplit, payerCostSelected);
     }
 
     @Override
     public int getCurrentInstalment() {
-        return getCurrent().getInstallments();
+        return getCurrentPayerCost().getInstallments();
     }
 
     @Override
     protected String getAccessibilityContentDescription(@NonNull final Context context) {
         final SpannableStringBuilder builder = new SpannableStringBuilder();
-        builder.append(getCurrent().getInstallmentAmount().toString())
+        builder.append(getCurrentPayerCost().getInstallmentAmount().toString())
             .append(TextUtil.SPACE)
             .append(context.getResources().getString(R.string.px_money));
 
