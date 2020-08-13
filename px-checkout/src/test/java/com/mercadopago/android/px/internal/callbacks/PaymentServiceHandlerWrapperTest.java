@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.callbacks;
 
-import android.arch.core.executor.testing.InstantTaskExecutorRule;
-import android.support.annotation.NonNull;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.annotation.NonNull;
 
 import com.mercadopago.android.px.internal.datasource.DisabledPaymentMethodService;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;

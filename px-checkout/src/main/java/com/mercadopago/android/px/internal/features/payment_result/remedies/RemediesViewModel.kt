@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.payment_result.remedies
 
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
 import com.mercadopago.android.px.internal.base.BaseViewModel

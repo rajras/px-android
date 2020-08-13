@@ -1,8 +1,8 @@
 package com.mercadopago.android.px.internal.features;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.addons.model.EscDeleteReason;
 import com.mercadopago.android.px.internal.base.BasePresenter;
@@ -26,7 +26,6 @@ import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.CVVRecoveryFrictionTracker;
-import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 import com.mercadopago.android.px.tracking.internal.views.CvvAskViewTracker;
 

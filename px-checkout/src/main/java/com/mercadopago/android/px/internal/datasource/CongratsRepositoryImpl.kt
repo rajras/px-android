@@ -67,14 +67,9 @@ class CongratsRepositoryImpl(
             val joinedPaymentMethodsIds = paymentResult.paymentDataList
                 .joinToString(TextUtil.CSV_DELIMITER) { p -> (p.paymentMethod.id) }
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
-            val response = congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, privateKey,
+            congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, privateKey!!,
                 joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-                joinedPaymentMethodsIds, trackingRepository.flowId).await()
-            if (response.isSuccessful) {
-                response.body()!!
-            } else {
-                CongratsResponse.EMPTY
-            }
+                joinedPaymentMethodsIds, trackingRepository.flowId)
         } catch (e: Exception) {
             CongratsResponse.EMPTY
         }
@@ -114,19 +109,13 @@ class CongratsRepositoryImpl(
                 escCardIds.contains(customOptionId),
                 AlternativePayerPaymentMethodsMapper(escCardIds).map(payerPaymentMethods.filter { it.second != customOptionId })
             ).map(paymentData)
-            val response = congratsService.getRemedies(
+            congratsService.getRemedies(
                 BuildConfig.API_ENVIRONMENT_NEW,
                 payment.id.toString(),
-                privateKey,
+                privateKey!!,
                 hasOneTap,
                 body
-            ).await()
-
-            if (response.isSuccessful) {
-                response.body()!!
-            } else {
-                RemediesResponse.EMPTY
-            }
+            )
         } catch (e: Exception) {
             RemediesResponse.EMPTY
         }
