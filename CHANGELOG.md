@@ -1,3 +1,8 @@
+## VERSION 4.55.0
+_13_08_2020_
+* FEATURE - Added support to shrink strict mode
+* ENHANCEMENT - Added InterestRateFormatter
+
 ## VERSION 4.54.0
 _05_08_2020_
 * FEATURE - Added flowName configuration from preference
