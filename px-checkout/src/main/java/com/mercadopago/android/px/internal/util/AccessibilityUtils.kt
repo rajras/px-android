@@ -2,6 +2,8 @@ package com.mercadopago.android.px.internal.util
 
 import android.content.Context
 import android.content.Context.ACCESSIBILITY_SERVICE
+import android.os.Build
+import android.view.View
 import android.view.accessibility.AccessibilityManager
 
 typealias  Action = () -> Unit
@@ -19,4 +21,8 @@ fun Context?.isAccessibilityTalkBackEnable(): Boolean {
     val manager = getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager?
     // Strictly interested in whether TalkBack is enabled
     return manager != null && manager.isEnabled && manager.isTouchExplorationEnabled
+}
+
+object AccessibilityUtils {
+    fun hasAccessibilityFocus(view: View) = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && view.isAccessibilityFocused
 }

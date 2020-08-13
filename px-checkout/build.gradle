@@ -38,6 +38,7 @@ dependencies {
     implementation "com.google.android.material:material:$material"
     implementation "androidx.constraintlayout:constraintlayout:$constraint_layout"
     implementation "com.google.android:flexbox:$flexbox_layout"
+    implementation "androidx.viewpager2:viewpager2:$view_pager_2"
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp"
     implementation "com.squareup.okhttp3:okhttp-urlconnection:$okhttp"

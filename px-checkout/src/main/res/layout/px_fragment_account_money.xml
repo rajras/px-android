@@ -2,15 +2,19 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:paddingStart="@dimen/px_onetap_pager_item_padding"
+    android:paddingEnd="@dimen/px_onetap_pager_item_padding"
+    android:layout_marginBottom="@dimen/px_s_margin">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/payment_method"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/px_s_margin"
-        android:layout_marginLeft="@dimen/px_m_margin"
-        android:layout_marginRight="@dimen/px_m_margin"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:cardCornerRadius="@dimen/px_xs_margin"
         app:cardElevation="2dp"
         app:cardPreventCornerOverlap="false">

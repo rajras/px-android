@@ -11,8 +11,6 @@
         android:id="@+id/payment_method"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/px_m_margin"
-        android:layout_marginRight="@dimen/px_m_margin"
         android:layout_marginBottom="@dimen/px_s_margin"
         app:cardBackgroundColor="#f4f2f2"
         app:cardCornerRadius="@dimen/px_xs_margin"

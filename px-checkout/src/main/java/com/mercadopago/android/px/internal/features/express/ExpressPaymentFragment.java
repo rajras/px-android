@@ -6,21 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
@@ -55,7 +55,6 @@ import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
-import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.view.LabeledSwitch;
 import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
@@ -82,7 +81,7 @@ import static android.view.View.VISIBLE;
 import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.HIGH_RES;
 import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.LOW_RES;
 
-public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
+public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View,
     InstallmentsAdapter.ItemListener, SplitPaymentHeaderAdapter.SplitListener,
     PaymentMethodFragment.DisabledDetailDialogLauncher, OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener,
     TitlePagerAdapter.InstallmentChanged, PayButton.Handler, GenericDialog.Listener, BackHandler {
@@ -94,7 +93,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     private static final int REQ_CODE_DISABLE_DIALOG = 105;
     public static final int REQ_CODE_CARD_FORM = 106;
-    private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
+    private static final float PAGER_MARGIN_MULTIPLIER = 1.5f;
 
     @Nullable private CallBack callback;
 
@@ -103,7 +102,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private SummaryView summaryView;
     private View payButtonContainer;
     private RecyclerView installmentsRecyclerView;
-    /* default */ DynamicHeightViewPager paymentMethodPager;
+    /* default */ ViewPager2 paymentMethodPager;
     /* default */ View pagerAndConfirmButtonContainer;
     private ScrollingPagerIndicator indicator;
     @Nullable private ExpandAndCollapseAnimation expandAndCollapseAnimation;
@@ -117,7 +116,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private PaymentMethodFragmentAdapter.RenderMode renderMode;
     private View loading;
 
-    private HubAdapter hubAdapter;
+    /* default */ HubAdapter hubAdapter;
     /* default */ View bottomSheet;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private PayButtonFragment payButtonFragment;
@@ -225,7 +224,25 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
         summaryView.setOnLogoClickListener(v -> presenter.onHeaderClicked());
 
-        paymentMethodPager.addOnPageChangeListener(this);
+        paymentMethodPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+                hubAdapter.updatePosition(positionOffset, position);
+            }
+
+            @Override
+            public void onPageSelected(final int position) {
+                super.onPageSelected(position);
+                presenter.onSliderOptionSelected(position);
+                VibrationUtils.smallVibration(getContext());
+            }
+
+            @Override
+            public void onPageScrollStateChanged(final int state) {
+                super.onPageScrollStateChanged(state);
+            }
+        });
     }
 
     private void configureViews(@NonNull final View view) {
@@ -246,9 +263,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         installmentsRecyclerView
             .addItemDecoration(new DividerItemDecoration(view.getContext(), linearLayoutManager.getOrientation()));
 
-        paymentMethodPager.setPageMargin(
-            ((int) (getResources().getDimensionPixelSize(R.dimen.px_m_margin) * PAGER_NEGATIVE_MARGIN_MULTIPLIER)));
-        paymentMethodPager.setOffscreenPageLimit(2);
+        paymentMethodPager.setOffscreenPageLimit(1);
         slideDownAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, INVISIBLE));
         slideUpAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, VISIBLE));
 
@@ -391,7 +406,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void onAttach(final Context context) {
+    public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
         fadeAnimation = new FadeAnimator(context);
         slideDownAndFadeAnimation = AnimationUtils.loadAnimation(context, R.anim.px_slide_down_and_fade);
@@ -428,7 +443,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         // Order is important, should update all others adapters before update paymentMethodAdapter
 
         if (paymentMethodPager.getAdapter() == null) {
-            paymentMethodFragmentAdapter = new PaymentMethodFragmentAdapter(getChildFragmentManager());
+            paymentMethodFragmentAdapter = new PaymentMethodFragmentAdapter(this);
             if (renderMode == null) {
                 summaryView.setMeasureListener((itemsClipped) -> {
                     renderMode = itemsClipped ? LOW_RES : HIGH_RES;
@@ -438,7 +453,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 onRenderModeDecided();
             }
             paymentMethodPager.setAdapter(paymentMethodFragmentAdapter);
-            indicator.attachToPager(paymentMethodPager);
+            //indicator.attachToPager(paymentMethodPager);
         }
     }
 
@@ -532,22 +547,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
-        hubAdapter.updatePosition(positionOffset, position);
-    }
-
-    @Override
-    public void onPageSelected(final int position) {
-        presenter.onSliderOptionSelected(position);
-        VibrationUtils.smallVibration(getContext());
-    }
-
-    @Override
-    public void onPageScrollStateChanged(final int state) {
-        // do nothing.
-    }
-
-    @Override
     public void showDiscountDetailDialog(@NonNull final Currency currency,
         @NonNull final DiscountConfigurationModel discountModel) {
         DiscountDetailDialog.showDialog(getChildFragmentManager(), discountModel);
@@ -569,8 +568,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void onRenderModeDecided() {
-        //Workaround to pager not updating the fragments
-        paymentMethodPager.post(() -> paymentMethodFragmentAdapter.setRenderMode(renderMode));
+        paymentMethodFragmentAdapter.setRenderMode(renderMode);
     }
 
     @Override
