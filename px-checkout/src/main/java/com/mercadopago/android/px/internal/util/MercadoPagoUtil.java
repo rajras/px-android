@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.model.Bin;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -42,21 +42,6 @@ public final class MercadoPagoUtil {
             } catch (final Exception ex) {
                 resource = 0;
             }
-        }
-        return resource;
-    }
-
-    public static int getPaymentMethodSearchItemIcon(final Context context, final String itemId) {
-        int resource;
-        if (itemId != null && context != null) {
-            try {
-                resource =
-                    context.getResources().getIdentifier(SDK_PREFIX + itemId, "drawable", context.getPackageName());
-            } catch (final Exception e) {
-                resource = 0;
-            }
-        } else {
-            resource = 0;
         }
         return resource;
     }

@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
@@ -99,13 +99,17 @@ public class OfflineMethodsFragment extends BaseFragment<OfflineMethodsPresenter
                 case RecyclerView.SCROLL_STATE_DRAGGING:
                     if (atTop) {
                         panIndicator.clearAnimation();
-                        panIndicator.startAnimation(fadeOutAnimation);
+                        if (fadeOutAnimation != null) {
+                            panIndicator.startAnimation(fadeOutAnimation);
+                        }
                     }
                     break;
                 case RecyclerView.SCROLL_STATE_IDLE:
                     if (atTop) {
                         panIndicator.clearAnimation();
-                        panIndicator.startAnimation(fadeInAnimation);
+                        if (fadeInAnimation != null) {
+                            panIndicator.startAnimation(fadeInAnimation);
+                        }
                     }
                     break;
                 default:

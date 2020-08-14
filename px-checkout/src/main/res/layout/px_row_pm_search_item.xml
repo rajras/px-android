@@ -31,7 +31,7 @@
                     android:adjustViewBounds="true"
                     android:maxWidth="@dimen/px_xl_height"
                     android:padding="@dimen/px_s_margin"
-                    tools:src="@drawable/px_bapropagos"/>
+                    tools:src="@drawable/px_bapropagos_dynamic"/>
             </FrameLayout>
 
             <ImageView

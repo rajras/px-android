@@ -2,17 +2,20 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import com.mercadolibre.android.andesui.snackbar.AndesSnackbar
+import com.mercadolibre.android.andesui.snackbar.duration.AndesSnackbarDuration
+import com.mercadolibre.android.andesui.snackbar.type.AndesSnackbarType
 import com.mercadolibre.android.ui.widgets.MeliButton
 import com.mercadolibre.android.ui.widgets.MeliSnackbar
 import com.mercadopago.android.px.R
@@ -127,7 +130,7 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
     @SuppressLint("Range")
     private fun showSnackBar(error: MercadoPagoError) {
         view?.let {
-            MeliSnackbar.make(it, error.message, Snackbar.LENGTH_LONG, MeliSnackbar.SnackbarType.ERROR).show()
+            AndesSnackbar(it.context, it, AndesSnackbarType.ERROR, error.message, AndesSnackbarDuration.LONG).show()
         }
     }
 

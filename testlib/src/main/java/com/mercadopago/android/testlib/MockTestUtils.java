@@ -1,6 +1,6 @@
 package com.mercadopago.android.testlib;
 
-import android.support.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import java.io.InputStream;
 
 public final class MockTestUtils {
@@ -10,7 +10,7 @@ public final class MockTestUtils {
 
     public static String getBody(final int rawId) {
         String body = "";
-        final InputStream inputStream = InstrumentationRegistry.getContext().getResources().openRawResource(rawId);
+        final InputStream inputStream = ApplicationProvider.getApplicationContext().getResources().openRawResource(rawId);
         try {
             final byte[] b = new byte[inputStream.available()];
             inputStream.read(b);

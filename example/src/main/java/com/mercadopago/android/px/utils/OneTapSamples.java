@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.utils;
 
-import android.support.annotation.NonNull;
-import android.support.v4.util.Pair;
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import com.mercadopago.SampleDialog;
 import com.mercadopago.SamplePaymentProcessor;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
@@ -20,12 +20,10 @@ import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
-import com.mercadopago.android.px.tracking.PXTracker;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.mercadopago.android.px.utils.PaymentUtils.getBusinessPaymentApproved;
