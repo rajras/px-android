@@ -19,15 +19,16 @@ import java.util.List;
 public class BankDealsAdapter extends RecyclerView.Adapter<BankDealsAdapter.ViewHolder> {
 
     private final List<BankDeal> mData;
-    private OnSelectedCallback<BankDeal> listener;
+    private final OnSelectedCallback<BankDeal> listener;
 
     public BankDealsAdapter(final List<BankDeal> data, @NonNull final OnSelectedCallback<BankDeal> listener) {
         mData = data;
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public BankDealsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BankDealsAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext())
             .inflate(R.layout.px_row_bank_deals, parent, false));
     }
@@ -42,14 +43,14 @@ public class BankDealsAdapter extends RecyclerView.Adapter<BankDealsAdapter.View
         return mData.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         /* default */ final MPTextView bankDescView;
         /* default */ final ImageView bankImageView;
         /* default */ final MPTextView installmentsView;
         /* default */ final MPTextView logoName;
 
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
 
             super(v);
             bankDescView = v.findViewById(R.id.mpsdkBankDesc);
@@ -71,19 +72,14 @@ public class BankDealsAdapter extends RecyclerView.Adapter<BankDealsAdapter.View
             // Set installments
             installmentsView.setText(Html.fromHtml(getRecommendedMessage(bankDeal)));
             // Set view tag item
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    bankDealOnSelectedCallback.onSelected(bankDeal);
-                }
-            });
+            itemView.setOnClickListener(v -> bankDealOnSelectedCallback.onSelected(bankDeal));
         }
 
         private void loadBankLogo(final BankDeal bankDeal) {
             bankImageView.setVisibility(View.GONE);
 
             if (bankDeal.hasPictureUrl()) {
-                ViewUtils.loadOrCallError(bankDeal.getPicture().getUrl(), bankImageView, new Callback.EmptyCallback() {
+                ViewUtils.loadOrCallError(bankDeal.getPicture().getUrl(), bankImageView, new Callback() {
                     @Override
                     public void onSuccess() {
                         bankImageView.setVisibility(View.VISIBLE);
@@ -91,7 +87,7 @@ public class BankDealsAdapter extends RecyclerView.Adapter<BankDealsAdapter.View
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(final Exception e) {
                         logoName.setVisibility(View.VISIBLE);
                         bankImageView.setVisibility(View.GONE);
                     }
@@ -99,7 +95,7 @@ public class BankDealsAdapter extends RecyclerView.Adapter<BankDealsAdapter.View
             }
         }
 
-        private String getRecommendedMessage(BankDeal bankDeal) {
+        private String getRecommendedMessage(final BankDeal bankDeal) {
             return TextUtil.isEmpty(bankDeal.getRecommendedMessage()) ? "" : bankDeal.getRecommendedMessage();
         }
     }
