@@ -2,12 +2,12 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -23,6 +23,7 @@ import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.SecurityCodeActivity
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity
+import com.mercadopago.android.px.internal.features.dummy_result.DummyResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
@@ -101,6 +102,7 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
             is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
             is UIResult.BusinessPaymentResult ->
                 BusinessPaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
+            is UIResult.NoCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
         }
     }
 

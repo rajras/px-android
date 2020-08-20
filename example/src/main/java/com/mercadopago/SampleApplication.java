@@ -2,9 +2,10 @@ package com.mercadopago;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.mercadopago.android.px.BuildConfig;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.addons.FakeEscManagerBehaviourImpl;
 import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl;
@@ -13,7 +14,6 @@ import com.mercadopago.android.px.addons.PXBehaviourConfigurer;
 import com.mercadopago.android.px.di.Dependencies;
 import com.mercadopago.android.px.font.FontConfigurator;
 import com.mercadopago.android.px.internal.util.HttpClientUtil;
-import com.squareup.leakcanary.LeakCanary;
 import okhttp3.OkHttpClient;
 
 public class SampleApplication extends Application {
@@ -27,19 +27,14 @@ public class SampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        initializeLeakCanary();
-        FontConfigurator.configure();
+        initialize();
     }
 
-    private void initializeLeakCanary() {
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
+    private void initialize() {
         Stetho.initializeWithDefaults(this);
 
         // Create client base, add interceptors
-        OkHttpClient.Builder baseClient = HttpClientUtil.createBaseClient(this, 10, 10, 10)
+        final OkHttpClient.Builder baseClient = HttpClientUtil.createBaseClient(this, 10, 10, 10)
             .addNetworkInterceptor(new StethoInterceptor());
 
         // customClient: client with TLS protocol setted
@@ -51,10 +46,14 @@ public class SampleApplication extends Application {
         Dependencies.getInstance().initialize(getApplicationContext());
 
         final ESCManagerBehaviour escManagerBehaviour = new FakeEscManagerBehaviourImpl();
-        new PXBehaviourConfigurer()
-            .with(new MockSecurityBehaviour(escManagerBehaviour))
-            .with(escManagerBehaviour)
+        final PXBehaviourConfigurer builder = new PXBehaviourConfigurer();
+        if (BuildConfig.DEBUG) {
+            builder.with(new MockSecurityBehaviour(escManagerBehaviour));
+        }
+        builder.with(escManagerBehaviour)
             .with(FakeLocaleBehaviourImpl.INSTANCE)
             .configure();
+
+        FontConfigurator.configure();
     }
 }

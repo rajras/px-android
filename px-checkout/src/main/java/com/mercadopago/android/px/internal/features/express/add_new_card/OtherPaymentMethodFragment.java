@@ -2,20 +2,19 @@ package com.mercadopago.android.px.internal.features.express.add_new_card;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.BaseFragment;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
-import com.mercadopago.android.px.internal.di.NetworkModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
@@ -100,7 +99,7 @@ public class OtherPaymentMethodFragment
             v -> {
                 final Fragment parentFragment = getParentFragment();
                 if (parentFragment instanceof OnOtherPaymentMethodClickListener) {
-                    ((OnOtherPaymentMethodClickListener) parentFragment).onOtherPaymentMethodClicked(offlineMethods);
+                    ((OnOtherPaymentMethodClickListener) parentFragment).onOtherPaymentMethodClicked();
                 } else {
                     throw new IllegalStateException(
                         "Parent fragment must implement " + OnOtherPaymentMethodClickListener.class.getSimpleName());
@@ -176,6 +175,6 @@ public class OtherPaymentMethodFragment
     }
 
     public interface OnOtherPaymentMethodClickListener {
-        void onOtherPaymentMethodClicked(@NonNull final OfflinePaymentTypesMetadata offlineMethods);
+        void onOtherPaymentMethodClicked();
     }
 }

@@ -20,6 +20,7 @@ internal open class UIResult : PayButtonState() {
     object VisualProcessorResult : UIResult()
     data class PaymentResult(val model: PaymentModel) : UIResult()
     data class BusinessPaymentResult(val model: BusinessPaymentModel) : UIResult()
+    data class NoCongratsResult(val model : PaymentModel) : UIResult()
 }
 
 internal open class UIError : PayButtonState() {

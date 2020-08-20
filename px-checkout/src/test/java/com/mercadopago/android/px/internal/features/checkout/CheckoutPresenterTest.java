@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.internal.features.checkout;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
@@ -13,7 +12,6 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
-import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.mocks.ApiExceptionStubs;
 import com.mercadopago.android.px.mocks.InitResponseStub;
 import com.mercadopago.android.px.model.BusinessPayment;
@@ -21,7 +19,6 @@ import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.Setting;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -30,14 +27,12 @@ import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.preferences.PaymentPreference;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
-
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
 
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceOneItem;
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceOneItemAndPayer;
@@ -49,7 +44,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -219,18 +213,17 @@ public class CheckoutPresenterTest {
     public void whenPaymentResultWithCreatedPaymentThenFinishCheckoutWithPaymentResult() {
         final Payment payment = mock(Payment.class);
 
-        when(paymentRepository.hasPayment()).thenReturn(true);
         when(paymentRepository.getPayment()).thenReturn(payment);
 
-        presenter.onPaymentResultResponse();
+        presenter.onPaymentResultResponse(null);
 
-        verify(checkoutView).finishWithPaymentResult(payment);
+        verify(checkoutView).finishWithPaymentResult(null, payment);
     }
 
     @Test
     public void whenPaymentResultWithoutCreatedPaymentThenFinishCheckoutWithoutPaymentResult() {
-        presenter.onPaymentResultResponse();
-        verify(checkoutView).finishWithPaymentResult();
+        presenter.onPaymentResultResponse(null);
+        verify(checkoutView).finishWithPaymentResult(null, null);
     }
 
     @Test
@@ -261,7 +254,7 @@ public class CheckoutPresenterTest {
         presenter.onChangePaymentMethod();
 
         verify(checkoutView).transitionOut();
-        verify(checkoutView).finishWithPaymentResult(Constants.RESULT_CHANGE_PAYMENT_METHOD);
+        verify(checkoutView).finishWithPaymentResult(Constants.RESULT_CHANGE_PAYMENT_METHOD, null);
     }
 
     @Test
@@ -473,10 +466,9 @@ public class CheckoutPresenterTest {
     @Test
     public void whenCustomPaymentResultResponseHasPaymentThenFinishWithPaymentResult() {
         final Payment payment = mock(Payment.class);
-        when(paymentRepository.hasPayment()).thenReturn(true);
         when(paymentRepository.getPayment()).thenReturn(payment);
 
-        presenter.onCustomPaymentResultResponse(CUSTOM_RESULT_CODE);
+        presenter.onPaymentResultResponse(CUSTOM_RESULT_CODE);
 
         verify(checkoutView).finishWithPaymentResult(CUSTOM_RESULT_CODE, payment);
         verifyNoMoreInteractions(checkoutView);
@@ -484,23 +476,20 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenCustomPaymentResultResponseHasNotPaymentThenFinishWithPaymentResult() {
-        when(paymentRepository.hasPayment()).thenReturn(false);
+        presenter.onPaymentResultResponse(CUSTOM_RESULT_CODE);
 
-        presenter.onCustomPaymentResultResponse(CUSTOM_RESULT_CODE);
-
-        verify(checkoutView).finishWithPaymentResult(CUSTOM_RESULT_CODE);
+        verify(checkoutView).finishWithPaymentResult(CUSTOM_RESULT_CODE, null);
         verifyNoMoreInteractions(checkoutView);
     }
 
     @Test
     public void whenCustomPaymentResultResponseHasBusinessPaymentThenFinishWithPaymentResult() {
         final BusinessPayment payment = mock(BusinessPayment.class);
-        when(paymentRepository.hasPayment()).thenReturn(true);
         when(paymentRepository.getPayment()).thenReturn(payment);
 
-        presenter.onCustomPaymentResultResponse(CUSTOM_RESULT_CODE);
+        presenter.onPaymentResultResponse(CUSTOM_RESULT_CODE);
 
-        verify(checkoutView).finishWithPaymentResult(CUSTOM_RESULT_CODE);
+        verify(checkoutView).finishWithPaymentResult(CUSTOM_RESULT_CODE, null);
         verifyNoMoreInteractions(checkoutView);
     }
 
@@ -508,13 +497,6 @@ public class CheckoutPresenterTest {
     public void whenFailureRecoveryNotSetThenShowFailureRecoveryError() {
         presenter.recoverFromFailure();
         verify(checkoutView).showFailureRecoveryError();
-        verifyNoMoreInteractions(checkoutView);
-    }
-
-    @Test
-    public void whenExitWithCodeThenExitCheckout() {
-        presenter.exitWithCode(CUSTOM_RESULT_CODE);
-        verify(checkoutView).exitCheckout(CUSTOM_RESULT_CODE);
         verifyNoMoreInteractions(checkoutView);
     }
 

@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations.map
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations.map
 import android.os.Bundle
 import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.base.BaseViewModel
@@ -12,10 +12,13 @@ import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler
 import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.core.ProductIdProvider
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
+import com.mercadopago.android.px.internal.features.checkout.PostPaymentDriver
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
+import com.mercadopago.android.px.internal.model.SecurityType
+import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.util.ApiUtil
@@ -23,14 +26,11 @@ import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
-import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper
 import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.exceptions.NoConnectivityException
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
-import com.mercadopago.android.px.internal.model.SecurityType
-import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
@@ -224,15 +224,19 @@ internal class PayButtonViewModel(
         paymentModel?.let {
             handler?.onPaymentFinished(it, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
-                    it.process(object : PaymentModelHandler {
-                        override fun visit(paymentModel: PaymentModel) {
-                            stateUILiveData.value = UIResult.PaymentResult(paymentModel)
+                    PostPaymentDriver.Builder(paymentSettingRepository, it).action(object : PostPaymentDriver.Action {
+                        override fun showCongrats(model: PaymentModel) {
+                            stateUILiveData.value = UIResult.PaymentResult(model)
                         }
 
-                        override fun visit(businessPaymentModel: BusinessPaymentModel) {
-                            stateUILiveData.value = UIResult.BusinessPaymentResult(businessPaymentModel)
+                        override fun showCongrats(model: BusinessPaymentModel) {
+                            stateUILiveData.value = UIResult.BusinessPaymentResult(model)
                         }
-                    })
+
+                        override fun skipCongrats(model: PaymentModel) {
+                            stateUILiveData.value = UIResult.NoCongratsResult(model)
+                        }
+                    }).build().execute()
                 }
             })
         }

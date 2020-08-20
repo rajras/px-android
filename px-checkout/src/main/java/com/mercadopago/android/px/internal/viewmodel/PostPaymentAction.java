@@ -4,8 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 public abstract class PostPaymentAction implements Parcelable {
 
@@ -41,12 +40,9 @@ public abstract class PostPaymentAction implements Parcelable {
     @NonNull
     public static PostPaymentAction fromBundle(@NonNull final Bundle bundle) {
         final PostPaymentAction action = bundle.getParcelable(EXTRA_POST_PAYMENT_ACTION);
-        switch (action.requiredAction) {
-        case RECOVER_PAYMENT:
-            return new RecoverPaymentPostPaymentAction();
-        case SELECT_OTHER_PAYMENT_METHOD:
-            return new ChangePaymentMethodPostPaymentAction();
-        default:
+        if (action != null) {
+            return action;
+        } else {
             throw new IllegalStateException("Impossible to create PostPaymentAction");
         }
     }
@@ -57,7 +53,6 @@ public abstract class PostPaymentAction implements Parcelable {
 
     public interface ActionController {
         void recoverPayment(@NonNull final PostPaymentAction postPaymentAction);
-
         void onChangePaymentMethod();
     }
 }

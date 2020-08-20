@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.utils;
 
-import android.support.annotation.NonNull;
-import android.support.v4.util.Pair;
-import com.mercadopago.SampleDialog;
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import com.mercadopago.SamplePaymentProcessor;
+import com.mercadopago.SampleTopFragment;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
@@ -20,12 +20,10 @@ import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
-import com.mercadopago.android.px.tracking.PXTracker;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.mercadopago.android.px.utils.PaymentUtils.getBusinessPaymentApproved;
@@ -147,7 +145,8 @@ public final class OneTapSamples {
         final CheckoutPreference preference =
             getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 12000);
         final PaymentConfiguration paymentConfiguration =
-            new PaymentConfiguration.Builder(new SamplePaymentProcessor(PaymentUtils.getGenericPaymentRejected(),
+            new PaymentConfiguration.Builder(new SamplePaymentProcessor(
+                PaymentUtils.getGenericPaymentRejected(),
                 PaymentUtils.getGenericPaymentApproved()))
                 .addChargeRules(
                     Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
@@ -157,21 +156,31 @@ public final class OneTapSamples {
         final TrackingConfiguration trackingConfiguration =
             new TrackingConfiguration.Builder().flowId("example_app").build();
 
+        final DynamicDialogConfiguration dynamicDialogConfiguration = new DynamicDialogConfiguration.Builder()
+            .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM,
+                DialogSamples.INSTANCE.getDynamicDialog())
+            .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER,
+                DialogSamples.INSTANCE.getDynamicDialog())
+            .build();
+
+        final PaymentResultScreenConfiguration resultScreenConfig = new PaymentResultScreenConfiguration.Builder()
+            .setTopFragment(SampleTopFragment.class,
+                DialogSamples.getSampleFragmentArgs("Your custom top fragment"))
+            .setBottomFragment(SampleTopFragment.class,
+                DialogSamples.getSampleFragmentArgs("Your custom bottom fragment"))
+            .build();
+
+        final AdvancedConfiguration advancedConfiguration = new AdvancedConfiguration.Builder()
+            .setPaymentResultScreenConfiguration(resultScreenConfig)
+            .setDynamicDialogConfiguration(dynamicDialogConfiguration)
+            .setExpressPaymentEnable(true)
+            .build();
+
         return new MercadoPagoCheckout.Builder(ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY, preference,
             paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
-            .setTrackingConfiguration(trackingConfiguration)
-            .setAdvancedConfiguration(new AdvancedConfiguration.Builder()
-                .setPaymentResultScreenConfiguration(new PaymentResultScreenConfiguration.Builder()
-                    .setTopFragment(SampleDialog.class, null).build())
-                .setDynamicDialogConfiguration(new DynamicDialogConfiguration.Builder()
-                    .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM,
-                        DialogSamples.INSTANCE.getDialog())
-                    .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER,
-                        DialogSamples.INSTANCE.getDialog())
-                    .build())
-                .setExpressPaymentEnable(true)
-                .build());
+            .setAdvancedConfiguration(advancedConfiguration)
+            .setTrackingConfiguration(trackingConfiguration);
     }
 
     // It should suggest one tap with account money

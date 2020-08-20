@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.business_result;
 
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.model.ExitAction;
@@ -27,5 +27,9 @@ import com.mercadopago.android.px.model.ExitAction;
         void onFreshStart();
 
         void onAbort();
+
+        void onStart();
+
+        void onStop();
     }
 }

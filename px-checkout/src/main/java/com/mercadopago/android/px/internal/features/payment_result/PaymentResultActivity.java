@@ -9,14 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.widget.ScrollView;
 import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.print.MLBusinessTouchpointListener;
@@ -56,7 +56,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     PaymentResultContract.View, PayButton.Handler, RemediesFragment.Listener {
 
     private static final String TAG = PaymentResultActivity.class.getSimpleName();
-    private static final String EXTRA_PAYMENT_MODEL = "extra_payment_model";
+    public static final String EXTRA_PAYMENT_MODEL = "extra_payment_model";
     public static final String EXTRA_RESULT_CODE = "extra_result_code";
     private PayButtonFragment payButtonFragment;
     private RemediesFragment remediesFragment;
@@ -77,12 +77,6 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         final Intent intent = new Intent(fragment.getContext(), PaymentResultActivity.class);
         intent.putExtra(EXTRA_PAYMENT_MODEL, model);
         fragment.startActivityForResult(intent, requestCode);
-    }
-
-    public static Intent getIntent(@NonNull final Context context, @NonNull final PaymentModel paymentModel) {
-        final Intent intent = new Intent(context, PaymentResultActivity.class);
-        intent.putExtra(EXTRA_PAYMENT_MODEL, paymentModel);
-        return intent;
     }
 
     @Override
@@ -106,6 +100,18 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
             presenter.onFreshStart();
         }
         new MLBusinessTouchpointListener().setOnTouchListener(findViewById(R.id.scroll_view));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.onStop();
     }
 
     @NonNull

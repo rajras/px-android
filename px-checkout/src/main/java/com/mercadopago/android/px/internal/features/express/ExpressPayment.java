@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.express;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.experiments.Variant;
@@ -16,7 +16,6 @@ import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
@@ -58,9 +57,9 @@ public interface ExpressPayment {
         void showDynamicDialog(@NonNull final DynamicDialogCreator creatorFor,
             @NonNull final DynamicDialogCreator.CheckoutData checkoutData);
 
-        void showOfflineMethods(@NonNull final OfflinePaymentTypesMetadata offlineMethods);
+        void showOfflineMethodsExpanded();
 
-        void updateBottomSheetStatus(final boolean hasToExpand);
+        void showOfflineMethodsCollapsed();
 
         void showGenericDialog(@NonNull GenericDialogItem item);
 
@@ -100,9 +99,7 @@ public interface ExpressPayment {
 
         void onHeaderClicked();
 
-        void onOtherPaymentMethodClicked(@NonNull final OfflinePaymentTypesMetadata offlineMethods);
-
-        void onOtherPaymentMethodClickableStateChanged(boolean state);
+        void onOtherPaymentMethodClicked();
 
         void handlePrePaymentAction(@NonNull final PayButton.OnReadyForPaymentCallback callback);
 

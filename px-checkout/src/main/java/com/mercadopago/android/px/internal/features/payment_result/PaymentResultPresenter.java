@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.payment_result;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.FlowBehaviour;
 import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
@@ -41,10 +41,12 @@ import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 import java.util.List;
+import kotlin.Unit;
 
 /* default */ class PaymentResultPresenter extends BasePresenter<PaymentResultContract.View>
     implements ActionDispatcher, PaymentResultContract.Presenter, PaymentResultBody.Listener {
 
+    @NonNull private final PaymentSettingRepository paymentSettings;
     private final PaymentModel paymentModel;
     private final InstructionsRepository instructionsRepository;
     private final ResultViewTrack resultViewTrack;
@@ -52,10 +54,12 @@ import java.util.List;
     private final FlowBehaviour flowBehaviour;
 
     private FailureRecovery failureRecovery;
+    @Nullable private CongratsAutoReturn.Timer autoReturnTimer;
 
     /* default */ PaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final InstructionsRepository instructionsRepository, @NonNull final PaymentModel paymentModel,
         @NonNull final FlowBehaviour flowBehaviour, final boolean isMP) {
+        this.paymentSettings = paymentSettings;
         this.paymentModel = paymentModel;
         this.instructionsRepository = instructionsRepository;
         this.flowBehaviour = flowBehaviour;
@@ -85,6 +89,20 @@ import java.util.List;
             flowBehaviour.trackConversion(new FlowBehaviourResultMapper().map(payment));
         } else {
             flowBehaviour.trackConversion();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        if (autoReturnTimer != null) {
+            autoReturnTimer.start();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (autoReturnTimer != null) {
+            autoReturnTimer.cancel();
         }
     }
 
@@ -152,10 +170,17 @@ import java.util.List;
     }
 
     private void configureView(@Nullable final Instruction instruction) {
-        final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, instruction)
-            .map(paymentModel);
+        final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, instruction,
+            paymentSettings.getCheckoutPreference().getAutoReturn()).map(paymentModel);
         getView().configureViews(viewModel, paymentModel, this);
         getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
+        if (viewModel.shouldAutoReturn) {
+            autoReturnTimer = new CongratsAutoReturn.Timer(() -> {
+                autoReturnTimer = null;
+                onAbort();
+                return Unit.INSTANCE;
+            });
+        }
     }
 
     @Override

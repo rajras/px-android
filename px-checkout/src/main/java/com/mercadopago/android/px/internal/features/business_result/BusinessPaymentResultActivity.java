@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import android.view.View;
 import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.print.MLBusinessTouchpointListener;
 import com.mercadopago.android.px.R;
@@ -70,6 +70,18 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
             presenter.onFreshStart();
         }
         new MLBusinessTouchpointListener().setOnTouchListener(findViewById(R.id.scroll_view));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.onStop();
     }
 
     @NonNull

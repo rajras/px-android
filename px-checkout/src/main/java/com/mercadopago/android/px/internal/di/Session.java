@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.di;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.addons.model.SecurityValidationData;
@@ -18,12 +18,12 @@ import com.mercadopago.android.px.internal.datasource.AmountConfigurationReposit
 import com.mercadopago.android.px.internal.datasource.AmountService;
 import com.mercadopago.android.px.internal.datasource.BankDealsService;
 import com.mercadopago.android.px.internal.datasource.CardTokenService;
+import com.mercadopago.android.px.internal.datasource.CheckoutRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.CongratsRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
 import com.mercadopago.android.px.internal.datasource.EscPaymentManagerImp;
 import com.mercadopago.android.px.internal.datasource.ExperimentsService;
 import com.mercadopago.android.px.internal.datasource.IdentificationService;
-import com.mercadopago.android.px.internal.datasource.InitService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
 import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
 import com.mercadopago.android.px.internal.datasource.PaymentMethodsService;
@@ -169,6 +169,7 @@ public final class Session extends ApplicationModule {
     }
 
     private void clear() {
+        getPaymentRepository().reset();
         getExperimentsRepository().reset();
         getConfigurationModule().reset();
         getInitCache().evict();
@@ -195,7 +196,7 @@ public final class Session extends ApplicationModule {
     public InitRepository getInitRepository() {
         if (initRepository == null) {
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
-            initRepository = new InitService(paymentSettings, getExperimentsRepository(),
+            initRepository = new CheckoutRepositoryImpl(paymentSettings, getExperimentsRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(), getMercadoPagoESC(),
                 networkModule.getRetrofitClient().create(CheckoutService.class),
                 configurationModule.getTrackingRepository(), getInitCache());
@@ -295,15 +296,12 @@ public final class Session extends ApplicationModule {
     @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
-            final SplitPaymentProcessor paymentProcessor =
-                configurationModule.getPaymentSettings().getPaymentConfiguration().getPaymentProcessor();
             paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
                 configurationModule.getPaymentSettings(),
                 configurationModule.getDisabledPaymentMethodRepository(),
                 getPluginRepository(),
                 getDiscountRepository(),
                 getAmountRepository(),
-                paymentProcessor,
                 getApplicationContext(),
                 getEscPaymentManager(),
                 getMercadoPagoESC(),
@@ -311,7 +309,8 @@ public final class Session extends ApplicationModule {
                 getInstructionsRepository(),
                 getInitRepository(),
                 getAmountConfigurationRepository(),
-                getCongratsRepository());
+                getCongratsRepository(),
+                getFileManager());
         }
 
         return paymentRepository;

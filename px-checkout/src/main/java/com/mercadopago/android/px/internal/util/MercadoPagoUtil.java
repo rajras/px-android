@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.model.Bin;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -22,6 +23,8 @@ public final class MercadoPagoUtil {
     private static final String PLATFORM_MP = "MP";
     private static final String PLATFORM_ML = "ML";
     private static final String INTERNAL = "INTERNAL";
+    private static final String MP_WEBVIEW_DEEPLINK = "mercadopago://webview/?url=";
+    private static final String ML_WEBVIEW_DEEPLINK = "meli://webview/?url=";
 
     private MercadoPagoUtil() {
     }
@@ -52,15 +55,15 @@ public final class MercadoPagoUtil {
                 paymentTypeId.equals(PaymentTypes.PREPAID_CARD));
     }
 
-    public static String getAccreditationTimeMessage(final Context context, final int milliseconds) {
-        if (milliseconds == 0) {
+    public static String getAccreditationTimeMessage(final Context context, final int seconds) {
+        if (seconds == 0) {
             return context.getString(R.string.px_instant_accreditation_time);
-        } else if (milliseconds <= 1380) {
-            final int hours = new BigDecimal(milliseconds / 60f).setScale(0, RoundingMode.UP).intValue();
+        } else if (seconds <= 1380) {
+            final int hours = new BigDecimal(seconds / 60f).setScale(0, RoundingMode.UP).intValue();
             return TextUtil.format(context, R.plurals.px_accreditation_time_hour, hours,
                 String.valueOf(hours));
         } else {
-            final int days = new BigDecimal(milliseconds / (60f * 24f)).setScale(0, RoundingMode.UP).intValue();
+            final int days = new BigDecimal(seconds / (60f * 24f)).setScale(0, RoundingMode.UP).intValue();
             return TextUtil.format(context, R.plurals.px_accreditation_time_working_day, days, String.valueOf(days));
         }
     }
@@ -100,7 +103,29 @@ public final class MercadoPagoUtil {
         return getSafeIntent(context).setData(uri);
     }
 
-    public static Intent getSafeIntent(@NonNull final Context context) {
+    private static Intent getSafeIntent(@NonNull final Context context) {
         return new Intent(Intent.ACTION_VIEW).setPackage(context.getPackageName()).putExtra(INTERNAL, true);
+    }
+
+    @Nullable
+    public static Intent getIntent(@NonNull final Context context, @NonNull final String link) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(link));
+        if (context.getPackageManager().queryIntentActivities(intent, 0).isEmpty()) {
+            return null;
+        } else {
+            return intent;
+        }
+    }
+
+    @Nullable
+    public static Intent getNativeOrWebViewIntent(@NonNull final Context context, @NonNull final String link) {
+        if (link.startsWith("http")) {
+            final String webViewPath = isMP(context) ? MP_WEBVIEW_DEEPLINK : ML_WEBVIEW_DEEPLINK;
+            final Intent intent = getIntent(context, webViewPath + link);
+            if (intent != null) {
+                return intent;
+            }
+        }
+        return getIntent(context, link);
     }
 }

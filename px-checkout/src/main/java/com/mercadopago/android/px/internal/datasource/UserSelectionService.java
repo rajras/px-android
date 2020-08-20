@@ -1,8 +1,8 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.JsonUtil;
@@ -11,6 +11,7 @@ import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentMethod;
+import java.io.File;
 
 public class UserSelectionService implements UserSelectionRepository {
 
@@ -24,10 +25,12 @@ public class UserSelectionService implements UserSelectionRepository {
     @NonNull private final SharedPreferences sharedPreferences;
     @NonNull private final FileManager fileManager;
     @Nullable private Card card;
+    @NonNull private final File selectedCardFile;
 
     public UserSelectionService(@NonNull final SharedPreferences sharedPreferences, @NonNull final FileManager fileManager) {
         this.sharedPreferences = sharedPreferences;
         this.fileManager = fileManager;
+        selectedCardFile = fileManager.create(FILE_SELECTED_CARD);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class UserSelectionService implements UserSelectionRepository {
 
     private void removeCardSelection() {
         card = null;
-        fileManager.removeFile(fileManager.create(FILE_SELECTED_CARD));
+        fileManager.removeFile(selectedCardFile);
         removePaymentMethodSelection();
         removeIssuerSelection();
         removePayerCostSelection();
@@ -102,7 +105,7 @@ public class UserSelectionService implements UserSelectionRepository {
             removeCardSelection();
         } else {
             this.card = card;
-            fileManager.writeToFile(fileManager.create(FILE_SELECTED_CARD), card);
+            fileManager.writeToFile(selectedCardFile, card);
             select(card.getPaymentMethod(), secondaryPaymentMethod);
             select(card.getIssuer());
         }
@@ -144,7 +147,7 @@ public class UserSelectionService implements UserSelectionRepository {
     @Override
     public Card getCard() {
         if (card == null) {
-            card = fileManager.readParcelable(fileManager.create(FILE_SELECTED_CARD), Card.CREATOR);
+            card = fileManager.readParcelable(selectedCardFile, Card.CREATOR);
         }
         return card;
     }

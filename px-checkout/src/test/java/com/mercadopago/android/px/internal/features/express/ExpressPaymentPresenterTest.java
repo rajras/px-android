@@ -155,10 +155,10 @@ public class ExpressPaymentPresenterTest {
         when(amountConfigurationRepository.getConfigurationFor("123")).thenReturn(amountConfiguration);
 
         expressPaymentPresenter =
-            new ExpressPaymentPresenter(paymentRepository, paymentSettingRepository, disabledPaymentMethodRepository,
+            new ExpressPaymentPresenter(paymentSettingRepository, disabledPaymentMethodRepository,
                 payerCostSelectionRepository, discountRepository, amountRepository, initRepository,
                 amountConfigurationRepository, chargeRepository, escManagerBehaviour, paymentMethodDrawableItemMapper,
-                congratsRepository, experimentsRepository, payerComplianceRepository, trackingRepository,
+                experimentsRepository, payerComplianceRepository, trackingRepository,
                 mock(PaymentMethodDescriptorMapper.class), mock(CustomTextsRepository.class));
 
         verifyAttachView();
@@ -249,6 +249,5 @@ public class ExpressPaymentPresenterTest {
         verify(view).updateViewForPosition(anyInt(), anyInt(), any(SplitSelectionState.class));
         verify(view).configureAdapters(any(Site.class), any(Currency.class));
         verify(view).updatePaymentMethods(anyListOf(DrawableFragmentItem.class));
-        verify(view).updateBottomSheetStatus(false);
     }
 }

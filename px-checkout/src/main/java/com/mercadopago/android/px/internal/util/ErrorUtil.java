@@ -2,16 +2,14 @@ package com.mercadopago.android.px.internal.util;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.core.ConnectionHelper;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.ErrorActivity;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.EXTRA_ERROR;
 
@@ -71,13 +69,7 @@ public final class ErrorUtil {
         ErrorUtil.startErrorActivity(activity, mercadoPagoError);
     }
 
-    public static String getStacktraceMessage(final Exception e) {
-        final StringWriter errors = new StringWriter();
-        e.printStackTrace(new PrintWriter(errors));
-        return errors.toString();
-    }
-
-    public static boolean isErrorResult(final Intent data) {
+    public static boolean isErrorResult(@Nullable final Intent data) {
         return data != null && data.getSerializableExtra(EXTRA_ERROR) != null;
     }
 }

@@ -1,8 +1,9 @@
 package com.mercadopago.android.px.internal.di
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.mercadopago.android.px.internal.core.ConnectionHelper
+import com.mercadopago.android.px.internal.features.express.offline_methods.OfflineMethodsViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonViewModel
 
 internal class ViewModelFactory : ViewModelProvider.Factory {
@@ -14,6 +15,11 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                 ConnectionHelper.instance,
                 Session.getInstance().configurationModule.paymentSettings,
                 Session.getInstance().configurationModule.customTextsRepository) as T
+        } else if(modelClass.isAssignableFrom(OfflineMethodsViewModel::class.java)) {
+            return OfflineMethodsViewModel(Session.getInstance().initRepository,
+                Session.getInstance().configurationModule.paymentSettings,
+                Session.getInstance().amountRepository,
+                Session.getInstance().discountRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

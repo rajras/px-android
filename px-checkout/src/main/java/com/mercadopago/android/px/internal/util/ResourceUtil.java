@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.internal.util;
 
 import android.content.Context;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.R;
 
 public final class ResourceUtil {
@@ -36,7 +36,7 @@ public final class ResourceUtil {
 
     @DrawableRes
     public static int getIconResource(final Context context, @Nullable final String id) {
-        if (id != null) {
+        if (TextUtil.isNotEmpty(id)) {
             return getPaymentMethodIcon(context, id);
         } else {
             return 0;

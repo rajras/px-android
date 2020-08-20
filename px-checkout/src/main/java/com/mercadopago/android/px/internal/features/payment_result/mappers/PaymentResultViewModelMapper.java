@@ -1,8 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_result.mappers;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration;
+import com.mercadopago.android.px.internal.features.dummy_result.RedirectHelper;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultLegacyViewModel;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
@@ -14,11 +15,13 @@ public class PaymentResultViewModelMapper extends Mapper<PaymentModel, PaymentRe
 
     private final PaymentResultScreenConfiguration configuration;
     private final Instruction instruction;
+    @Nullable private final String autoReturn;
 
     public PaymentResultViewModelMapper(@NonNull final PaymentResultScreenConfiguration configuration,
-        @Nullable final Instruction instruction) {
+        @Nullable final Instruction instruction, @Nullable final String autoReturn) {
         this.configuration = configuration;
         this.instruction = instruction;
+        this.autoReturn = autoReturn;
     }
 
     @Override
@@ -30,6 +33,7 @@ public class PaymentResultViewModelMapper extends Mapper<PaymentModel, PaymentRe
             new PaymentResultHeaderModelMapper(configuration, instruction, remediesModel).map(model),
             remediesModel,
             PaymentResultFooterModelMapper.INSTANCE.map(model.getRemedies()),
-            new PaymentResultBodyModelMapper(configuration).map(model), legacyViewModel);
+            new PaymentResultBodyModelMapper(configuration).map(model), legacyViewModel,
+            RedirectHelper.INSTANCE.shouldAutoReturn(autoReturn, model.getPayment().getPaymentStatus()));
     }
 }

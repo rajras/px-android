@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.checkout;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
@@ -20,13 +20,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void showPaymentMethodSelection();
 
-        void finishWithPaymentResult();
-
-        void finishWithPaymentResult(final Integer customResultCode);
-
-        void finishWithPaymentResult(final Payment payment);
-
-        void finishWithPaymentResult(final Integer customResultCode, final Payment payment);
+        void finishWithPaymentResult(@Nullable final Integer customResultCode, @Nullable final Payment payment);
 
         void cancelCheckout();
 
@@ -42,8 +36,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void hideProgress();
 
-        void exitCheckout(final int resCode);
-
         void transitionOut();
 
         void showSavedCardFlow(final Card card);
@@ -51,6 +43,10 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
         void showNewCardFlow();
 
         void showFailureRecoveryError();
+
+        void goToLink(@NonNull final String link);
+
+        void openInWebView(@NonNull final String link);
     }
 
     /* default */ interface Actions {
@@ -66,8 +62,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void onReviewAndConfirmError(final MercadoPagoError mercadoPagoError);
 
-        void onPaymentResultResponse();
-
         void onCardFlowResponse();
 
         void onTerminalError(@NonNull final MercadoPagoError mercadoPagoError);
@@ -80,11 +74,9 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void setFailureRecovery(final FailureRecovery failureRecovery);
 
-        void onCustomPaymentResultResponse(final Integer customResultCode);
+        void onPaymentResultResponse(@Nullable final Integer customResultCode);
 
         void cancelCheckout();
-
-        void exitWithCode(final int resCode);
 
         boolean isUniquePaymentMethod();
 

@@ -1,8 +1,8 @@
 package com.mercadopago.android.px.internal.repository;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.Size;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -40,8 +40,6 @@ public interface PaymentRepository {
     @Nullable
     IPaymentDescriptor getPayment();
 
-    boolean hasPayment();
-
     boolean hasRecoverablePayment();
 
     @NonNull
@@ -49,4 +47,6 @@ public interface PaymentRepository {
 
     @NonNull
     PaymentRecovery createPaymentRecovery();
+
+    void reset();
 }

@@ -1,13 +1,11 @@
 package com.mercadopago.android.px.internal.features.payment_result.remedies
 
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
 import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.repository.*
-import com.mercadopago.android.px.internal.services.Response
-import com.mercadopago.android.px.internal.services.awaitCallback
 import com.mercadopago.android.px.internal.util.CVVRecoveryWrapper
 import com.mercadopago.android.px.internal.util.TokenCreationWrapper
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
@@ -15,7 +13,6 @@ import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.PayerCost
 import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.PaymentRecovery
-import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 import com.mercadopago.android.px.tracking.internal.events.RemedyEvent
@@ -47,7 +44,7 @@ internal class RemediesViewModel(
         val methodIds = getMethodIds()
         val customOptionId = methodIds.customOptionId
         CoroutineScope(Dispatchers.IO).launch {
-            loadInitResponse()?.let {initResponse ->
+            initRepository.loadInitResponse()?.let {initResponse ->
                 val methodData = initResponse.express.find { it.customOptionId == customOptionId }
                 val isCard = methodData?.isCard == true
                 if (isCard) {
@@ -115,12 +112,6 @@ internal class RemediesViewModel(
             }
         }
     }
-
-    private suspend fun loadInitResponse() =
-        when (val callbackResult = initRepository.init().awaitCallback<InitResponse>()) {
-            is Response.Success<*> -> callbackResult.result as InitResponse
-            is Response.Failure<*> -> null
-        }
 
     private fun startPayment(callback: PayButton.OnEnqueueResolvedCallback) {
         RemedyEvent(getRemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION)).track()
