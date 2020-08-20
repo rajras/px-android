@@ -55,10 +55,13 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gson"
     implementation "com.mercadolibre.android:ui:$meli_ui_lib"
-    implementation "com.mercadolibre.android:carddrawer:$meli_card_drawer"
+    implementation ("com.mercadolibre.android:carddrawer:$meli_card_drawer") {
+        force true
+    }
     implementation "com.mercadolibre.android.mlbusinesscomponents:mlbusinesscomponents:$mlbusinesscomponents"
     implementation("com.mercadolibre.android:cardform:$cardform") {
         exclude group:'com.mercadopago.android.px', module:'addons'
+        force true
     }
     implementation "com.mercadolibre.android:picasso-disk-cache:$picassoDiskCache"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
