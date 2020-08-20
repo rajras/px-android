@@ -1,3 +1,9 @@
+## VERSION 4.56.0
+_20_08_2020_
+* FEATURE - Migrated to AndroidX and API 29.
+* FEATURE - Autoselect offline methods when no other methods are available.
+* FEATURE - Added support to redirect_urls and back_urls from Preference item.
+
 ## VERSION 4.55.1
 _20_08_2020_
 * FIX - Consumer credit file updated with dynamic suffix
