@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.features.express.add_new_card;
+package com.mercadopago.android.px.internal.features.express.offline_methods;
 
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
@@ -7,18 +7,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mercadopago.android.px.R;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /* default */ final class OfflineMethodsAdapter extends RecyclerView.Adapter<OfflineMethodsRowHolder> {
 
-    private final List<OfflineMethodItem> offlineItems;
+    private final List<OfflineMethodItem> offlineItems = new ArrayList<>();
     private OfflineMethodsRowHolder lastHolder;
     private int lastPositionSelected = -1;
-    private OfflineMethodsFragment.OnMethodSelectedListener onMethodSelectedListener;
+    private final OfflineMethodsFragment.OnMethodSelectedListener onMethodSelectedListener;
 
-    public OfflineMethodsAdapter(@NonNull final List<OfflineMethodItem> offlineItems,
-        final OfflineMethodsFragment.OnMethodSelectedListener onMethodSelectedListener) {
-        this.offlineItems = offlineItems;
+    public OfflineMethodsAdapter(final OfflineMethodsFragment.OnMethodSelectedListener onMethodSelectedListener) {
         this.onMethodSelectedListener = onMethodSelectedListener;
     }
 
@@ -47,6 +47,12 @@ import java.util.List;
 
             onMethodSelectedListener.onItemSelected(offlineItems.get(position));
         });
+    }
+
+    public void setItems(@NonNull final Collection<OfflineMethodItem> items) {
+        offlineItems.clear();
+        offlineItems.addAll(items);
+        notifyDataSetChanged();
     }
 
     @Override

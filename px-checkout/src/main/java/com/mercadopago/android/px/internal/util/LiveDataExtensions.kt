@@ -9,3 +9,12 @@ internal fun <T> LiveData<T>.nonNullObserve(owner: LifecycleOwner, observer: (t:
         it?.let(observer)
     })
 }
+
+internal fun <T> LiveData<T>.nonNullObserveOnce(owner: LifecycleOwner, observer: (t: T) -> Unit) {
+    observe(owner, object : Observer<T> {
+        override fun onChanged(value: T?) {
+            value?.let(observer)
+            removeObserver(this)
+        }
+    })
+}

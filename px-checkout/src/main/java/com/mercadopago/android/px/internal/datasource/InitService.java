@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class InitService implements InitRepository {
+public abstract class InitService implements InitRepository {
 
     private static final int MAX_REFRESH_RETRIES = 4;
     private static final int RETRY_DELAY = 500;
@@ -169,11 +169,13 @@ public class InitService implements InitRepository {
         }
     }
 
+    @NonNull
     @Override
     public MPCall<InitResponse> refresh() {
         return callback -> init(noPostResponse()).enqueue(getRefreshCallback(callback));
     }
 
+    @NonNull
     @Override
     public MPCall<InitResponse> cleanRefresh() {
         initCache.evict();
@@ -199,6 +201,7 @@ public class InitService implements InitRepository {
         };
     }
 
+    @NonNull
     @Override
     public MPCall<InitResponse> refreshWithNewCard(@NonNull final String cardId) {
         return callback -> {

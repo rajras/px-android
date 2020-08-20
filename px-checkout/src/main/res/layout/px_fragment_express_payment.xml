@@ -89,7 +89,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             app:size="large"/>
-
     </FrameLayout>
+
+    <fragment
+        android:id="@+id/offline_methods"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.mercadopago.android.px.internal.features.express.offline_methods.OfflineMethodsFragment"
+        tools:layout="@layout/px_fragment_offline_methods" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

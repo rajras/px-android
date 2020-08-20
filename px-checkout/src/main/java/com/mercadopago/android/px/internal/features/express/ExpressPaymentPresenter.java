@@ -3,7 +3,6 @@ package com.mercadopago.android.px.internal.features.express;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
@@ -13,6 +12,7 @@ import com.mercadopago.android.px.internal.experiments.BadgeVariant;
 import com.mercadopago.android.px.internal.experiments.PulseVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
+import com.mercadopago.android.px.internal.features.express.offline_methods.OfflineMethods;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter;
 import com.mercadopago.android.px.internal.features.generic_modal.ActionType;
@@ -22,7 +22,6 @@ import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.ChargeRepository;
-import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.CustomTextsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
@@ -30,7 +29,6 @@ import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PayerComplianceRepository;
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository;
-import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
@@ -55,7 +53,6 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryViewModelMap
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
-import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.exceptions.ApiException;
@@ -87,9 +84,7 @@ import java.util.Set;
 
     private static final String BUNDLE_STATE_SPLIT_PREF = "state_split_pref";
     private static final String BUNDLE_STATE_CURRENT_PM_INDEX = "state_current_pm_index";
-    private static final String BUNDLE_STATE_OTHER_PM_CLICKABLE = "state_other_pm_clickable";
 
-    @NonNull private final PaymentRepository paymentRepository;
     @NonNull private final AmountRepository amountRepository;
     @NonNull private final DiscountRepository discountRepository;
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
@@ -97,19 +92,16 @@ import java.util.Set;
     @NonNull private final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
     @NonNull private final ChargeRepository chargeRepository;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
-    @NonNull private final CongratsRepository congratsRepository;
     @NonNull private final ExperimentsRepository experimentsRepository;
     @NonNull private final PayerComplianceRepository payerComplianceRepository;
     @NonNull private final TrackingRepository trackingRepository;
     @NonNull private final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper;
     @NonNull private final CustomTextsRepository customTextsRepository;
-    @Nullable private Runnable unattendedEvent;
     @NonNull /* default */ final InitRepository initRepository;
     private final PayerCostSelectionRepository payerCostSelectionRepository;
     private final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper;
     private SplitSelectionState splitSelectionState;
     private Set<String> cardsWithSplit;
-    private boolean otherPaymentMethodClickable = true;
     /* default */ List<ExpressMetadata> expressMetadataList; //FIXME remove.
     /* default */ Map<String, Modal> modals; //FIXME remove.
     /* default */ PayerComplianceWrapper payerCompliance; //FIXME remove.
@@ -117,8 +109,7 @@ import java.util.Set;
     /* default */ ActionTypeWrapper actionTypeWrapper;
     /* default */ TriggerableQueue triggerableQueue;
 
-    /* default */ ExpressPaymentPresenter(@NonNull final PaymentRepository paymentRepository,
-        @NonNull final PaymentSettingRepository paymentSettingRepository,
+    /* default */ ExpressPaymentPresenter(@NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final PayerCostSelectionRepository payerCostSelectionRepository,
         @NonNull final DiscountRepository discountRepository,
@@ -128,14 +119,12 @@ import java.util.Set;
         @NonNull final ChargeRepository chargeRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour,
         @NonNull final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper,
-        @NonNull final CongratsRepository congratsRepository,
         @NonNull final ExperimentsRepository experimentsRepository,
         @NonNull final PayerComplianceRepository payerComplianceRepository,
         @NonNull final TrackingRepository trackingRepository,
         @NonNull final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper,
         @NonNull final CustomTextsRepository customTextsRepository) {
 
-        this.paymentRepository = paymentRepository;
         this.paymentSettingRepository = paymentSettingRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.payerCostSelectionRepository = payerCostSelectionRepository;
@@ -146,7 +135,6 @@ import java.util.Set;
         this.chargeRepository = chargeRepository;
         this.escManagerBehaviour = escManagerBehaviour;
         this.paymentMethodDrawableItemMapper = paymentMethodDrawableItemMapper;
-        this.congratsRepository = congratsRepository;
         this.experimentsRepository = experimentsRepository;
         this.payerComplianceRepository = payerComplianceRepository;
         this.trackingRepository = trackingRepository;
@@ -192,7 +180,9 @@ import java.util.Set;
         getView().updateAdapters(model);
         updateElements();
         getView().updatePaymentMethods(paymentMethodDrawableItemMapper.map(expressMetadataList));
-        getView().updateBottomSheetStatus(!otherPaymentMethodClickable);
+        if(OfflineMethods.shouldLaunch(expressMetadataList)) {
+            getView().showOfflineMethodsCollapsed();
+        }
     }
 
     @Override
@@ -228,7 +218,6 @@ import java.util.Set;
     public void recoverFromBundle(@NonNull final Bundle bundle) {
         splitSelectionState = bundle.getParcelable(BUNDLE_STATE_SPLIT_PREF);
         paymentMethodIndex = bundle.getInt(BUNDLE_STATE_CURRENT_PM_INDEX);
-        otherPaymentMethodClickable = bundle.getBoolean(BUNDLE_STATE_OTHER_PM_CLICKABLE);
     }
 
     @NonNull
@@ -236,7 +225,6 @@ import java.util.Set;
     public Bundle storeInBundle(@NonNull final Bundle bundle) {
         bundle.putParcelable(BUNDLE_STATE_SPLIT_PREF, splitSelectionState);
         bundle.putInt(BUNDLE_STATE_CURRENT_PM_INDEX, paymentMethodIndex);
-        bundle.putBoolean(BUNDLE_STATE_OTHER_PM_CLICKABLE, otherPaymentMethodClickable);
         return bundle;
     }
 
@@ -415,28 +403,8 @@ import java.util.Set;
     }
 
     @Override
-    public void onOtherPaymentMethodClicked(@NonNull final OfflinePaymentTypesMetadata offlineMethods) {
-        final Runnable event = () -> getView().showOfflineMethods(offlineMethods);
-        if (otherPaymentMethodClickable) {
-            event.run();
-        } else {
-            unattendedEvent = event;
-        }
-    }
-
-    @Override
-    public void onOtherPaymentMethodClickableStateChanged(final boolean state) {
-        otherPaymentMethodClickable = state;
-        if (otherPaymentMethodClickable) {
-            executeUnattendedEvent();
-        }
-    }
-
-    private void executeUnattendedEvent() {
-        if (unattendedEvent != null) {
-            unattendedEvent.run();
-            unattendedEvent = null;
-        }
+    public void onOtherPaymentMethodClicked() {
+        getView().showOfflineMethodsExpanded();
     }
 
     @Override

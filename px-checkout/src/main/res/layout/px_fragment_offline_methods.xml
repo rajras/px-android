@@ -2,110 +2,112 @@
 <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/offline_methods"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tool="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.mercadopago.android.px.internal.view.ToolbarCancel
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/px_toolbar_height"
         android:background="@color/px_colorPrimary"
-        android:paddingBottom="@dimen/px_s_margin"
-        android:paddingEnd="@dimen/px_s_margin"
-        android:paddingStart="@dimen/px_xs_margin"
-        android:paddingTop="@dimen/px_s_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="@string/px_label_close"
-            android:layout_weight="0.05"
-            android:tint="@color/px_toolbar_text"
-            android:src="@drawable/ic_close" />
+        android:visibility="invisible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/coordinator"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="visible">
 
         <com.mercadopago.android.px.internal.view.MPTextView
             android:id="@+id/total_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.95"
-            android:gravity="end"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/px_s_margin"
             android:textColor="@color/px_expressCheckoutTextColor"
             android:textSize="@dimen/px_l_text"
-            tool:text="Total $ 10.000" />
-    </LinearLayout>
+            tools:text="Total $ 10.000" />
+    </com.mercadopago.android.px.internal.view.ToolbarCancel>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/px_top_rounded_container">
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/methods"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/offline_methods_bottom_sheet"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_goneMarginBottom="@dimen/ui_3m"
-            app:layout_constraintBottom_toTopOf="@id/bottom_description"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <FrameLayout
-            android:id="@+id/pan_indicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/px_m_margin"
-            android:paddingEnd="@dimen/px_m_margin"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent"
+            android:background="@drawable/px_top_rounded_container"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <View
-                android:layout_width="32dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_horizontal"
+                android:id="@+id/pan_indicator"
+                android:layout_width="@dimen/ui_4m"
+                android:layout_height="@dimen/ui_050m"
                 android:layout_marginTop="@dimen/px_s_margin"
-                android:background="@drawable/px_short_line_rounded" />
-        </FrameLayout>
+                android:background="@drawable/px_short_line_rounded"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/methods"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/fake_footer"/>
+
+            <View
+                android:id="@+id/fake_footer"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/ui_2m"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_sheet_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/px_white"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible">
 
         <View
+            android:id="@+id/shadow"
             android:layout_width="match_parent"
             android:layout_height="5dp"
+            android:background="@drawable/shadow_top"
             app:layout_goneMarginBottom="@dimen/ui_3m"
-            app:layout_constraintBottom_toTopOf="@id/bottom_description"
-            android:background="@drawable/shadow_top">
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_description">
         </View>
 
         <com.mercadopago.android.px.internal.view.MPTextView
             android:id="@+id/bottom_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/ui_2m"
-            android:paddingHorizontal="@dimen/ui_3m"
-            app:layout_constraintBottom_toTopOf="@id/pay_button"
+            android:layout_marginVertical="@dimen/ui_2m"
+            android:layout_marginHorizontal="@dimen/ui_3m"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tool:text="Procesado por Mercado Pago Estándar"/>
+            app:layout_constraintTop_toBottomOf="@id/shadow"
+            app:layout_constraintBottom_toTopOf="@id/pay_button"
+            tools:text="Procesado por Mercado Pago Estándar"/>
 
         <fragment
-            tool:layout="@layout/fragment_pay_button"
             android:name="com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment"
             android:id="@+id/pay_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/ui_3m"
             android:layout_marginHorizontal="@dimen/ui_3m"
+            app:layout_constraintTop_toBottomOf="@id/bottom_description"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            tools:layout="@layout/fragment_pay_button" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <FrameLayout
-        android:id="@+id/exploding_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

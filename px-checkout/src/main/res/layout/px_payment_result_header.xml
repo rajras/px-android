@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/px_toolbar_height"
         android:layout_marginStart="@dimen/px_xs_margin"
-        android:layout_marginLeft="@dimen/px_xs_margin"
         android:theme="@style/ToolbarTransparentTheme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

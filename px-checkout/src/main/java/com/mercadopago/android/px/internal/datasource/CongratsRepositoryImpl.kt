@@ -6,8 +6,6 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.Reme
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
 import com.mercadopago.android.px.internal.services.CongratsService
-import com.mercadopago.android.px.internal.services.Response
-import com.mercadopago.android.px.internal.services.awaitCallback
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.util.StatusHelper
 import com.mercadopago.android.px.internal.util.TextUtil
@@ -89,15 +87,9 @@ class CongratsRepositoryImpl(
                 }
             }.filter { !disabledPaymentMethodRepository.hasPaymentMethodId(it.second) }
 
-    private suspend fun loadInitResponse() =
-        when (val callbackResult = initService.init().awaitCallback<InitResponse>()) {
-            is Response.Success<*> -> callbackResult.result as InitResponse
-            is Response.Failure<*> -> null
-        }
-
     private suspend fun getRemedies(payment: IPaymentDescriptor, paymentData: PaymentData) =
         try {
-            val initResponse = loadInitResponse()
+            val initResponse = initService.loadInitResponse()
             val payerPaymentMethods = getPayerPaymentMethods(initResponse)
             val hasOneTap = initResponse?.hasExpressCheckoutMetadata() ?: false
             val customOptionId = paymentData.token?.cardId ?: paymentData.paymentMethod.id

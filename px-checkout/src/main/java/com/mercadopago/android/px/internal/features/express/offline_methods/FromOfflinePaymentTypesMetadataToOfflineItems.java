@@ -1,11 +1,10 @@
-package com.mercadopago.android.px.internal.features.express.add_new_card;
+package com.mercadopago.android.px.internal.features.express.offline_methods;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.util.ResourceUtil;
 import com.mercadopago.android.px.model.OfflinePaymentMethod;
 import com.mercadopago.android.px.model.OfflinePaymentType;
-import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +21,10 @@ import static com.mercadopago.android.px.internal.util.TextUtil.isNotEmpty;
     }
 
     @NonNull
-    public List<OfflineMethodItem> map(@NonNull final OfflinePaymentTypesMetadata metadata) {
+    public List<OfflineMethodItem> map(@NonNull final List<OfflinePaymentType> offlinePaymentTypes) {
         final List<OfflineMethodItem> offlineMethodItems = new ArrayList<>();
 
-        for (final OfflinePaymentType offlinePaymentType : metadata.getPaymentTypes()) {
+        for (final OfflinePaymentType offlinePaymentType : offlinePaymentTypes) {
             offlineMethodItems.add(new OfflineMethodItem(offlinePaymentType.getName()));
             for (final OfflinePaymentMethod offlinePaymentMethod : offlinePaymentType.getPaymentMethods()) {
                 if (offlinePaymentMethod.getStatus().isEnabled()) {

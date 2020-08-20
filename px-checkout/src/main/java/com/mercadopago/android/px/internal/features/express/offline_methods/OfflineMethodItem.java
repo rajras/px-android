@@ -1,10 +1,10 @@
-package com.mercadopago.android.px.internal.features.express.add_new_card;
+package com.mercadopago.android.px.internal.features.express.offline_methods;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.model.internal.Text;
 
-/* default */ final class OfflineMethodItem {
+public final class OfflineMethodItem {
 
     @NonNull private final Text name;
     @Nullable private String paymentMethodId;

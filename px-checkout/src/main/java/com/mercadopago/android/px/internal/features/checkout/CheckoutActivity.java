@@ -152,11 +152,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         if (fragmentManager != null) {
             final int backStackEntryCount = fragmentManager.getBackStackEntryCount();
 
-            if(earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_OFFLINE_METHODS_FRAGMENT))) {
-                return;
-            }
-
-            Fragment fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
+            final Fragment fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
             if (fragment != null && fragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
                 fragment.getChildFragmentManager().popBackStack();
                 return;
