@@ -20,7 +20,10 @@ internal class OfflineMethodsAdapter(private val onMethodSelectedListener: Offli
     }
 
     override fun onBindViewHolder(holder: OfflineMethodsRowHolder, position: Int) {
-        holder.setChecked(lastPositionSelected >= 0 && lastPositionSelected == position)
+        if(lastPositionSelected >= 0 && lastPositionSelected == position) {
+            holder.setChecked(true)
+            lastHolder = holder
+        }
         holder.populate(offlineItems[position], object : OnItemClicked {
             override fun onClick() {
                 lastHolder?.setChecked(false)
