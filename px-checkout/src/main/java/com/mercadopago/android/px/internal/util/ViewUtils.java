@@ -89,7 +89,7 @@ public final class ViewUtils {
                 .load(imgUrl)
                 .into(logo, callback);
         } else {
-            callback.onError(null);
+            callback.onError();
         }
     }
 

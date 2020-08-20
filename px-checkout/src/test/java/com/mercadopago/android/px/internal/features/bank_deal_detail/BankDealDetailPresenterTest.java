@@ -51,7 +51,7 @@ public class BankDealDetailPresenterTest {
 
     @Test
     public void whenGetViewCallbackOnErrorThenHideLogo(){
-        presenter.onError(null);
+        presenter.onError();
 
         verify(view).hideLogo();
         verifyNoMoreInteractions(view);
