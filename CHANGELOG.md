@@ -1,3 +1,7 @@
+## VERSION 4.55.1
+_20_08_2020_
+* FIX - Consumer credit file updated with dynamic suffix
+
 ## VERSION 4.55.0
 _13_08_2020_
 * FEATURE - Added support to shrink strict mode
