@@ -36,7 +36,7 @@ public final class ResourceUtil {
 
     @DrawableRes
     public static int getIconResource(final Context context, @Nullable final String id) {
-        if (id != null) {
+        if (TextUtil.isNotEmpty(id)) {
             return getPaymentMethodIcon(context, id);
         } else {
             return 0;

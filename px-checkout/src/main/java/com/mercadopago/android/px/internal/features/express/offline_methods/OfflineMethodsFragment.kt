@@ -85,7 +85,7 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
         ViewUtils.loadOrHide(View.GONE, Text.EMPTY, bottomDescription)
         fakeFooter.layoutParams.height = footer.height
         updateTotalView(model.amountLocalized)
-        adapter.setItems(FromOfflinePaymentTypesMetadataToOfflineItems(context).map(model.offlinePaymentTypes))
+        adapter.setItems(FromOfflinePaymentTypesMetadataToOfflineItems.map(model.offlinePaymentTypes))
     }
 
     private fun configureBottomSheet() {
@@ -126,7 +126,7 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
             decoration.setDrawable(ContextCompat.getDrawable(it, R.drawable.px_item_decorator_divider)!!)
             recycler.addItemDecoration(decoration)
         }
-        adapter = OfflineMethodsAdapter(object : OnMethodSelectedListener {
+        adapter = OfflineMethodsAdapter(object : OfflineMethods.OnMethodSelectedListener {
             override fun onItemSelected(selectedItem: OfflineMethodItem) {
                 viewModel.onMethodSelected(selectedItem)
                 payButtonFragment.enable()
@@ -209,10 +209,6 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
         super.onDetach()
         fadeInAnimation = null
         fadeOutAnimation = null
-    }
-
-    internal interface OnMethodSelectedListener {
-        fun onItemSelected(selectedItem: OfflineMethodItem)
     }
 
     companion object {

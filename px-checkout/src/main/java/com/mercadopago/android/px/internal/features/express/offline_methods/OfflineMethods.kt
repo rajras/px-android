@@ -8,7 +8,7 @@ import com.mercadopago.android.px.model.ExpressMetadata
 import com.mercadopago.android.px.model.OfflinePaymentType
 import com.mercadopago.android.px.model.internal.Text
 
-interface OfflineMethods {
+internal interface OfflineMethods {
 
     interface View : PayButton.Handler {
         fun showExpanded()
@@ -22,6 +22,10 @@ interface OfflineMethods {
         fun onPrePayment(callback: PayButton.OnReadyForPaymentCallback)
         fun onBack()
         fun getObservableDeepLink(): LiveData<Event<String>>
+    }
+
+    interface OnMethodSelectedListener {
+        fun onItemSelected(selectedItem: OfflineMethodItem)
     }
 
     data class Model(

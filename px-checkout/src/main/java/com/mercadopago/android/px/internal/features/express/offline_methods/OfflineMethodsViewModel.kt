@@ -23,7 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class OfflineMethodsViewModel(private val initRepository: InitRepository,
+internal class OfflineMethodsViewModel(private val initRepository: InitRepository,
     private val paymentSettingRepository: PaymentSettingRepository,
     private val amountRepository: AmountRepository,
     private val discountRepository: DiscountRepository) : BaseViewModel(), OfflineMethods.ViewModel {
@@ -66,12 +66,13 @@ class OfflineMethodsViewModel(private val initRepository: InitRepository,
             payerCompliance?.let {
                 if (item.isAdditionalInfoNeeded && it.isCompliant) {
                     completePayerInformation(it.sensitiveInformation)
-                    requireCurrentConfiguration(item, callback)
                 } else if (item.isAdditionalInfoNeeded) {
                     KnowYourCustomerFlowEvent(viewTracker).track()
                     observableDeepLink.value = Event(it.turnComplianceDeepLink)
+                    return
                 }
             }
+            requireCurrentConfiguration(item, callback)
         }
     }
 
