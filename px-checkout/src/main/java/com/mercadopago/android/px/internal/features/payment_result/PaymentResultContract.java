@@ -41,5 +41,9 @@ public interface PaymentResultContract {
         void onFreshStart();
 
         void onAbort();
+
+        void onStart();
+
+        void onStop();
     }
 }

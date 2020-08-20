@@ -27,5 +27,9 @@ import com.mercadopago.android.px.model.ExitAction;
         void onFreshStart();
 
         void onAbort();
+
+        void onStart();
+
+        void onStop();
     }
 }

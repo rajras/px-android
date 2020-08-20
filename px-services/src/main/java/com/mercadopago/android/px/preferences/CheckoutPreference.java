@@ -77,6 +77,12 @@ public class CheckoutPreference implements Serializable {
 
     @Nullable private final Long merchantOrderId;
 
+    @Nullable private final PostPaymentUrls backUrls;
+
+    @Nullable private final PostPaymentUrls redirectUrls;
+
+    @Nullable private final String autoReturn;
+
     @SerializedName("binary_mode")
     private boolean isBinaryMode = false;
     //endregion support external integrations
@@ -100,6 +106,9 @@ public class CheckoutPreference implements Serializable {
         collectorId = null;
         orderId = null;
         merchantOrderId = null;
+        backUrls = null;
+        redirectUrls = null;
+        autoReturn = null;
 
         branchId = builder.branchId;
         paymentPreference = new PaymentPreference();
@@ -267,6 +276,21 @@ public class CheckoutPreference implements Serializable {
     @Nullable
     public Long getMerchantOrderId() {
         return merchantOrderId;
+    }
+
+    @Nullable
+    public PostPaymentUrls getBackUrls() {
+        return backUrls;
+    }
+
+    @Nullable
+    public PostPaymentUrls getRedirectUrls() {
+        return redirectUrls;
+    }
+
+    @Nullable
+    public String getAutoReturn() {
+        return autoReturn;
     }
 
     @NonNull
