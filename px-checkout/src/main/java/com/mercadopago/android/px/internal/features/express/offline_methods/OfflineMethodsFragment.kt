@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -83,7 +84,8 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
 
     private fun draw(model: OfflineMethods.Model) {
         ViewUtils.loadOrHide(View.GONE, Text.EMPTY, bottomDescription)
-        fakeFooter.layoutParams.height = footer.height
+        footer.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
+        fakeFooter.layoutParams.height = footer.measuredHeight
         updateTotalView(model.amountLocalized)
         adapter.setItems(FromOfflinePaymentTypesMetadataToOfflineItems.map(model.offlinePaymentTypes))
     }
