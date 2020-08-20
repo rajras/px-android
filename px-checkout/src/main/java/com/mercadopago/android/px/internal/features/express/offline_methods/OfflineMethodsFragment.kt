@@ -84,8 +84,7 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
 
     private fun draw(model: OfflineMethods.Model) {
         ViewUtils.loadOrHide(View.GONE, Text.EMPTY, bottomDescription)
-        footer.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
-        fakeFooter.layoutParams.height = footer.measuredHeight
+        footer.post { fakeFooter.layoutParams.height = footer.height }
         updateTotalView(model.amountLocalized)
         adapter.setItems(FromOfflinePaymentTypesMetadataToOfflineItems.map(model.offlinePaymentTypes))
     }
