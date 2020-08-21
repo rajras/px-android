@@ -1,3 +1,7 @@
+## VERSION 4.56.1
+_21_08_2020_
+* FIX - bottom sheet fake footer height adjustment
+
 ## VERSION 4.56.0
 _20_08_2020_
 * FEATURE - Migrated to AndroidX and API 29.
