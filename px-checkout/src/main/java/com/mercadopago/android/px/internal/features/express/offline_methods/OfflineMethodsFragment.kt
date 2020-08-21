@@ -8,7 +8,6 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -22,7 +21,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.core.BackHandler
 import com.mercadopago.android.px.internal.di.Session
+import com.mercadopago.android.px.internal.extensions.addOnLaidOutListener
 import com.mercadopago.android.px.internal.extensions.invisible
+import com.mercadopago.android.px.internal.extensions.setHeight
 import com.mercadopago.android.px.internal.extensions.visible
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
@@ -33,7 +34,6 @@ import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.util.nonNullObserveOnce
 import com.mercadopago.android.px.internal.view.MPTextView
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized
-import com.mercadopago.android.px.model.internal.Text
 
 class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
     private var fadeInAnimation: Animation? = null
@@ -83,8 +83,8 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
     }
 
     private fun draw(model: OfflineMethods.Model) {
-        ViewUtils.loadOrHide(View.GONE, Text.EMPTY, bottomDescription)
-        footer.post { fakeFooter.layoutParams.height = footer.height }
+        ViewUtils.loadOrHide(View.GONE, model.bottomDescription, bottomDescription)
+        footer.addOnLaidOutListener { view -> fakeFooter.setHeight(view.height) }
         updateTotalView(model.amountLocalized)
         adapter.setItems(FromOfflinePaymentTypesMetadataToOfflineItems.map(model.offlinePaymentTypes))
     }
@@ -97,7 +97,7 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
             override fun onStateChanged(view: View, state: Int) {}
             override fun onSlide(view: View, offset: Float) {
                 header.alpha = if (offset >= 0) offset else 0f
-                footer.alpha = if (offset >= 0) 1f else if (offset <= -0.5) 0f else 1 + offset*2
+                footer.alpha = if (offset >= 0) 1f else if (offset <= -0.5) 0f else 1 + offset * 2
                 header.alpha.takeIf { it == 0f }?.run { header.invisible() } ?: run { header.visible() }
                 footer.alpha.takeIf { it == 0f }?.run { footer.invisible() } ?: run { footer.visible() }
             }
