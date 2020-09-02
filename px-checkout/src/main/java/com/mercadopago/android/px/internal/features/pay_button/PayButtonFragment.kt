@@ -21,6 +21,7 @@ import com.mercadopago.android.px.addons.BehaviourProvider
 import com.mercadopago.android.px.addons.internal.SecurityValidationHandler
 import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.di.Session
+import com.mercadopago.android.px.internal.extensions.orIfEmpty
 import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.SecurityCodeActivity
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity
@@ -35,7 +36,6 @@ import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.PaymentRecovery
-import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
@@ -99,7 +99,7 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
             is UIProgress.ButtonLoadingFinished -> finishLoading(stateUI.explodeDecorator)
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
-            is UIError.ConnectionError -> showSnackBar(stateUI.error)
+            is UIError.ConnectionError -> showSnackBar(stateUI.message)
             is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
             is UIResult.BusinessPaymentResult ->
                 BusinessPaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
@@ -128,9 +128,11 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
     }
 
     @SuppressLint("Range")
-    private fun showSnackBar(error: MercadoPagoError) {
+    private fun showSnackBar(error: String) {
         view?.let {
-            AndesSnackbar(it.context, it, AndesSnackbarType.ERROR, error.message, AndesSnackbarDuration.LONG).show()
+            it.context?.let { context ->
+                AndesSnackbar(context, it, AndesSnackbarType.ERROR, error.orIfEmpty(context.getString(R.string.px_error_title)), AndesSnackbarDuration.LONG).show()
+            }
         }
     }
 
