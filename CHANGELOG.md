@@ -1,3 +1,7 @@
+## VERSION 4.57.1
+_27_08_2020_
+* FIX - Message for Snackbar is null.
+
 ## VERSION 4.57.0
 _27_08_2020_
 * FEATURE - Added AndesUI lib snackbar.
