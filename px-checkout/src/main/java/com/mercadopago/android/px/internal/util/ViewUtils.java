@@ -371,16 +371,20 @@ public final class ViewUtils {
         }
     }
 
-    public static void runWhenViewIsFullyMeasured(@NonNull final View view, @NonNull final Runnable runnable) {
-        if (ViewCompat.isLaidOut(view)) {
+    public static void runWhenViewIsAttachedToWindow(final View view, final Runnable runnable) {
+        if (view.isAttachedToWindow()) {
             runnable.run();
         } else {
-            view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
-                public void onLayoutChange(final View v, final int left, final int top, final int right,
-                    final int bottom, final int oldLeft, final int oldTop, final int oldRight, final int oldBottom) {
-                    view.removeOnLayoutChangeListener(this);
+                public void onViewAttachedToWindow(final View v) {
                     runnable.run();
+                    v.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(final View v) {
+
                 }
             });
         }
