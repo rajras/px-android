@@ -36,8 +36,6 @@ public interface PaymentRepository {
     @Nullable
     IPaymentDescriptor getPayment();
 
-    boolean hasRecoverablePayment();
-
     @NonNull
     PaymentRecovery createRecoveryForInvalidESC();
 
