@@ -2,16 +2,16 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import androidx.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.mercadolibre.android.andesui.snackbar.AndesSnackbar
 import com.mercadolibre.android.andesui.snackbar.duration.AndesSnackbarDuration
 import com.mercadolibre.android.andesui.snackbar.type.AndesSnackbarType
@@ -198,9 +198,8 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
                     FrictionEventTracker.with("/px_checkout/pay_button_loading", FrictionEventTracker.Id.GENERIC,
                         FrictionEventTracker.Style.SCREEN, emptyMap<String, String>())
                 } else {
-                    val explodeParams = ExplodingFragment.getParams(button, buttonConfig.getButtonProgressText(it),
-                        paymentTimeout)
-                    val explodingFragment = ExplodingFragment.newInstance(explodeParams)
+                    val explodingFragment = ExplodingFragment.newInstance(
+                        buttonConfig.getButtonProgressText(it), paymentTimeout)
                     childFragmentManager.beginTransaction()
                         .add(R.id.exploding_frame, explodingFragment, ExplodingFragment.TAG)
                         .commitNowAllowingStateLoss()
@@ -250,6 +249,8 @@ class PayButtonFragment : Fragment(), PayButton.View, SecurityValidationHandler 
     override fun isExploding(): Boolean {
         return FragmentUtil.isFragmentVisible(childFragmentManager, ExplodingFragment.TAG)
     }
+
+    override fun getParentView() = button
 
     companion object {
         const val TAG = "TAG_BUTTON_FRAGMENT"
