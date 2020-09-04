@@ -44,6 +44,13 @@ public class AmountService implements AmountRepository {
             .subtract(getDiscountAmount(discountModel));
     }
 
+    @NonNull
+    @Override
+    public BigDecimal getAmountToPay(@NonNull final String paymentTypeId,
+        @NonNull final BigDecimal discountAmount) {
+        return getItemsPlusCharges(paymentTypeId).subtract(discountAmount);
+    }
+
     @Override
     @NonNull
     public BigDecimal getItemsAmount() {

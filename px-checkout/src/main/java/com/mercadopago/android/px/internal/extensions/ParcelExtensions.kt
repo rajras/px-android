@@ -12,15 +12,19 @@ internal fun Parcel.readDate(): Date? {
 }
 
 internal fun Parcel.writeBigDecimal(value: BigDecimal?) = value?.let {
-    writeByte(1.toByte())
+    writeBool(true)
     writeString(it.toString())
-} ?: writeByte(0.toByte())
+} ?: writeBool(false)
 
-internal fun Parcel.readBigDecimal() = if (readByte().toInt() == 0) null else BigDecimal(readString())
+internal fun Parcel.readBigDecimal() = if (readBool()) BigDecimal(readString()) else null
 
-internal fun Parcel.writeNullableInt(value: Int?) = value?.let {
-    writeByte(1.toByte())
+internal fun Parcel.writeOptionalInt(value: Int?) = value?.let {
+    writeBool(true)
     writeInt(it)
-} ?: writeByte(0.toByte())
+} ?: writeBool(false)
 
-internal fun Parcel.readNullableInt() = if (readByte().toInt() == 0) null else readInt()
+internal fun Parcel.readOptionalInt() = if (readBool()) readInt() else null
+
+internal fun Parcel.readBool() = readByte() != 0.toByte()
+
+internal fun Parcel.writeBool(value: Boolean) = writeByte(if (value) 1 else 0)

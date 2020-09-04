@@ -2,6 +2,8 @@ package com.mercadopago.android.px.internal.viewmodel.mappers;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.mercadopago.android.px.internal.features.express.DiscountModel;
+import com.mercadopago.android.px.internal.features.express.OneTapModel;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.ChargeRepository;
@@ -15,16 +17,13 @@ import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDefaultColor;
 import com.mercadopago.android.px.internal.viewmodel.TotalLocalized;
-import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
-import com.mercadopago.android.px.model.internal.ExpressPaymentMethod;
 import com.mercadopago.android.px.model.internal.SummaryInfo;
 import java.util.List;
 import java.util.Objects;
 
-public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod, SummaryView.Model,
+public class SummaryViewModelMapper extends CacheableMapper<OneTapModel, SummaryView.Model,
     SummaryViewModelMapper.Key> {
 
     @NonNull private final Currency currency;
@@ -57,60 +56,51 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
 
     @Override
     protected Key getKey(
-        @NonNull final ExpressPaymentMethod expressPaymentMethod) {
+        @NonNull final OneTapModel oneTapModel) {
         final PaymentTypeChargeRule chargeRule =
-            chargeRepository.getChargeRule(expressPaymentMethod.getPaymentTypeId());
-        final AmountConfiguration amountConfiguration = getAmountConfiguration(expressPaymentMethod);
-        final boolean hasSplit = amountConfiguration != null && amountConfiguration.allowSplit();
-
-        return new Key(discountRepository.getConfigurationFor(expressPaymentMethod.getCustomOptionId()),
-            chargeRule, hasSplit);
+            chargeRepository.getChargeRule(oneTapModel.getPaymentTypeId());
+        return new Key(oneTapModel.getDiscountModel(), chargeRule, oneTapModel.getHasSplit());
     }
 
     @Override
-    public SummaryView.Model map(@NonNull final ExpressPaymentMethod expressPaymentMethod) {
-        return createModel(expressPaymentMethod.getPaymentTypeId(),
-            discountRepository.getConfigurationFor(expressPaymentMethod.getCustomOptionId()),
-            getAmountConfiguration(expressPaymentMethod));
-    }
-
-    @Nullable
-    private AmountConfiguration getAmountConfiguration(@NonNull final ExpressPaymentMethod expressPaymentMethod) {
-        return amountConfigurationRepository.getConfigurationFor(expressPaymentMethod.getCustomOptionId());
+    public SummaryView.Model map(@NonNull final OneTapModel oneTapModel) {
+        return createModel(oneTapModel.getPaymentTypeId(), oneTapModel.getDiscountModel(),
+            oneTapModel.getHasSplit());
     }
 
     @NonNull
     private SummaryView.Model createModel(@NonNull final String paymentTypeId,
-        @NonNull final DiscountConfigurationModel discountModel,
-        @Nullable final AmountConfiguration amountConfiguration) {
+        @NonNull final DiscountModel discountModel, final boolean hasSplit) {
         final PaymentTypeChargeRule chargeRule = chargeRepository.getChargeRule(paymentTypeId);
         final List<AmountDescriptorView.Model> summaryDetailList =
             new SummaryDetailDescriptorFactory(listener, discountModel, amountRepository, summaryInfo, currency,
-                chargeRule, amountConfiguration).create();
+                chargeRule, hasSplit).create();
 
         final AmountDescriptorView.Model totalRow = new AmountDescriptorView.Model(
             new TotalLocalized(customTextsRepository),
-            new AmountLocalized(amountRepository.getAmountToPay(paymentTypeId, discountModel), currency),
+            new AmountLocalized(amountRepository.getAmountToPay(paymentTypeId, discountModel.getDiscountAmount()),
+                currency),
             new SummaryViewDefaultColor());
 
         return new SummaryView.Model(elementDescriptorModel, summaryDetailList, totalRow);
     }
 
     static final class Key {
-        private final DiscountConfigurationModel discountConfigurationModel;
+        private final DiscountModel discountModel;
         private final PaymentTypeChargeRule paymentTypeChargeRule;
         private final Boolean hasSplit;
 
-        Key(@NonNull final DiscountConfigurationModel discountConfigurationModel,
+        Key(@NonNull final DiscountModel discountModel,
             final PaymentTypeChargeRule paymentTypeChargeRule, final boolean hasSplit) {
-            this.discountConfigurationModel = discountConfigurationModel;
-            this.paymentTypeChargeRule = ChargeRuleHelper.isHighlightCharge(paymentTypeChargeRule) ? null : paymentTypeChargeRule;
+            this.discountModel = discountModel;
+            this.paymentTypeChargeRule =
+                ChargeRuleHelper.isHighlightCharge(paymentTypeChargeRule) ? null : paymentTypeChargeRule;
             this.hasSplit = hasSplit;
         }
 
         @Override
         public int hashCode() {
-            return (discountConfigurationModel == null ? 0 : discountConfigurationModel.hashCode()) ^
+            return (discountModel == null ? 0 : discountModel.hashCode()) ^
                 (paymentTypeChargeRule == null ? 0 : paymentTypeChargeRule.hashCode()) ^
                 (hasSplit == null ? 0 : hasSplit.hashCode());
         }
@@ -120,8 +110,9 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
             if (!(obj instanceof Key)) {
                 return false;
             }
-            Key k = (Key) obj;
-            return Objects.equals(k.discountConfigurationModel, discountConfigurationModel) && Objects.equals(k.paymentTypeChargeRule, paymentTypeChargeRule)
+            final Key k = (Key) obj;
+            return Objects.equals(k.discountModel, discountModel) &&
+                Objects.equals(k.paymentTypeChargeRule, paymentTypeChargeRule)
                 && Objects.equals(k.hasSplit, hasSplit);
         }
     }

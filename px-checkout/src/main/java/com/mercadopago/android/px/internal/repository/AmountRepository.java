@@ -27,6 +27,10 @@ public interface AmountRepository {
     @NonNull
     BigDecimal getAmountToPay(@NonNull String paymentTypeId, @NonNull DiscountConfigurationModel discountModel);
 
+    @NonNull
+    BigDecimal getAmountToPay(@NonNull String paymentTypeId,
+        @NonNull BigDecimal discountAmount);
+
     /**
      * Partial amount to pay - No charges, discounts or payer costs applied
      *

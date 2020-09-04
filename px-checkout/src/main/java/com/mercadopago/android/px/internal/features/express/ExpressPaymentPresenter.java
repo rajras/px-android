@@ -51,7 +51,6 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.SplitHeaderMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryInfoMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryViewModelMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
@@ -102,7 +101,8 @@ import java.util.Set;
     private final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper;
     private SplitSelectionState splitSelectionState;
     private Set<String> cardsWithSplit;
-    /* default */ List<ExpressMetadata> expressMetadataList; //FIXME remove.
+    ///* default */ List<ExpressMetadata> expressMetadataList; //FIXME remove.
+    /* default */ List<OneTapModel> oneTapModelList;
     /* default */ Map<String, Modal> modals; //FIXME remove.
     /* default */ PayerComplianceWrapper payerCompliance; //FIXME remove.
     /* default */ int paymentMethodIndex;
@@ -159,7 +159,7 @@ import java.util.Set;
         final List<SummaryView.Model> summaryModels =
             new SummaryViewModelMapper(paymentSettingRepository.getCurrency(), discountRepository, amountRepository,
                 elementDescriptorModel, this, summaryInfo, chargeRepository, amountConfigurationRepository,
-                customTextsRepository).map(new ArrayList<>(expressMetadataList));
+                customTextsRepository).map(new ArrayList<>(oneTapModelList));
 
         final List<PaymentMethodDescriptorView.Model> paymentModels =
             paymentMethodDescriptorMapper.map(expressMetadataList);
@@ -329,7 +329,7 @@ import java.util.Set;
     }
 
     @Override
-    public void onDiscountAmountDescriptorClicked(@NonNull final DiscountConfigurationModel discountModel) {
+    public void onDiscountAmountDescriptorClicked(@NonNull final DiscountModel discountModel) {
         getView().showDiscountDetailDialog(paymentSettingRepository.getCurrency(), discountModel);
     }
 

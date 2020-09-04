@@ -5,10 +5,10 @@ import com.mercadopago.android.px.tracking.internal.TrackFactory
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.model.DiscountInfo
 
-class AppliedDiscountViewTracker(private val discountModel: DiscountConfigurationModel) : TrackWrapper() {
+class AppliedDiscountViewTracker(private val discountInfo: DiscountInfo?) : TrackWrapper() {
 
     private val data = mutableMapOf<String, Any?>().also {
-        DiscountInfo.with(discountModel.discount, discountModel.campaign, discountModel.isAvailable)?.let { info ->
+        discountInfo?.let { info ->
             it["discount"] = info.toMap()
         }
     }

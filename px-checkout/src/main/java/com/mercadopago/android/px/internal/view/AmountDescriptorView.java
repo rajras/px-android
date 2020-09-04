@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.mercadolibre.android.picassodiskcache.PicassoDiskLoader;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
+import com.mercadopago.android.px.internal.features.express.DiscountModel;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
@@ -25,7 +26,6 @@ import com.mercadopago.android.px.internal.viewmodel.EmptyLocalized;
 import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.IDetailDrawable;
 import com.mercadopago.android.px.internal.viewmodel.ILocalizedCharSequence;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.internal.Text;
 
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
@@ -61,7 +61,7 @@ public class AmountDescriptorView extends ConstraintLayout {
     }
 
     public interface OnClickListener {
-        void onDiscountAmountDescriptorClicked(@NonNull final DiscountConfigurationModel discountModel);
+        void onDiscountAmountDescriptorClicked(@NonNull final DiscountModel discountModel);
 
         void onChargesAmountDescriptorClicked(@NonNull final DynamicDialogCreator dynamicDialogCreator);
     }

@@ -63,7 +63,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
@@ -84,7 +83,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     TitlePagerAdapter.InstallmentChanged, PayButton.Handler, GenericDialog.Listener, BackHandler {
 
     private static final String TAG = ExpressPaymentFragment.class.getSimpleName();
-    public static final String TAG_OFFLINE_METHODS_FRAGMENT = "TAG_OFFLINE_METHODS_FRAGMENT";
     private static final String TAG_HEADER_DYNAMIC_DIALOG = "TAG_HEADER_DYNAMIC_DIALOG";
     private static final String EXTRA_RENDER_MODE = "render_mode";
 
@@ -472,7 +470,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void showDiscountDetailDialog(@NonNull final Currency currency,
-        @NonNull final DiscountConfigurationModel discountModel) {
+        @NonNull final DiscountModel discountModel) {
         DiscountDetailDialog.showDialog(getChildFragmentManager(), discountModel);
     }
 

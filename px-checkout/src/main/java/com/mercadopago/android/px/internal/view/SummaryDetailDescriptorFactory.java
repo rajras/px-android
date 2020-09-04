@@ -2,8 +2,10 @@ package com.mercadopago.android.px.internal.view;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.mercadopago.android.px.internal.features.express.DiscountModel;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.util.ChargeRuleHelper;
+import com.mercadopago.android.px.internal.viewmodel.AmountDescriptor;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.ChargeLocalized;
 import com.mercadopago.android.px.internal.viewmodel.DiscountDetailColor;
@@ -25,24 +27,24 @@ import java.util.List;
 public class SummaryDetailDescriptorFactory {
 
     @NonNull private final AmountDescriptorView.OnClickListener listener;
-    @NonNull private final DiscountConfigurationModel discountModel;
+    @NonNull private final DiscountModel discountModel;
     @NonNull private final AmountRepository amountRepository;
     @NonNull private final SummaryInfo summaryInfo;
     @NonNull private final Currency currency;
     @Nullable private final PaymentTypeChargeRule chargeRule;
-    @Nullable private final AmountConfiguration amountConfiguration;
+    private final boolean hasSplit;
 
     public SummaryDetailDescriptorFactory(@NonNull final AmountDescriptorView.OnClickListener listener,
-        @NonNull final DiscountConfigurationModel discountModel, @NonNull final AmountRepository amountRepository,
+        @NonNull final DiscountModel discountModel, @NonNull final AmountRepository amountRepository,
         @NonNull final SummaryInfo summaryInfo, @NonNull final Currency currency,
-        @Nullable final PaymentTypeChargeRule chargeRule, @Nullable final AmountConfiguration amountConfiguration) {
+        @Nullable final PaymentTypeChargeRule chargeRule, final boolean hasSplit) {
         this.listener = listener;
         this.discountModel = discountModel;
         this.amountRepository = amountRepository;
         this.summaryInfo = summaryInfo;
         this.currency = currency;
         this.chargeRule = chargeRule;
-        this.amountConfiguration = amountConfiguration;
+        this.hasSplit = hasSplit;
     }
 
     public List<AmountDescriptorView.Model> create() {
@@ -58,11 +60,10 @@ public class SummaryDetailDescriptorFactory {
     }
 
     private void addDiscountRow(@NonNull final Collection<AmountDescriptorView.Model> list) {
-        final DiscountOverview discountOverview = discountModel.getDiscountOverview();
+        final AmountDescriptor amountDescriptor = discountModel.getDiscountOverview();
         final IDetailColor detailColor = new DiscountDetailColor();
-        final boolean hasSplit = amountConfiguration != null && amountConfiguration.allowSplit();
-        if (discountOverview != null) {
-            list.add(new AmountDescriptorView.Model(new AmountDescriptorMapper().map(discountOverview), detailColor,
+        if (amountDescriptor != null) {
+            list.add(new AmountDescriptorView.Model(amountDescriptor, detailColor,
                 hasSplit)
                 .setDetailDrawable(new SummaryViewDetailDrawable(), detailColor)
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));

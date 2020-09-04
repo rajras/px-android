@@ -15,7 +15,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
@@ -47,7 +46,7 @@ public interface ExpressPayment {
         void collapseInstallmentsSelection();
 
         void showDiscountDetailDialog(@NonNull final Currency currency,
-            @NonNull final DiscountConfigurationModel discountModel);
+            @NonNull final DiscountModel discountModel);
 
         void showDisabledPaymentMethodDetailDialog(@NonNull final DisabledPaymentMethod disabledPaymentMethod,
             @NonNull final StatusMetadata currentStatus);
