@@ -8,9 +8,9 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack
 
 class DummyResultPresenter(private val paymentModel: PaymentModel,
-                           private val paymentResultScreenConfiguration: PaymentResultScreenConfiguration,
-                           private val paymentSettingRepository: PaymentSettingRepository,
-                           private val isMP: Boolean) : BasePresenter<DummyResultActivity>() {
+    private val paymentResultScreenConfiguration: PaymentResultScreenConfiguration,
+    private val paymentSettingRepository: PaymentSettingRepository,
+    private val isMP: Boolean) : BasePresenter<DummyResultActivity>() {
 
     override fun attachView(view: DummyResultActivity?) {
         super.attachView(view)

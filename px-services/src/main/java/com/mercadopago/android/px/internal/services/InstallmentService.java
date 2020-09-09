@@ -1,26 +1,14 @@
 package com.mercadopago.android.px.internal.services;
 
-import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.model.Installment;
-import com.mercadopago.android.px.model.SummaryAmount;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface InstallmentService {
-
-    @POST("{environment}/px_mobile_api/summary_amount")
-    MPCall<SummaryAmount> createSummaryAmount(
-        @Path(value = "environment", encoded = true) String environment,
-        @Body Map<String, Object> body,
-        @Query("public_key") String publicKey,
-        @Nullable @Query("access_token") String privateKey);
 
     @GET("{environment}/checkout/payment_methods/installments")
     MPCall<List<Installment>> getInstallments(

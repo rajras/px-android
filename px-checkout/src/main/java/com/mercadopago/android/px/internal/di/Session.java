@@ -84,6 +84,7 @@ public final class Session extends ApplicationModule {
         networkModule = new NetworkModule(context);
     }
 
+    @NonNull
     public static Session getInstance() {
         if (instance == null) {
             throw new IllegalStateException(
@@ -92,6 +93,7 @@ public final class Session extends ApplicationModule {
         return instance;
     }
 
+    @NonNull
     public static Session initialize(@NonNull final Context context) {
         instance = new Session(context);
         ConfigurationModule.initialize(instance.configurationModule);
@@ -128,6 +130,7 @@ public final class Session extends ApplicationModule {
                 trackingData.getFlowExtraInfo()));
     }
 
+    @NonNull
     public State getSessionState() {
         try {
             if (configurationModule.getPaymentSettings().getPaymentConfiguration() != null) {
@@ -171,6 +174,7 @@ public final class Session extends ApplicationModule {
         viewModelModule = null;
     }
 
+    @NonNull
     public InitRepository getInitRepository() {
         if (initRepository == null) {
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
@@ -182,6 +186,7 @@ public final class Session extends ApplicationModule {
         return initRepository;
     }
 
+    @NonNull
     public ExperimentsRepository getExperimentsRepository() {
         if (experimentsRepository == null) {
             experimentsRepository = new ExperimentsRepositoryImpl(getSharedPreferences());
@@ -249,6 +254,7 @@ public final class Session extends ApplicationModule {
         return initCache;
     }
 
+    @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
             paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
@@ -294,6 +300,7 @@ public final class Session extends ApplicationModule {
         return instructionsRepository;
     }
 
+    @NonNull
     public CardTokenRepository getCardTokenRepository() {
         if (cardTokenRepository == null) {
             final GatewayService gatewayService =
@@ -304,6 +311,7 @@ public final class Session extends ApplicationModule {
         return cardTokenRepository;
     }
 
+    @NonNull
     public CongratsRepository getCongratsRepository() {
         if (congratsRepository == null) {
             final CongratsService congratsService = networkModule.getRetrofitClient().create(CongratsService.class);
@@ -317,6 +325,7 @@ public final class Session extends ApplicationModule {
         return congratsRepository;
     }
 
+    @NonNull
     public ViewModelModule getViewModelModule() {
         if (viewModelModule == null) {
             viewModelModule = new ViewModelModule();
@@ -324,6 +333,7 @@ public final class Session extends ApplicationModule {
         return viewModelModule;
     }
 
+    @NonNull
     public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
         return new PrefetchInitService(checkout, networkModule.getRetrofitClient().create(CheckoutService.class),
             getMercadoPagoESC(), configurationModule.getTrackingRepository());

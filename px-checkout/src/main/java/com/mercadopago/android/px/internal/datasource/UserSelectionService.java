@@ -56,11 +56,6 @@ public class UserSelectionService implements UserSelectionRepository {
         removePayerCostSelection();
     }
 
-    @Override
-    public boolean hasCardSelected() {
-        return getCard() != null;
-    }
-
     /**
      * it's important to select and then add the installments there is a side effect after changing the payment method
      * that deletes the old payer cost cache

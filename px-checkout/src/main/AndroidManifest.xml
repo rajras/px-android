@@ -48,12 +48,6 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar" />
         <activity
-            android:name=".internal.features.SecurityCodeActivity"
-            android:label=""
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"
-            android:windowSoftInputMode="stateVisible" />
-        <activity
             android:name=".internal.features.security_code.SecurityCodeActivity"
             android:label=""
             android:screenOrientation="sensorPortrait"

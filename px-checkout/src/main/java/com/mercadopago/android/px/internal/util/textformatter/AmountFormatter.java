@@ -29,20 +29,8 @@ public class AmountFormatter extends ChainFormatter {
     }
 
     @NonNull
-    public AmountFormatter substract(@NonNull final BigDecimal toSubstract) {
-        total = total.subtract(toSubstract);
-        return this;
-    }
-
-    @NonNull
     public AmountFormatter add(@Nullable final Discount toAdd) {
         total = total.add(getAmount(toAdd));
-        return this;
-    }
-
-    @NonNull
-    public AmountFormatter substract(@Nullable final Discount toSubstract) {
-        total = total.subtract(getAmount(toSubstract));
         return this;
     }
 
@@ -59,16 +47,6 @@ public class AmountFormatter extends ChainFormatter {
     @NonNull
     public Style normalDecimals() {
         return new StyleNormalDecimal(this);
-    }
-
-    /**
-     * Small display appears like 1,000 ^ 01
-     *
-     * @return style to shouldBeTriggered
-     */
-    @NonNull
-    public Style smallDecimals() {
-        return new StyleSmallDecimal(this);
     }
 
     @Override

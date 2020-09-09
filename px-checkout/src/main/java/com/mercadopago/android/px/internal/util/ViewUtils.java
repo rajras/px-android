@@ -40,7 +40,6 @@ import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.model.internal.Text;
-import com.squareup.picasso.Callback;
 import java.util.List;
 
 import static android.view.View.GONE;
@@ -80,16 +79,6 @@ public final class ViewUtils {
     public static boolean hasEndedAnim(@NonNull final View viewToAnimate) {
         return viewToAnimate.getAnimation() == null ||
             (viewToAnimate.getAnimation() != null && viewToAnimate.getAnimation().hasEnded());
-    }
-
-    public static void loadOrCallError(final String imgUrl, final ImageView logo, final Callback callback) {
-        if (!TextUtil.isEmpty(imgUrl) && logo != null) {
-            PicassoDiskLoader.get(logo.getContext())
-                .load(imgUrl)
-                .into(logo, callback);
-        } else {
-            callback.onError();
-        }
     }
 
     public static boolean loadOrHide(final int visibility, @Nullable final Text text, @NonNull final MPTextView view) {
@@ -180,14 +169,6 @@ public final class ViewUtils {
         final InputMethodManager imm =
             (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(view.findFocus(), InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    public static void resizeViewGroupLayoutParams(final ViewGroup viewGroup, final int height, final int width) {
-        final ViewGroup.LayoutParams params = viewGroup.getLayoutParams();
-        final Context context = viewGroup.getContext();
-        params.height = (int) context.getResources().getDimension(height);
-        params.width = (int) context.getResources().getDimension(width);
-        viewGroup.setLayoutParams(params);
     }
 
     public static void setColorInSpannable(final int color, final int indexStart, final int indexEnd,
@@ -307,12 +288,6 @@ public final class ViewUtils {
     @NonNull
     public static View inflate(@NonNull final ViewGroup parent, @LayoutRes final int layout) {
         return LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-    }
-
-    @NonNull
-    public static View compose(@NonNull final ViewGroup container, @NonNull final View child) {
-        container.addView(child);
-        return container;
     }
 
     @NonNull

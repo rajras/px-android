@@ -29,8 +29,6 @@ import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.SessionFrictionEventTracker;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.EXTRA_ERROR;
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.EXTRA_PAYMENT_RESULT;
 import static com.mercadopago.android.px.core.MercadoPagoCheckout.PAYMENT_RESULT_CODE;
@@ -189,7 +187,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
 
     @Override
     public void hideProgress() {
-        progress.setVisibility(GONE);
+        progress.setVisibility(View.GONE);
     }
 
     @Override
@@ -243,7 +241,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
 
     @Override
     public void showProgress() {
-        progress.setVisibility(VISIBLE);
+        progress.setVisibility(View.VISIBLE);
     }
 
     @Override
