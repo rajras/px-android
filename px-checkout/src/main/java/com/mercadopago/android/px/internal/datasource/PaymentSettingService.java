@@ -264,8 +264,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public boolean isPaymentConfigurationValid() {
         try {
-            getPaymentConfiguration();
-            return true;
+            return getPaymentConfiguration() != null;
         } catch (final Exception e) {
             return false;
         }
