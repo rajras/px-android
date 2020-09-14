@@ -16,6 +16,7 @@ import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReady
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
 import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.model.SecurityType
 import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
@@ -228,7 +229,7 @@ internal class PayButtonViewModel(
                         }
 
                         override fun showCongrats(model: BusinessPaymentModel) {
-                            stateUILiveData.value = UIResult.BusinessPaymentResult(model)
+                            stateUILiveData.value = UIResult.CongratsPaymentModel(PaymentCongratsModelMapper().map(model))
                         }
 
                         override fun skipCongrats(model: PaymentModel) {
