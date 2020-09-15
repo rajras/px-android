@@ -1,3 +1,12 @@
+## VERSION 4.59.0
+_15_09_2020_
+* FEATURE - Standalone PaymentCongrats flow.
+* ENHANCEMENT - Replaced Event with SingleLiveData.
+* FIX - PostPaymentUrls are now serializable.
+* FIX - Another ExplodingFragment crash.
+* FIX - Avoid null PaymentConfiguration.
+* FIX - Back handler when fragment is not added.
+
 ## VERSION 4.58.0
 _03_09_2020_
 * ENHANCEMENT - Added PaymentService and PayButtonViewModel unit tests.
