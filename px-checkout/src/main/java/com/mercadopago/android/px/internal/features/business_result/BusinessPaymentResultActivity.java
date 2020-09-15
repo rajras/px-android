@@ -14,6 +14,7 @@ import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.track
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.util.Logger;
@@ -39,6 +40,11 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
         intent.putExtra(PAYMENT_CONGRATS, new PaymentCongratsModelMapper().map(model));
         intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
         activity.startActivity(intent);
+    }
+
+    @Override
+    protected boolean shouldHaltSession(@NonNull final Session.State state) {
+        return state == Session.State.INVALID;
     }
 
     @Override

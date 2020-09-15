@@ -152,8 +152,16 @@ public final class Session extends ApplicationModule {
                 trackingData.getFlowExtraInfo()));
     }
 
-    public boolean isInitialized() {
-        return configurationModule.getPaymentSettings().isPaymentConfigurationValid();
+    public State getSessionState() {
+        try {
+            if (configurationModule.getPaymentSettings().getPaymentConfiguration() != null) {
+                return Session.State.VALID;
+            } else {
+                return Session.State.UNKNOWN;
+            }
+        } catch (final Exception e) {
+            return Session.State.INVALID;
+        }
     }
 
     private void resolvePreference(@NonNull final MercadoPagoCheckout mercadoPagoCheckout,
@@ -412,7 +420,7 @@ public final class Session extends ApplicationModule {
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
             congratsRepository = new CongratsRepositoryImpl(congratsService, getInitRepository(), paymentSettings,
                 getPlatform(getApplicationContext()), configurationModule.getTrackingRepository(),
-                configurationModule.getUserSelectionRepository(), amountRepository,
+                configurationModule.getUserSelectionRepository(), getAmountRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(),
                 configurationModule.getPayerComplianceRepository(), getMercadoPagoESC());
         }
@@ -443,5 +451,11 @@ public final class Session extends ApplicationModule {
             .isSecurityEnabled(new SecurityValidationData.Builder(productId).build());
         MPTracker.getInstance().setSecurityEnabled(securityEnabled);
         configurationModule.getProductIdProvider().configure(productId);
+    }
+
+    public enum State {
+        VALID,
+        INVALID,
+        UNKNOWN
     }
 }
