@@ -17,6 +17,7 @@ class ResultViewTrack : TrackWrapper {
     private val resultViewTrackModel: ResultViewTrackModel
     private val paymentStatus: String
     private val remediesResponse: RemediesResponse
+    private var isPaymentCongratsFlow: Boolean = false
 
     constructor(paymentModel: PaymentModel, screenConfiguration: PaymentResultScreenConfiguration,
                 paymentSetting: PaymentSettingRepository, isMP: Boolean) {
@@ -27,6 +28,7 @@ class ResultViewTrack : TrackWrapper {
     }
 
     constructor(paymentModel: PaymentCongratsModel, isMP: Boolean) {
+        isPaymentCongratsFlow = true
         resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP)
         paymentStatus = paymentModel.trackingPaymentStatus
         this.remediesResponse = RemediesResponse.EMPTY
@@ -36,7 +38,7 @@ class ResultViewTrack : TrackWrapper {
 
     private fun getData(): Map<String, Any> {
         val map = resultViewTrackModel.toMap()
-        if (paymentStatus == ERROR) {
+        if (paymentStatus == ERROR && !isPaymentCongratsFlow) {
             map["remedies"] = getRemedies()
         }
         return map
