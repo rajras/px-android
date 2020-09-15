@@ -44,7 +44,8 @@ class ResultViewTrack : TrackWrapper {
         return map
     }
 
-    private fun getViewPath() = String.format(Locale.US, PATH, paymentStatus)
+    private fun getViewPath() = String.format(Locale.US,
+        if (isPaymentCongratsFlow) STANDALONE_PATH else CHECKOUT_PATH, paymentStatus)
 
     private fun getMappedResult(payment: PaymentResult): String {
         return when {
@@ -74,7 +75,9 @@ class ResultViewTrack : TrackWrapper {
     private fun getRemedyData(type: RemedyType) = RemedyTrackData(type.getType(), remediesResponse.trackingData)
 
     companion object {
-        private const val PATH = "$BASE_PATH/result/%s"
+        private const val PATH = "/result/%s"
+        private const val CHECKOUT_PATH = "$BASE_PATH$PATH"
+        private const val STANDALONE_PATH = "/payment_congrats$PATH"
         const val SUCCESS = "success"
         const val PENDING = "further_action_needed"
         const val ERROR = "error"

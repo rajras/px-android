@@ -260,13 +260,4 @@ public class PaymentSettingService implements PaymentSettingRepository {
     public String getPrivateKey() {
         return sharedPreferences.getString(PREF_PRIVATE_KEY, null);
     }
-
-    @Override
-    public boolean isPaymentConfigurationValid() {
-        try {
-            return getPaymentConfiguration() != null;
-        } catch (final Exception e) {
-            return false;
-        }
-    }
 }
