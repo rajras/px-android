@@ -44,7 +44,8 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowDetail(),
             Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowId(),
             Session.getInstance().getConfigurationModule().getTrackingRepository().getSessionId(),
-            businessPaymentModel.getPayment().getPaymentMethodId()
+            businessPaymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getId(),
+            businessPaymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getPaymentTypeId()
         );
         final PaymentCongratsModel.Builder builder = new PaymentCongratsModel.Builder()
             .withTracking(tracking)
