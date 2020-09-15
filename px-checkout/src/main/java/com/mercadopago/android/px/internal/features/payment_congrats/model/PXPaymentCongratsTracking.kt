@@ -17,7 +17,8 @@ data class PXPaymentCongratsTracking(
         val flowExtraInfo: Map<String, Any>? = HashMap(),
         val flow: String?,
         val sessionId: String?,
-        val paymentMethodId: String?
+        val paymentMethodId: String?,
+        val paymentMethodType: String?
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -27,6 +28,7 @@ data class PXPaymentCongratsTracking(
             parcel.readValue(Long::class.java.classLoader) as? Long,
             parcel.readBigDecimal(),
             JsonUtil.getMapFromJson(parcel.readString()),
+            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readString()
@@ -43,6 +45,7 @@ data class PXPaymentCongratsTracking(
         parcel.writeString(flow)
         parcel.writeString(sessionId)
         parcel.writeString(paymentMethodId)
+        parcel.writeString(paymentMethodType)
     }
 
     override fun describeContents(): Int {

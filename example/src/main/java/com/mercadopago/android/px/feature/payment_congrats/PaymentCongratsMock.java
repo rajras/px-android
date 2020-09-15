@@ -75,7 +75,8 @@ public final class PaymentCongratsMock {
             flowExtraInfo,
             "instore/buyer_qr",
             "43242fasdf4",
-            "visa"
+            "visa",
+            "credit_card"
         );
 
         //Congrats

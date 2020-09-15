@@ -88,7 +88,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
                     .map(paymentCongratsModel.getPaymentCongratsResponse().getDiscount().getItems())) : null,
             paymentCongratsModel.getPxPaymentCongratsTracking().getCampaignId(),
             paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentMethodId(),
-            paymentCongratsModel.getPaymentsInfo().get(0).paymentMethodType.name().toLowerCase(),
+            paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentMethodType().toLowerCase(),
             paymentCongratsModel.getPxPaymentCongratsTracking().getCurrencyId(),
             paymentCongratsModel.getPaymentData());
         hasBottomView = paymentCongratsModel.hasBottomFragment();
