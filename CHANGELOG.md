@@ -1,3 +1,9 @@
+## VERSION 4.59.1
+_17_09_2020_
+* ENHANCEMENT - Improved offline methods bottom sheet opening.
+* FIX - Check if view is attached in some cases.
+* FIX - Cleared payer cost selection properly.
+
 ## VERSION 4.59.0
 _15_09_2020_
 * FEATURE - Standalone PaymentCongrats flow.
