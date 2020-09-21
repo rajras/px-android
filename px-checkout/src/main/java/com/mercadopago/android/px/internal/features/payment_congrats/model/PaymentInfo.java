@@ -107,7 +107,8 @@ public class PaymentInfo implements Parcelable {
         BANK_TRANSFER("bank_transfer"),
         ACCOUNT_MONEY("account_money"),
         PLUGIN("payment_method_plugin"),
-        CONSUMER_CREDITS("consumer_credits");
+        CONSUMER_CREDITS("consumer_credits"),
+        OTHER("other");
 
         public final String value;
 
@@ -115,13 +116,14 @@ public class PaymentInfo implements Parcelable {
             this.value = value;
         }
 
-        public static PaymentMethodType fromName(final String text) {
+        @NonNull
+        public static PaymentMethodType fromName(@NonNull final String name) {
             for (final PaymentMethodType paymentMethodType : PaymentMethodType.values()) {
-                if (paymentMethodType.name().equalsIgnoreCase(text)) {
+                if (paymentMethodType.name().equalsIgnoreCase(name)) {
                     return paymentMethodType;
                 }
             }
-            throw new IllegalStateException("Invalid paymentMethodType");
+            return OTHER;
         }
     }
 
