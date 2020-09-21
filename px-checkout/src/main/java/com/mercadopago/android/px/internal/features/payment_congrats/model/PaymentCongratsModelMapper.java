@@ -10,10 +10,9 @@ import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Currency;
+import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
-import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
-import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 import java.math.BigDecimal;
 
 public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, PaymentCongratsModel> {
@@ -51,8 +50,7 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             .withTracking(tracking)
             .withDiscountCouponsAmount(
                 PaymentDataHelper.getTotalDiscountAmount(businessPaymentModel.getPaymentResult().getPaymentDataList()))
-            .withCongratsType(
-                PaymentCongratsModel.CongratsType.fromName(businessPayment.getPaymentStatus()))
+            .withCongratsType(getCongratsType(businessPayment.getPaymentStatus()))
             .withCrossSelling(paymentCongratsResponse.getCrossSellings())
             .withHeader(businessPayment.getTitle(), businessPayment.getImageUrl())
             .withShouldShowPaymentMethod(businessPayment.shouldShowPaymentMethod())
@@ -146,17 +144,12 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
         return CurrenciesUtil.getLocalizedAmountWithoutZeroDecimals(currency, amount);
     }
 
-    private String getTrackingPaymentStatus(final PaymentResult paymentResult) {
-        final String status;
-        if (paymentResult.isApproved() || paymentResult.isInstructions()) {
-            status = ResultViewTrack.SUCCESS;
-        } else if (paymentResult.isRejected()) {
-            status = ResultViewTrack.ERROR;
-        } else if (paymentResult.isPending()) {
-            status = ResultViewTrack.PENDING;
+    @NonNull
+    private PaymentCongratsModel.CongratsType getCongratsType(@NonNull final String statusCode) {
+        if (Payment.StatusCodes.STATUS_IN_PROCESS.equals(statusCode)) {
+            return PaymentCongratsModel.CongratsType.PENDING;
         } else {
-            status = ResultViewTrack.UNKNOWN;
+            return PaymentCongratsModel.CongratsType.fromName(statusCode);
         }
-        return status;
     }
 }
