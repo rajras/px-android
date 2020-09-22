@@ -13,6 +13,7 @@ import com.mercadopago.android.px.configuration.TrackingConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.model.GenericPayment;
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.Payment;
@@ -199,7 +200,7 @@ public final class OneTapSamples {
     // It should suggest one tap with account money
     private static MercadoPagoCheckout.Builder startOneTapWithAccountMoneyAndCardsDebitCreditAndRejectedPayment() {
 
-        final IPaymentDescriptor payment = getGenericPaymentRejected();
+        final IParcelablePaymentDescriptor payment = getGenericPaymentRejected();
         final SplitPaymentProcessor samplePaymentProcessor = new SamplePaymentProcessor(payment);
         final CheckoutPreference preference = getCheckoutPreferenceWithPayerEmail(120);
         return new MercadoPagoCheckout.Builder(ONE_TAP_MERCHANT_PUBLIC_KEY, preference,
