@@ -1,3 +1,9 @@
+## VERSION 4.59.2
+_24_09_2020_
+* FIX - PaymentCongrats crash with "in process" payments.
+* FIX - PaymentCongrats crash with unknown payment types.
+* FIX - Session not cleared on non checkout flows.
+
 ## VERSION 4.59.1
 _17_09_2020_
 * ENHANCEMENT - Improved offline methods bottom sheet opening.
