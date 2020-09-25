@@ -18,6 +18,7 @@ class ResultViewTrack : TrackWrapper {
     private val paymentStatus: String
     private val remediesResponse: RemediesResponse
     private var isPaymentCongratsFlow: Boolean = false
+    private var isStandaloneCongrats: Boolean = false
 
     constructor(paymentModel: PaymentModel, screenConfiguration: PaymentResultScreenConfiguration,
                 paymentSetting: PaymentSettingRepository, isMP: Boolean) {
@@ -29,6 +30,7 @@ class ResultViewTrack : TrackWrapper {
 
     constructor(paymentModel: PaymentCongratsModel, isMP: Boolean) {
         isPaymentCongratsFlow = true
+        isStandaloneCongrats = paymentModel.isStandAloneCongrats
         resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP)
         paymentStatus = paymentModel.trackingPaymentStatus
         this.remediesResponse = RemediesResponse.EMPTY
@@ -45,7 +47,7 @@ class ResultViewTrack : TrackWrapper {
     }
 
     private fun getViewPath() = String.format(Locale.US,
-        if (isPaymentCongratsFlow) STANDALONE_PATH else CHECKOUT_PATH, paymentStatus)
+        if (isStandaloneCongrats) STANDALONE_PATH else CHECKOUT_PATH, paymentStatus)
 
     private fun getMappedResult(payment: PaymentResult): String {
         return when {

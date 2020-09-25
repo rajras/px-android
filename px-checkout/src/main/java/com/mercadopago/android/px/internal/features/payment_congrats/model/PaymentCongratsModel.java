@@ -54,6 +54,7 @@ public class PaymentCongratsModel implements Parcelable {
 
     //Internal PX data
     @Nullable private final String autoReturn;
+    private final boolean isStandAloneCongrats;
 
     //Internal PX Tracking data
     @Nullable private final Long paymentId;
@@ -85,6 +86,7 @@ public class PaymentCongratsModel implements Parcelable {
         discountCouponsAmount = builder.discountCouponsAmount;
         pxPaymentCongratsTracking = builder.pxPaymentCongratsTracking;
         autoReturn = builder.autoReturn;
+        isStandAloneCongrats = builder.isStandAloneCongrats;
     }
 
     protected PaymentCongratsModel(final Parcel in) {
@@ -118,6 +120,7 @@ public class PaymentCongratsModel implements Parcelable {
         }
         pxPaymentCongratsTracking = in.readParcelable(PXPaymentCongratsTracking.class.getClassLoader());
         autoReturn = in.readString();
+        isStandAloneCongrats = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
     @Override
@@ -159,6 +162,7 @@ public class PaymentCongratsModel implements Parcelable {
         }
         dest.writeParcelable(pxPaymentCongratsTracking, flags);
         dest.writeString(autoReturn);
+        dest.writeValue(isStandAloneCongrats);
     }
 
     @NonNull
@@ -261,6 +265,10 @@ public class PaymentCongratsModel implements Parcelable {
         return autoReturn;
     }
 
+    public boolean getIsStandAloneCongrats() {
+        return isStandAloneCongrats;
+    }
+
     @Nullable
     public PaymentCongratsResponse getPaymentCongratsResponse() {
         return paymentCongratsResponse;
@@ -345,6 +353,7 @@ public class PaymentCongratsModel implements Parcelable {
 
         //Internal PX data
         /* default */ String autoReturn;
+        /* default */ boolean isStandAloneCongrats = true;
 
         //Internal PX Tracking data
         /* default */ Long paymentId;
@@ -664,6 +673,15 @@ public class PaymentCongratsModel implements Parcelable {
          */
         /* default */ Builder withAutoReturn(final String autoReturn) {
             this.autoReturn = autoReturn;
+            return this;
+        }
+
+        /**
+         * @param isStandAloneCongrats standalone flag used for track path definition
+         * @return builder with the added boolean
+         */
+        /* default */ Builder withIsStandAloneCongrats(final boolean isStandAloneCongrats) {
+            this.isStandAloneCongrats = isStandAloneCongrats;
             return this;
         }
     }
