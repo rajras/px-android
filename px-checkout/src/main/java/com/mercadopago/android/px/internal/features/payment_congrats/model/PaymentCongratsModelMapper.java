@@ -138,7 +138,12 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
                 paymentData.getPayerCost().getInstallmentRate());
         }
 
-        return paymentInfo.build();
+        if (paymentData.getDiscount() != null) {
+            paymentInfo.withDiscountData(paymentData.getDiscount().getName(),
+                getPrettyAmount(currency, paymentData.getRawAmount()));
+        }
+        
+            return paymentInfo.build();
     }
 
     private String getPrettyAmount(@NonNull final Currency currency, @NonNull final BigDecimal amount) {
