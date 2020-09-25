@@ -58,7 +58,8 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             .withPaymentData(businessPaymentModel.getPaymentResult().getPaymentData())
             .withIconId(businessPayment.getIcon())
             .withAutoReturn(paymentSettings.getCheckoutPreference().getAutoReturn())
-            .withCustomSorting(businessPaymentModel.getCongratsResponse().hasCustomOrder());
+            .withCustomSorting(businessPaymentModel.getCongratsResponse().hasCustomOrder())
+            .withIsStandAloneCongrats(false);
 
         if (!businessPaymentModel.getPaymentResult().getPaymentDataList().isEmpty()) {
             builder.withPaymentMethodInfo(
