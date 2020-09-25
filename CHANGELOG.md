@@ -1,3 +1,7 @@
+## VERSION 4.59.3
+_25_09_2020_
+* FIX - PaymentCongrats tracks path with standalone flow.
+
 ## VERSION 4.59.2
 _24_09_2020_
 * FIX - PaymentCongrats crash with "in process" payments.
