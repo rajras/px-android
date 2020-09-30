@@ -13,6 +13,7 @@ import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
+import com.mercadopago.android.px.preferences.CheckoutPreference;
 import java.math.BigDecimal;
 
 public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, PaymentCongratsModel> {
@@ -32,14 +33,15 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
         final PaymentCongratsResponse paymentCongratsResponse =
             new PaymentCongratsResponseMapper().map(businessPaymentModel.getCongratsResponse());
         final BusinessPayment businessPayment = businessPaymentModel.getPayment();
+        final CheckoutPreference checkoutPreference =
+            Session.getInstance().getConfigurationModule().getPaymentSettings().getCheckoutPreference();
         final PXPaymentCongratsTracking tracking = new PXPaymentCongratsTracking(
             businessPaymentModel.getPaymentResult().getPaymentData().getCampaign() != null ? businessPaymentModel
                 .getPaymentResult().getPaymentData().getCampaign().getId() : "",
             businessPaymentModel.getCurrency().getId(),
             businessPayment.getPaymentStatusDetail(),
             businessPaymentModel.getPaymentResult().getPaymentId(),
-            Session.getInstance().getConfigurationModule().getPaymentSettings().getCheckoutPreference()
-                .getTotalAmount(),
+            checkoutPreference == null ? null : checkoutPreference.getTotalAmount(),
             Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowDetail(),
             Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowId(),
             Session.getInstance().getConfigurationModule().getTrackingRepository().getSessionId(),
@@ -57,9 +59,13 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             .withIconId(businessPayment.getIcon())
             .withPaymentData(businessPaymentModel.getPaymentResult().getPaymentData())
             .withIconId(businessPayment.getIcon())
-            .withAutoReturn(paymentSettings.getCheckoutPreference().getAutoReturn())
             .withCustomSorting(businessPaymentModel.getCongratsResponse().hasCustomOrder())
             .withIsStandAloneCongrats(false);
+
+        if (paymentSettings.getCheckoutPreference() != null &&
+            paymentSettings.getCheckoutPreference().getAutoReturn() != null) {
+            builder.withAutoReturn(paymentSettings.getCheckoutPreference().getAutoReturn());
+        }
 
         if (!businessPaymentModel.getPaymentResult().getPaymentDataList().isEmpty()) {
             builder.withPaymentMethodInfo(
@@ -115,7 +121,6 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
         return builder.build();
     }
 
-
     private PaymentInfo getPaymentsInfo(final PaymentData paymentData, final Currency currency,
         final CongratsResponse congratsResponse) {
         final PaymentInfo.Builder paymentInfo = new PaymentInfo.Builder()
@@ -136,6 +141,11 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
                 getPrettyAmount(currency, paymentData.getPayerCost().getInstallmentAmount()),
                 getPrettyAmount(currency, paymentData.getPayerCost().getTotalAmount()),
                 paymentData.getPayerCost().getInstallmentRate());
+        }
+
+        if (paymentData.getDiscount() != null) {
+            paymentInfo.withDiscountData(paymentData.getDiscount().getName(),
+                getPrettyAmount(currency, paymentData.getRawAmount()));
         }
 
         return paymentInfo.build();
