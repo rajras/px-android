@@ -1,3 +1,7 @@
+## VERSION 4.59.4
+_30_09_2020_
+* FIX - PaymentsCongrats discount info not showing.
+
 ## VERSION 4.59.3
 _25_09_2020_
 * FIX - PaymentCongrats tracks path with standalone flow.
