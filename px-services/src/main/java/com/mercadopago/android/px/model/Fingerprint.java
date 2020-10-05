@@ -13,14 +13,15 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import com.google.gson.Gson;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.internal.ESCManagerDefaultBehaviour;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,13 +79,21 @@ public class Fingerprint {
         return line;
     }
 
+    /**
+     * @deprecated use {@link Fingerprint#Fingerprint(Context, ESCManagerBehaviour)}
+     */
+    @Deprecated
     public Fingerprint(Context context) {
+        this(context, new ESCManagerDefaultBehaviour());
+    }
+
+    public Fingerprint(@NonNull final Context context, @NonNull final ESCManagerBehaviour escManagerBehaviour) {
         mContext = context;
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = new FingerprintLocationListener();
         registerLocationUpdate(context);
 
-        vendorIds = getVendorIds();
+        vendorIds = getVendorIds(escManagerBehaviour);
         model = getModel();
         os = getOs();
         systemVersion = getSystemVersion();
@@ -113,11 +122,11 @@ public class Fingerprint {
             PackageManager.PERMISSION_GRANTED;
     }
 
-    public ArrayList<VendorId> getVendorIds() {
-        ArrayList<VendorId> vendorIds = new ArrayList<VendorId>();
+    private ArrayList<VendorId> getVendorIds(@NonNull final ESCManagerBehaviour escManagerBehaviour) {
+        final ArrayList<VendorId> vendorIds = new ArrayList<>();
 
         // android_id
-        String androidId = getAndroidId(mContext);
+        final String androidId = getAndroidId(mContext, escManagerBehaviour);
         vendorIds.add(new VendorId("android_id", androidId));
 
         if (!TextUtils.isEmpty(Build.SERIAL) && !"unknown".equals(Build.SERIAL)) {
@@ -125,7 +134,7 @@ public class Fingerprint {
         }
 
         // SecureRandom
-        String randomId = SecureRandomId.getValue(mContext);
+        final String randomId = SecureRandomId.getValue(mContext);
         if (!TextUtils.isEmpty(randomId)) {
             vendorIds.add(new VendorId("fsuuid", randomId));
         }
@@ -133,8 +142,25 @@ public class Fingerprint {
         return vendorIds;
     }
 
+    /**
+     * @deprecated not intended to be public
+     */
+    @Deprecated
+    public ArrayList<VendorId> getVendorIds() {
+        return getVendorIds(new ESCManagerDefaultBehaviour());
+    }
+
+    private String getAndroidId(@NonNull final Context context,
+        @NonNull final ESCManagerBehaviour escManagerBehaviour) {
+        return escManagerBehaviour.getSyncedAndroidId(context);
+    }
+
+    /**
+     * @deprecated not intended to be public
+     */
+    @Deprecated
     public static String getAndroidId(Context context) {
-        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return new ESCManagerDefaultBehaviour().getSyncedAndroidId(context);
     }
 
     public Location getLocation(Context context) {
