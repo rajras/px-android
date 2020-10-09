@@ -110,6 +110,7 @@ public class PaymentService implements PaymentRepository {
                 instructionsRepository, congratsRepository, userSelectionRepository);
     }
 
+    @Nullable
     @Override
     public PaymentServiceEventHandler getObservableEvents() {
         return handlerWrapper.getObservableEvents();

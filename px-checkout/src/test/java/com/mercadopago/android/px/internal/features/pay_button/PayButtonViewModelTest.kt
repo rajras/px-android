@@ -316,10 +316,10 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
     private fun configurePaymentSettingServiceObservableEvents() {
         `when`(paymentService.observableEvents).thenReturn(mock(PaymentServiceEventHandler::class.java))
         `when`(paymentService.isExplodingAnimationCompatible).thenReturn(true)
-        `when`(paymentService.observableEvents.paymentErrorLiveData).thenReturn(paymentErrorLiveData)
-        `when`(paymentService.observableEvents.paymentFinishedLiveData).thenReturn(paymentFinishedLiveData)
-        `when`(paymentService.observableEvents.requireCvvLiveData).thenReturn(requireCvvLiveData)
-        `when`(paymentService.observableEvents.recoverInvalidEscLiveData).thenReturn(recoverInvalidEscLiveData)
-        `when`(paymentService.observableEvents.visualPaymentLiveData).thenReturn(visualPaymentLiveData)
+        `when`(paymentService.observableEvents?.paymentErrorLiveData).thenReturn(paymentErrorLiveData)
+        `when`(paymentService.observableEvents?.paymentFinishedLiveData).thenReturn(paymentFinishedLiveData)
+        `when`(paymentService.observableEvents?.requireCvvLiveData).thenReturn(requireCvvLiveData)
+        `when`(paymentService.observableEvents?.recoverInvalidEscLiveData).thenReturn(recoverInvalidEscLiveData)
+        `when`(paymentService.observableEvents?.visualPaymentLiveData).thenReturn(visualPaymentLiveData)
     }
 }

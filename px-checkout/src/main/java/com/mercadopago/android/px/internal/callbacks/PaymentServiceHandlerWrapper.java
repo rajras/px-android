@@ -100,6 +100,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         messages = new LinkedList<>();
     }
 
+    @Nullable
     public PaymentServiceEventHandler getObservableEvents() {
         return eventHandler;
     }
