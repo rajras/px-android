@@ -14,6 +14,7 @@ import com.mercadopago.android.px.internal.datasource.PaymentSettingService
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
 import com.mercadopago.android.px.internal.livedata.MutableSingleLiveData
 import com.mercadopago.android.px.internal.model.SecurityType
@@ -61,6 +62,8 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
     @Mock
     private lateinit var payButtonViewModelMapper: PayButtonViewModelMapper
     @Mock
+    private lateinit var paymentCongratsMapper: PaymentCongratsModelMapper
+    @Mock
     private lateinit var customTexts: CustomTexts
     @Mock
     private lateinit var payButtonTexts: PayButtonTexts
@@ -99,12 +102,13 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
         configurePaymentSettingServiceObservableEvents()
 
         payButtonViewModel = PayButtonViewModel(
-                paymentService,
-                productIdProvider,
-                connectionHelper,
-                paymentSettingService,
-                customTextsRepositoryImpl,
-                payButtonViewModelMapper)
+            paymentService,
+            productIdProvider,
+            connectionHelper,
+            paymentSettingService,
+            customTextsRepositoryImpl,
+            payButtonViewModelMapper,
+            paymentCongratsMapper)
 
         payButtonViewModel.stateUILiveData.observeForever(uiStateObserver)
         payButtonViewModel.buttonTextLiveData.observeForever(buttonTextObserver)

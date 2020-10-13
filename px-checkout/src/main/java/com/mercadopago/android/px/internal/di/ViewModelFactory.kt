@@ -15,7 +15,8 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                 Session.getInstance().configurationModule.productIdProvider,
                 ConnectionHelper.instance,
                 Session.getInstance().configurationModule.paymentSettings,
-                Session.getInstance().configurationModule.customTextsRepository, PayButtonViewModelMapper()) as T
+                Session.getInstance().configurationModule.customTextsRepository, PayButtonViewModelMapper(),
+                MapperProvider.getPaymentCongratsMapper()) as T
         } else if(modelClass.isAssignableFrom(OfflineMethodsViewModel::class.java)) {
             return OfflineMethodsViewModel(Session.getInstance().initRepository,
                 Session.getInstance().configurationModule.paymentSettings,

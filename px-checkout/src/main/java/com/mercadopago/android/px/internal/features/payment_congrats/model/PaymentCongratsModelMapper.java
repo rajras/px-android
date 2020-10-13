@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_congrats.model;
 
 import androidx.annotation.NonNull;
-import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.business_result.PaymentCongratsResponseMapper;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
+import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.CurrenciesUtil;
 import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
@@ -13,10 +13,19 @@ import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
-import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import java.math.BigDecimal;
 
 public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, PaymentCongratsModel> {
+
+    @NonNull private final PaymentSettingRepository paymentSettings;
+    @NonNull private final TrackingRepository trackingRepository;
+
+    public PaymentCongratsModelMapper(@NonNull final PaymentSettingRepository paymentSettings,
+        @NonNull final TrackingRepository trackingRepository) {
+        this.paymentSettings = paymentSettings;
+        this.trackingRepository = trackingRepository;
+    }
 
     /**
      * Takes a BusinessPaymentModel and outputs a PaymentCongratsModel
@@ -26,25 +35,28 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
      */
     @Override
     public PaymentCongratsModel map(final BusinessPaymentModel businessPaymentModel) {
-
-        final PaymentSettingRepository paymentSettings =
-            Session.getInstance().getConfigurationModule().getPaymentSettings();
-
         final PaymentCongratsResponse paymentCongratsResponse =
             new PaymentCongratsResponseMapper().map(businessPaymentModel.getCongratsResponse());
         final BusinessPayment businessPayment = businessPaymentModel.getPayment();
-        final CheckoutPreference checkoutPreference =
-            Session.getInstance().getConfigurationModule().getPaymentSettings().getCheckoutPreference();
+
+        //TODO sacar chequeo
+        final BigDecimal totalAmount = paymentSettings.getCheckoutPreference() != null ?
+            paymentSettings.getCheckoutPreference().getTotalAmount() : null;
+        if (totalAmount == null) {
+            FrictionEventTracker.with("/px_checkout/null_preference",
+                FrictionEventTracker.Id.GENERIC, FrictionEventTracker.Style.CUSTOM_COMPONENT).track();
+        }
+
         final PXPaymentCongratsTracking tracking = new PXPaymentCongratsTracking(
             businessPaymentModel.getPaymentResult().getPaymentData().getCampaign() != null ? businessPaymentModel
                 .getPaymentResult().getPaymentData().getCampaign().getId() : "",
             businessPaymentModel.getCurrency().getId(),
             businessPayment.getPaymentStatusDetail(),
             businessPaymentModel.getPaymentResult().getPaymentId(),
-            checkoutPreference == null ? null : checkoutPreference.getTotalAmount(),
-            Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowDetail(),
-            Session.getInstance().getConfigurationModule().getTrackingRepository().getFlowId(),
-            Session.getInstance().getConfigurationModule().getTrackingRepository().getSessionId(),
+            totalAmount,
+            trackingRepository.getFlowDetail(),
+            trackingRepository.getFlowId(),
+            trackingRepository.getSessionId(),
             businessPaymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getId(),
             businessPaymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getPaymentTypeId()
         );
@@ -62,6 +74,7 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             .withCustomSorting(businessPaymentModel.getCongratsResponse().hasCustomOrder())
             .withIsStandAloneCongrats(false);
 
+        //TODO sacar chequeo
         if (paymentSettings.getCheckoutPreference() != null &&
             paymentSettings.getCheckoutPreference().getAutoReturn() != null) {
             builder.withAutoReturn(paymentSettings.getCheckoutPreference().getAutoReturn());

@@ -45,7 +45,8 @@ internal class PayButtonViewModel(
     private val connectionHelper: ConnectionHelper,
     private val paymentSettingRepository: PaymentSettingRepository,
     customTextsRepository: CustomTextsRepository,
-    payButtonViewModelMapper: PayButtonViewModelMapper) : BaseViewModel(), PayButton.ViewModel {
+    payButtonViewModelMapper: PayButtonViewModelMapper,
+    private val paymentCongratsMapper: PaymentCongratsModelMapper) : BaseViewModel(), PayButton.ViewModel {
 
     val buttonTextLiveData = MutableLiveData<ButtonConfig>()
     private var buttonConfig: ButtonConfig = payButtonViewModelMapper.map(customTextsRepository.customTexts)
@@ -229,7 +230,7 @@ internal class PayButtonViewModel(
                         }
 
                         override fun showCongrats(model: BusinessPaymentModel) {
-                            stateUILiveData.value = UIResult.CongratsPaymentModel(PaymentCongratsModelMapper().map(model))
+                            stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(model))
                         }
 
                         override fun skipCongrats(model: PaymentModel) {

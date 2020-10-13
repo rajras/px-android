@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.payment_result;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.base.MvpView;
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
@@ -34,6 +35,10 @@ public interface PaymentResultContract {
         void launchDeepLink(@NonNull final String deepLink);
 
         void processCrossSellingBusinessAction(@NonNull final String deepLink);
+
+        void showGenericCongrats(@NonNull final PaymentModel paymentModel);
+
+        void showPaymentCongrats(@NonNull final PaymentCongratsModel paymentCongratsModel);
     }
 
     interface Presenter {
@@ -45,5 +50,7 @@ public interface PaymentResultContract {
         void onStart();
 
         void onStop();
+
+        void onPaymentFinished(@NonNull final PaymentModel paymentModel);
     }
 }

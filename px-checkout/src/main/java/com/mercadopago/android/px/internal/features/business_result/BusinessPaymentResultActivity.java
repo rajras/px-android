@@ -1,14 +1,13 @@
 package com.mercadopago.android.px.internal.features.business_result;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.View;
 import androidx.core.content.ContextCompat;
 import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.print.MLBusinessTouchpointListener;
 import com.mercadopago.android.px.R;
@@ -16,15 +15,12 @@ import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.model.ExitAction;
 
-import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUSTOM_EXIT;
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.getSafeIntent;
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMP;
@@ -34,13 +30,6 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
 
     private static final String TAG = BusinessPaymentResultActivity.class.getSimpleName();
     private static final String PAYMENT_CONGRATS = "payment_congrats";
-
-    public static void startWithForwardResult(@NonNull final Activity activity, @NonNull final BusinessPaymentModel model) {
-        final Intent intent = new Intent(activity, BusinessPaymentResultActivity.class);
-        intent.putExtra(PAYMENT_CONGRATS, new PaymentCongratsModelMapper().map(model));
-        intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
-        activity.startActivity(intent);
-    }
 
     @Override
     protected boolean shouldHaltSession(@NonNull final Session.State state) {
@@ -116,7 +105,7 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     public void launchDeepLink(@NonNull final String deepLink) {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)));
-        } catch (ActivityNotFoundException e) {
+        } catch (final ActivityNotFoundException e) {
             Logger.debug(TAG, e);
         }
     }
@@ -125,7 +114,7 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     public void processCrossSellingBusinessAction(@NonNull final String deepLink) {
         try {
             startActivity(getSafeIntent(this, Uri.parse(deepLink)));
-        } catch (ActivityNotFoundException e) {
+        } catch (final ActivityNotFoundException e) {
             Logger.debug(TAG, e);
         }
     }
