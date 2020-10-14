@@ -7,6 +7,7 @@ import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ChangePaymentMethodAction;
@@ -20,7 +21,9 @@ import com.mercadopago.android.px.internal.view.LinkAction;
 import com.mercadopago.android.px.internal.view.NextAction;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.RecoverPaymentAction;
+import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
+import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.internal.viewmodel.mappers.FlowBehaviourResultMapper;
 import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -51,6 +54,7 @@ import kotlin.Unit;
     private final InstructionsRepository instructionsRepository;
     private final ResultViewTrack resultViewTrack;
     private final PaymentResultScreenConfiguration screenConfiguration;
+    @NonNull /* default */ final PaymentCongratsModelMapper paymentCongratsMapper;
     private final FlowBehaviour flowBehaviour;
 
     private FailureRecovery failureRecovery;
@@ -58,16 +62,16 @@ import kotlin.Unit;
 
     /* default */ PaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final InstructionsRepository instructionsRepository, @NonNull final PaymentModel paymentModel,
-        @NonNull final FlowBehaviour flowBehaviour, final boolean isMP) {
+        @NonNull final FlowBehaviour flowBehaviour, final boolean isMP,
+        @NonNull final PaymentCongratsModelMapper paymentCongratsMapper) {
         this.paymentSettings = paymentSettings;
         this.paymentModel = paymentModel;
         this.instructionsRepository = instructionsRepository;
         this.flowBehaviour = flowBehaviour;
+        this.paymentCongratsMapper = paymentCongratsMapper;
 
-        screenConfiguration =
-            paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
-        resultViewTrack =
-            new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP);
+        screenConfiguration = paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
+        resultViewTrack = new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP);
     }
 
     @Override
@@ -260,5 +264,20 @@ import kotlin.Unit;
             new CongratsSuccessDeepLink(DeepLinkType.MONEY_SPLIT_TYPE, deepLink).track();
             getView().launchDeepLink(deepLink);
         }
+    }
+
+    @Override
+    public void onPaymentFinished(@NonNull final PaymentModel paymentModel) {
+        paymentModel.process(new PaymentModelHandler() {
+            @Override
+            public void visit(@NonNull final PaymentModel paymentModel) {
+                getView().showGenericCongrats(paymentModel);
+            }
+
+            @Override
+            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
+                getView().showPaymentCongrats(paymentCongratsMapper.map(businessPaymentModel));
+            }
+        });
     }
 }

@@ -9,15 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ScrollView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import android.view.View;
-import android.widget.ScrollView;
 import com.mercadolibre.android.andesui.snackbar.AndesSnackbar;
 import com.mercadolibre.android.andesui.snackbar.duration.AndesSnackbarDuration;
 import com.mercadolibre.android.andesui.snackbar.type.AndesSnackbarType;
@@ -25,11 +25,13 @@ import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.track
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
+import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.extensions.BaseExtensionsKt;
-import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
+import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats;
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.features.payment_result.components.PaymentResultLegacyRenderer;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesFragment;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.PaymentResultFooter;
@@ -39,11 +41,9 @@ import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
-import com.mercadopago.android.px.internal.viewmodel.handlers.PaymentModelHandler;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import kotlin.Unit;
@@ -64,7 +64,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     private RemediesFragment remediesFragment;
     private PaymentResultFooter footer;
 
-    public static void startWithForwardResult(@NonNull final Activity activity, @NonNull final PaymentModel model) {
+    public static void start(@NonNull final Activity activity, @NonNull final PaymentModel model) {
         final Intent intent = new Intent(activity, PaymentResultActivity.class);
         intent.putExtra(EXTRA_PAYMENT_MODEL, model);
         intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
@@ -122,7 +122,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         final Session session = Session.getInstance();
 
         return new PaymentResultPresenter(session.getConfigurationModule().getPaymentSettings(),
-            session.getInstructionsRepository(), paymentModel, BehaviourProvider.getFlowBehaviour(), isMP(this));
+            session.getInstructionsRepository(), paymentModel, BehaviourProvider.getFlowBehaviour(), isMP(this),
+            MapperProvider.INSTANCE.getPaymentCongratsMapper());
     }
 
     @Override
@@ -283,20 +284,20 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
+    public void showGenericCongrats(@NonNull final PaymentModel paymentModel) {
+        PaymentResultActivity.start(this, paymentModel);
+        finish();
+    }
+
+    @Override
+    public void showPaymentCongrats(@NonNull final PaymentCongratsModel paymentCongratsModel) {
+        PaymentCongrats.show(paymentCongratsModel, this);
+        finish();
+    }
+
+    @Override
     public void onPaymentFinished(@NonNull final PaymentModel paymentModel,
         @NonNull final PayButton.OnPaymentFinishedCallback callback) {
-        paymentModel.process(new PaymentModelHandler() {
-            @Override
-            public void visit(@NonNull final PaymentModel paymentModel) {
-                PaymentResultActivity.startWithForwardResult(PaymentResultActivity.this, paymentModel);
-                finish();
-            }
-
-            @Override
-            public void visit(@NonNull final BusinessPaymentModel businessPaymentModel) {
-                BusinessPaymentResultActivity.startWithForwardResult(PaymentResultActivity.this, businessPaymentModel);
-                finish();
-            }
-        });
+        presenter.onPaymentFinished(paymentModel);
     }
 }
