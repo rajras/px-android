@@ -1,3 +1,7 @@
+## VERSION 4.59.5
+_14_10_2020_
+* FIX - Avoid session clear when showing payment congrats within checkout
+
 ## VERSION 4.59.4
 _30_09_2020_
 * FIX - PaymentsCongrats discount info not showing.
