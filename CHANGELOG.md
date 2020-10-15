@@ -1,3 +1,8 @@
+## VERSION 4.60.0
+_15_10_2020_
+* FEATURE - Sending merchantOrderId to payments request body
+* FIX - Handle lost liveData on recover session.
+
 ## VERSION 4.59.5
 _14_10_2020_
 * FIX - Avoid session clear when showing payment congrats within checkout
