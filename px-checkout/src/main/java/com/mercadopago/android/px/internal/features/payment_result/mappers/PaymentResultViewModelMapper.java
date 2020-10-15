@@ -34,6 +34,6 @@ public class PaymentResultViewModelMapper extends Mapper<PaymentModel, PaymentRe
             remediesModel,
             PaymentResultFooterModelMapper.INSTANCE.map(model.getRemedies()),
             new PaymentResultBodyModelMapper(configuration).map(model), legacyViewModel,
-            RedirectHelper.INSTANCE.shouldAutoReturn(autoReturn, model.getPayment().getPaymentStatus()));
+            RedirectHelper.INSTANCE.shouldAutoReturn(autoReturn, model.getPaymentResult().getPaymentStatus()));
     }
 }

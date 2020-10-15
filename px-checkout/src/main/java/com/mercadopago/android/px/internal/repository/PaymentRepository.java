@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface PaymentRepository {
 
+    @Nullable
     PaymentServiceEventHandler getObservableEvents();
 
     void startPayment();

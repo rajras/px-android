@@ -121,7 +121,7 @@ internal class PayButtonViewModel(
         handler?.enqueueOnExploding(object : PayButton.OnEnqueueResolvedCallback {
             override fun success() {
                 paymentService.startExpressPayment(paymentConfiguration!!)
-                observeService(paymentService.observableEvents)
+                paymentService.observableEvents?.let { observeService(it) }
                 confirmTrackerData?.let { ConfirmEvent(it).track() }
             }
 
@@ -255,7 +255,9 @@ internal class PayButtonViewModel(
         paymentModel = bundle.getParcelable(BUNDLE_PAYMENT_MODEL)
         observingService = bundle.getBoolean(BUNDLE_OBSERVING_SERVICE)
         if (observingService) {
-            observeService(paymentService.observableEvents)
+            paymentService.observableEvents?.let {
+                observeService(it)
+            } ?: onPaymentProcessingError()
         }
     }
 
