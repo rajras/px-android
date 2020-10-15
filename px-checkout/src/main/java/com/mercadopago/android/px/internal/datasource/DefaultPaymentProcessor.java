@@ -30,7 +30,8 @@ public final class DefaultPaymentProcessor implements SplitPaymentProcessor {
         if (TextUtil.isEmpty(prefId)) {
             throw new IllegalStateException("This processor can't be used with open preferences");
         }
-        body.put("pref_id", data.checkoutPreference.getId());
+        body.put("merchant_order_id", data.checkoutPreference.getMerchantOrderId());
+        body.put("pref_id", prefId);
         body.put("payment_data", data.paymentDataList);
         final Session session = Session.getInstance();
         final String transactionId = session.getConfigurationModule().getPaymentSettings().getTransactionId();
