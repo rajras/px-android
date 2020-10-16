@@ -1,5 +1,8 @@
 package com.mercadopago.android.px.addons;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.provider.Settings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.model.EscDeleteReason;
@@ -19,14 +22,12 @@ public interface ESCManagerBehaviour {
     boolean saveESCWith(@NonNull final String firstDigits, @NonNull final String lastDigits, @NonNull final String esc);
 
     /**
-     *
      * @deprecated use the one with Reason and detail parameters
      */
     @Deprecated
     void deleteESCWith(@NonNull final String cardId);
 
     /**
-     *
      * @deprecated there are no cases where we need to delete this ESCs
      */
     @Deprecated
@@ -39,4 +40,10 @@ public interface ESCManagerBehaviour {
     Set<String> getESCCardIds();
 
     boolean isESCEnabled();
+
+    @NonNull
+    @SuppressLint("HardwareIds")
+    default String getSyncedAndroidId(@NonNull final Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
 }

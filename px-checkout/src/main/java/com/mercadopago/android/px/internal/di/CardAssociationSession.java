@@ -59,6 +59,6 @@ public final class CardAssociationSession extends ApplicationModule {
     public CardAssociationGatewayService getGatewayService() {
         return new CardAssociationGatewayService(
             RetrofitUtil.getRetrofitClient(getApplicationContext()).create(GatewayService.class),
-            new Device(getApplicationContext()));
+            new Device(getApplicationContext(), getMercadoPagoESC()));
     }
 }

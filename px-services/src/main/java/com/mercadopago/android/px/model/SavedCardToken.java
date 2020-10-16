@@ -3,6 +3,7 @@ package com.mercadopago.android.px.model;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
+import com.mercadopago.android.px.addons.internal.ESCManagerDefaultBehaviour;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 
 public class SavedCardToken {
@@ -20,8 +21,13 @@ public class SavedCardToken {
         return device;
     }
 
+    /**
+     * @param context
+     * @deprecated use {@link SavedCardToken#setDevice(Device)} instead.
+     */
+    @Deprecated
     public void setDevice(Context context) {
-        device = new Device(context);
+        device = new Device(context, new ESCManagerDefaultBehaviour());
     }
 
     public void setDevice(@NonNull final Device device) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.gson.annotations.SerializedName;
+import com.mercadopago.android.px.addons.internal.ESCManagerDefaultBehaviour;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import java.util.Calendar;
@@ -161,7 +162,7 @@ public class CardToken {
      */
     @Deprecated
     public void setDevice(final Context context) {
-        device = new Device(context);
+        device = new Device(context, new ESCManagerDefaultBehaviour());
     }
 
     public void setDevice(final Device device) {

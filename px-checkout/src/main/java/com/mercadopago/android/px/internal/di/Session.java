@@ -242,12 +242,13 @@ public final class Session extends ApplicationModule {
     @NonNull
     public ESCManagerBehaviour getMercadoPagoESC() {
         final TrackingRepository trackingRepository = configurationModule.getTrackingRepository();
-        return BehaviourProvider.getEscManagerBehaviour(trackingRepository.getSessionId(), trackingRepository.getFlowId());
+        return BehaviourProvider
+            .getEscManagerBehaviour(trackingRepository.getSessionId(), trackingRepository.getFlowId());
     }
 
     @NonNull
     private Device getDevice() {
-        return new Device(getApplicationContext());
+        return new Device(getApplicationContext(), getMercadoPagoESC());
     }
 
     @NonNull
@@ -300,7 +301,8 @@ public final class Session extends ApplicationModule {
     @NonNull
     public PluginRepository getPluginRepository() {
         if (pluginRepository == null) {
-            pluginRepository = new PluginService(getApplicationContext(), getConfigurationModule().getPaymentSettings());
+            pluginRepository =
+                new PluginService(getApplicationContext(), getConfigurationModule().getPaymentSettings());
         }
         return pluginRepository;
     }
@@ -384,7 +386,7 @@ public final class Session extends ApplicationModule {
             final GatewayService gatewayService =
                 networkModule.getRetrofitClient().create(GatewayService.class);
             cardTokenRepository = new CardTokenService(gatewayService, getConfigurationModule().getPaymentSettings(),
-                new Device(getApplicationContext()), getMercadoPagoESC());
+                getDevice(), getMercadoPagoESC());
         }
         return cardTokenRepository;
     }

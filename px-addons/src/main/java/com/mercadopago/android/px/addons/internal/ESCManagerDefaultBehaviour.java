@@ -38,7 +38,6 @@ public final class ESCManagerDefaultBehaviour implements ESCManagerBehaviour {
     }
 
     /**
-     *
      * @deprecated use the one with Reason and detail parameters
      */
     @Deprecated
@@ -48,7 +47,6 @@ public final class ESCManagerDefaultBehaviour implements ESCManagerBehaviour {
     }
 
     /**
-     *
      * @deprecated there are no cases where we need to delete this ESCs
      */
     @Deprecated
