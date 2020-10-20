@@ -39,6 +39,10 @@ public final class JsonUtil {
         );
     }
 
+    public static Map<String, String> getStringMapFromJson(@Nullable final String json) {
+        return GSON.fromJson(json, new TypeToken<Map<String, String>>() {}.getType());
+    }
+
     public static Map<String, Object> getMapFromObject(@Nullable final Object src) {
         return getMapFromJson(GSON.toJson(src));
     }
