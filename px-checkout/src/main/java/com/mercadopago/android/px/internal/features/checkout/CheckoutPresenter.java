@@ -36,7 +36,6 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
     @NonNull private final InitRepository initRepository;
     @NonNull private final CongratsRepository congratsRepository;
     @NonNull private final InternalConfiguration internalConfiguration;
-    private transient FailureRecovery failureRecovery;
 
     /* default */ CheckoutPresenter(@NonNull final CheckoutStateModel persistentData,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
@@ -255,16 +254,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
 
     @Override
     public void recoverFromFailure() {
-        if (failureRecovery != null) {
-            failureRecovery.recover();
-        } else {
-            getView().showFailureRecoveryError();
-        }
-    }
-
-    @Override
-    public void setFailureRecovery(final FailureRecovery failureRecovery) {
-        this.failureRecovery = failureRecovery;
+        initialize();
     }
 
     @Override
@@ -313,7 +303,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
         return state.isUniquePaymentMethod;
     }
 
-   @Override
+    @Override
     public void onChangePaymentMethod() {
         state.paymentMethodEdited = true;
         userSelectionRepository.reset();

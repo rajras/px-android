@@ -19,6 +19,7 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
+import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import java.util.List;
 
@@ -75,6 +76,8 @@ public interface ExpressPayment {
         void hideLoading();
 
         void configurePaymentMethodHeader(@NonNull final List<Variant> variant);
+
+        void showError(@NonNull final MercadoPagoError mercadoPagoError);
     }
 
     interface Actions {

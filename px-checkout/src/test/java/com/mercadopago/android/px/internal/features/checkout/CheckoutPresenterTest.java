@@ -493,13 +493,6 @@ public class CheckoutPresenterTest {
         verifyNoMoreInteractions(checkoutView);
     }
 
-    @Test
-    public void whenFailureRecoveryNotSetThenShowFailureRecoveryError() {
-        presenter.recoverFromFailure();
-        verify(checkoutView).showFailureRecoveryError();
-        verifyNoMoreInteractions(checkoutView);
-    }
-
 // --------- Helper methods ----------- //
 
     @NonNull

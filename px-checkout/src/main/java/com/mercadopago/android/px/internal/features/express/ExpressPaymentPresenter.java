@@ -8,6 +8,7 @@ import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.core.internal.TriggerableQueue;
 import com.mercadopago.android.px.internal.base.BasePresenter;
+import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.experiments.BadgeVariant;
 import com.mercadopago.android.px.internal.experiments.PulseVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
@@ -31,6 +32,7 @@ import com.mercadopago.android.px.internal.repository.PayerComplianceRepository;
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
+import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.util.PayerComplianceWrapper;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -56,6 +58,7 @@ import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.FromExpressMetadataToPaymentConfiguration;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.model.internal.Modal;
@@ -145,8 +148,8 @@ import java.util.Set;
         triggerableQueue = new TriggerableQueue();
     }
 
-    /* default */ void onFailToRetrieveInitResponse() {
-        throw new IllegalStateException("groups missing rendering one tap");
+    /* default */ void onFailToRetrieveInitResponse(@NonNull final ApiException apiException) {
+        getView().showError(MercadoPagoError.createNotRecoverable(apiException, ApiUtil.RequestOrigin.POST_INIT));
     }
 
     @Override
@@ -180,7 +183,7 @@ import java.util.Set;
         getView().updateAdapters(model);
         updateElements();
         getView().updatePaymentMethods(paymentMethodDrawableItemMapper.map(expressMetadataList));
-        if(OfflineMethods.shouldLaunch(expressMetadataList)) {
+        if (OfflineMethods.shouldLaunch(expressMetadataList)) {
             getView().showOfflineMethodsCollapsed();
         }
     }
@@ -209,7 +212,7 @@ import java.util.Set;
 
             @Override
             public void failure(final ApiException apiException) {
-                onFailToRetrieveInitResponse();
+                onFailToRetrieveInitResponse(apiException);
             }
         });
     }
@@ -397,7 +400,7 @@ import java.util.Set;
 
             @Override
             public void failure(final ApiException apiException) {
-                onFailToRetrieveInitResponse();
+                onFailToRetrieveInitResponse(apiException);
             }
         });
     }

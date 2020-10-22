@@ -8,16 +8,14 @@ import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.services.Callback
 import java.io.File
 
-class InitDiskCache(private val fileManager: FileManager) : Cache<InitResponse?> {
+class InitDiskCache(private val fileManager: FileManager) : Cache<InitResponse> {
     private val initFile: File
 
     init {
         initFile = fileManager.create(DEF_FILE_NAME)
     }
 
-    override fun get(): MPCall<InitResponse?> {
-        return MPCall { callback: Callback<InitResponse> -> read(callback) }
-    }
+    override fun get() = MPCall { callback: Callback<InitResponse> -> read(callback) }
 
     override fun put(initResponse: InitResponse) {
         if (!isCached) {

@@ -50,6 +50,7 @@ public final class ApiUtil {
         private StatusCodes() {
         }
 
+        public static final int CACHE_FAIL = -3;
         private static final int GENERIC_TIME_OUT = -2;
         public static final int INTERNAL_SERVER_ERROR = 500;
         public static final int PROCESSING = 499;

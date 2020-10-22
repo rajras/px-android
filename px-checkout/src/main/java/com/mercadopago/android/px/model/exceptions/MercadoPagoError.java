@@ -25,9 +25,14 @@ public class MercadoPagoError implements Serializable {
     }
 
     public MercadoPagoError(@NonNull final ApiException apiException, final String requestOrigin) {
+        this(apiException, requestOrigin, apiException.isRecoverable());
+    }
+
+    private MercadoPagoError(@NonNull final ApiException apiException, final String requestOrigin,
+        final boolean recoverable) {
         this.apiException = apiException;
         this.requestOrigin = requestOrigin;
-        recoverable = apiException.isRecoverable();
+        this.recoverable = recoverable;
     }
 
     @NonNull
@@ -43,7 +48,7 @@ public class MercadoPagoError implements Serializable {
     @NonNull
     public static MercadoPagoError createNotRecoverable(@NonNull final ApiException apiException,
         @NonNull final String requestOrigin) {
-        return new MercadoPagoError(apiException, requestOrigin);
+        return new MercadoPagoError(apiException, requestOrigin, false);
     }
 
     public ApiException getApiException() {

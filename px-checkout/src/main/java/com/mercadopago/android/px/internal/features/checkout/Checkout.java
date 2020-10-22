@@ -42,8 +42,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         void showNewCardFlow();
 
-        void showFailureRecoveryError();
-
         void goToLink(@NonNull final String link);
 
         void openInWebView(@NonNull final String link);
@@ -71,8 +69,6 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
         void onCustomReviewAndConfirmResponse(final Integer customResultCode);
 
         void recoverFromFailure();
-
-        void setFailureRecovery(final FailureRecovery failureRecovery);
 
         void onPaymentResultResponse(@Nullable final Integer customResultCode);
 

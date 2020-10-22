@@ -224,11 +224,6 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     }
 
     @Override
-    public void showFailureRecoveryError() {
-        showError(MercadoPagoError.createNotRecoverable(getString(R.string.px_error_failure_recovery_not_defined)));
-    }
-
-    @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {

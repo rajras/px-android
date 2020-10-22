@@ -50,6 +50,7 @@ import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
@@ -69,6 +70,7 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
+import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import java.util.Arrays;
 import java.util.List;
@@ -237,7 +239,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private void configureViews(@NonNull final View view) {
         payButtonFragment = (PayButtonFragment) getChildFragmentManager().findFragmentById(R.id.pay_button);
         payButtonContainer = view.findViewById(R.id.pay_button);
-        offlineMethodsFragment = (OfflineMethodsFragment) getChildFragmentManager().findFragmentById(R.id.offline_methods);
+        offlineMethodsFragment =
+            (OfflineMethodsFragment) getChildFragmentManager().findFragmentById(R.id.offline_methods);
         splitPaymentView = view.findViewById(R.id.labeledSwitch);
         summaryView = view.findViewById(R.id.summary_view);
         loading = view.findViewById(R.id.loading);
@@ -343,7 +346,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         expandAndCollapseAnimation = null;
         slideDownAndFadeAnimation = null;
         slideUpAndFadeAnimation = null;
-        if(presenter!=null) {
+        if (presenter != null) {
             presenter.detachView();
         }
         super.onDetach();
@@ -439,7 +442,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == REQ_CODE_DISABLE_DIALOG) {
+        if (requestCode == ErrorUtil.ERROR_REQUEST_CODE) {
+            cancel();
+        } else if (requestCode == REQ_CODE_DISABLE_DIALOG) {
             setPagerIndex(0);
         } else if (requestCode == REQ_CODE_CARD_FORM) {
             handleCardFormResult(resultCode);
@@ -578,5 +583,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void configurePaymentMethodHeader(@NonNull final List<Variant> variants) {
         paymentMethodHeaderView.configureExperiment(variants);
+    }
+
+    @Override
+    public void showError(@NonNull final MercadoPagoError mercadoPagoError) {
+        ErrorUtil.startErrorActivity(this, mercadoPagoError);
     }
 }
