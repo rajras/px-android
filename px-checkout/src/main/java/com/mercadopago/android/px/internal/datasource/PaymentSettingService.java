@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
+import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.core.FileManager;
@@ -34,7 +35,8 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_SECURITY_TYPE = "PREF_SECURITY_TYPE";
     private static final String PREF_PRODUCT_ID = "PREF_PRODUCT_ID";
     private static final String PREF_LABELS = "PREF_LABELS";
-    private static final String PREF_AMOUNT_ROW_ENABLED = "PREF_AMOUNT_ROW_ENABLED";
+    private static final String PREF_ONE_TAP_ENABLED = "PREF_ONE_TAP_ENABLED";
+    private static final String PREF_CUSTOM_STRINGS = "PREF_CUSTOM_STRINGS";
     private static final String PREF_CONFIGURATION = "PREF_CONFIGURATION";
     private static final String FILE_PAYMENT_CONFIG = "px_payment_config";
 
@@ -100,7 +102,8 @@ public class PaymentSettingService implements PaymentSettingRepository {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(PREF_PRODUCT_ID, advancedConfiguration.getDiscountParamsConfiguration().getProductId());
         edit.putStringSet(PREF_LABELS, advancedConfiguration.getDiscountParamsConfiguration().getLabels());
-        edit.putBoolean(PREF_AMOUNT_ROW_ENABLED, advancedConfiguration.isAmountRowEnabled()).apply();
+        edit.putString(PREF_CUSTOM_STRINGS, JsonUtil.toJson(advancedConfiguration.getCustomStringConfiguration()));
+        edit.putBoolean(PREF_ONE_TAP_ENABLED, advancedConfiguration.isExpressPaymentEnabled()).apply();
 
         this.advancedConfiguration = advancedConfiguration;
     }
@@ -246,10 +249,12 @@ public class PaymentSettingService implements PaymentSettingRepository {
     public AdvancedConfiguration getAdvancedConfiguration() {
         if (advancedConfiguration == null) {
             return new AdvancedConfiguration.Builder()
-                .setAmountRowEnabled(sharedPreferences.getBoolean(PREF_AMOUNT_ROW_ENABLED, true))
+                .setExpressPaymentEnable(sharedPreferences.getBoolean(PREF_ONE_TAP_ENABLED, false))
                 .setDiscountParamsConfiguration(new DiscountParamsConfiguration.Builder()
                     .setProductId(sharedPreferences.getString(PREF_PRODUCT_ID, ""))
-                    .setLabels(sharedPreferences.getStringSet(PREF_LABELS, Collections.<String>emptySet())).build())
+                    .setLabels(sharedPreferences.getStringSet(PREF_LABELS, Collections.emptySet())).build())
+                .setCustomStringConfiguration(JsonUtil.getGson().fromJson(
+                    sharedPreferences.getString(PREF_CUSTOM_STRINGS, null), CustomStringConfiguration.class))
                 .build();
         }
         return advancedConfiguration;
