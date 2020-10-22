@@ -1,3 +1,11 @@
+## VERSION 4.61.0
+_22_10_2020_
+* FEATURE - New security code screen.
+* FEATURE - Add synced android id getter in esc behaviour.
+* ENHANCEMENT - Throw error screen instead of exception in one tap.
+* FIX - Persistent data from advanced configuration.
+* FIX - Clean refresh after new card flow with recovered session.
+
 ## VERSION 4.60.0
 _15_10_2020_
 * FEATURE - Sending merchantOrderId to payments request body
