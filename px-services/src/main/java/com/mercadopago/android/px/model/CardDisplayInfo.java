@@ -19,6 +19,7 @@ public class CardDisplayInfo implements Parcelable, Serializable {
     public final String fontType;
     public final String paymentMethodImageUrl;
     public final String issuerImageUrl;
+    public final SecurityCode securityCode;
     //public final String firstSixDigits;
 
     protected CardDisplayInfo(final Parcel in) {
@@ -35,6 +36,7 @@ public class CardDisplayInfo implements Parcelable, Serializable {
         fontType = in.readString();
         paymentMethodImageUrl = in.readString();
         issuerImageUrl = in.readString();
+        securityCode = in.readParcelable(SecurityCode.class.getClassLoader());
         //firstSixDigits = in.readString();
     }
 
@@ -70,6 +72,7 @@ public class CardDisplayInfo implements Parcelable, Serializable {
         dest.writeString(fontType);
         dest.writeString(paymentMethodImageUrl);
         dest.writeString(issuerImageUrl);
+        dest.writeParcelable(securityCode, flags);
         //dest.writeString(firstSixDigits);
     }
 

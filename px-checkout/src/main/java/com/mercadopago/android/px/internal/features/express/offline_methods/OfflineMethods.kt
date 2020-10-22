@@ -15,12 +15,12 @@ internal interface OfflineMethods {
     }
 
     interface ViewModel {
+        val deepLinkLiveData: LiveData<String>
         fun onSheetShowed()
         fun onViewLoaded(): LiveData<Model>
         fun onMethodSelected(selectedItem: OfflineMethodItem)
         fun onPrePayment(callback: PayButton.OnReadyForPaymentCallback)
         fun onBack()
-        fun getObservableDeepLink(): LiveData<String>
     }
 
     interface OnMethodSelectedListener {

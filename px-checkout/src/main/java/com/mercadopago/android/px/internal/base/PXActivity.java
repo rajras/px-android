@@ -28,6 +28,10 @@ public abstract class PXActivity<P extends BasePresenter> extends AppCompatActiv
         }
     }
 
+    public FragmentCommunicationViewModel getFragmentCommunicationViewModel() {
+        return Session.getInstance().getViewModelModule().get(this, FragmentCommunicationViewModel.class);
+    }
+
     protected abstract void onCreated(@Nullable final Bundle savedInstanceState);
 
     protected void onHalted() {
@@ -52,6 +56,14 @@ public abstract class PXActivity<P extends BasePresenter> extends AppCompatActiv
 
     @Override
     public void onBackPressed() {
+        doBack();
+    }
+
+    public final void forceBack() {
+        doBack();
+    }
+
+    private void doBack() {
         if (presenter != null) {
             presenter.tracker.trackBack();
         }

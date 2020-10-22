@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.base.BaseFragment;
+import com.mercadopago.android.px.internal.base.BasePagerFragment;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.animations.BottomSlideAnimationSet;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
 public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
-    extends BaseFragment<PaymentMethodPresenter, T> implements PaymentMethod.View, Focusable {
+    extends BasePagerFragment<PaymentMethodPresenter, T> implements PaymentMethod.View, Focusable {
 
     private CardView card;
     private BottomSlideAnimationSet animation;

@@ -26,15 +26,6 @@ object PaymentCongrats {
         }
     }
 
-    @JvmStatic
-    fun show(paymentCongratsModel: PaymentCongratsModel, activity: Activity) {
-        Intent(activity, BusinessPaymentResultActivity::class.java).also {
-            it.putExtra(PAYMENT_CONGRATS, paymentCongratsModel)
-            it.flags = Intent.FLAG_ACTIVITY_FORWARD_RESULT
-            activity.startActivity(it)
-        }
-    }
-
     internal fun show(paymentCongratsModel: PaymentCongratsModel, fragment: Fragment, requestCode: Int) {
         Intent(fragment.context, BusinessPaymentResultActivity::class.java).also {
             it.putExtra(PAYMENT_CONGRATS, paymentCongratsModel)

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.base.BaseFragment;
+import com.mercadopago.android.px.internal.base.BasePagerFragment;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
@@ -31,7 +31,7 @@ import com.mercadopago.android.px.model.internal.Text;
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
 public class OtherPaymentMethodFragment
-    extends BaseFragment<OtherPaymentMethodPresenter, OtherPaymentMethodFragmentItem>
+    extends BasePagerFragment<OtherPaymentMethodPresenter, OtherPaymentMethodFragmentItem>
     implements AddNewCard.View {
 
     private static final String OLD_VERSION = "v1";

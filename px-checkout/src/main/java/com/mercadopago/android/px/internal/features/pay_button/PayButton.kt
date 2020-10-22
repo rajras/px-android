@@ -1,6 +1,8 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
+import android.content.Intent
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
+import com.mercadopago.android.px.internal.features.express.RenderMode
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.PaymentRecovery
@@ -28,14 +30,18 @@ interface PayButton {
         fun onRecoverPaymentEscInvalid(recovery: PaymentRecovery)
         fun onPostPayment(paymentModel: PaymentModel)
         fun onPostPaymentAction(postPaymentAction: PostPaymentAction)
+        fun handleCongratsResult(resultCode: Int, data: Intent?)
+        fun handleSecurityCodeResult(resultCode: Int, data: Intent?)
     }
 
     interface Handler {
         fun prePayment(callback: OnReadyForPaymentCallback)
         @JvmDefault fun enqueueOnExploding(callback: OnEnqueueResolvedCallback) = callback.success()
         @JvmDefault fun onPostPaymentAction(postPaymentAction: PostPaymentAction) = Unit
+        @JvmDefault fun onCvvRequested() = CvvRequestedModel()
         @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel, callback: OnPaymentFinishedCallback) = callback.call()
         @JvmDefault fun onPaymentError(error: MercadoPagoError) = Unit
+        @JvmDefault fun onPostCongrats(resultCode: Int, data: Intent?) = Unit
     }
 
     interface OnReadyForPaymentCallback {
@@ -49,5 +55,17 @@ interface PayButton {
 
     interface OnPaymentFinishedCallback {
         fun call()
+    }
+
+    interface StateChange {
+        fun overrideStateChange(uiState: State) = false
+    }
+
+    data class CvvRequestedModel(val fragmentContainer: Int = 0, val renderMode: RenderMode = RenderMode.NO_CARD)
+
+    enum class State {
+        IN_PROGRESS,
+        ENABLE,
+        DISABLE
     }
 }

@@ -116,7 +116,7 @@ public class SummaryView extends LinearLayout {
         toolbarElementDescriptor.setVisibility(VISIBLE);
     }
 
-    public void animateEnter(final int duration) {
+    public void animateEnter(final long duration) {
         shouldAnimateReturnFromCardForm = true;
         detailAdapter.customAnimation = true;
 
@@ -146,7 +146,7 @@ public class SummaryView extends LinearLayout {
         totalAmountDescriptor.animateEnter();
     }
 
-    public void animateExit(final int duration) {
+    public void animateExit(final long duration) {
         final Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.px_fade_out);
         fadeOut.setDuration(duration);
 

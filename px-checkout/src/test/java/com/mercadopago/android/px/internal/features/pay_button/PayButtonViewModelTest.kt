@@ -14,8 +14,10 @@ import com.mercadopago.android.px.internal.datasource.PaymentSettingService
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
+import com.mercadopago.android.px.internal.features.express.RenderMode
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
+import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
 import com.mercadopago.android.px.internal.livedata.MutableSingleLiveData
 import com.mercadopago.android.px.internal.model.SecurityType
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
@@ -72,14 +74,13 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
     @Mock
     private lateinit var buttonTextObserver: Observer<PayButtonTexts>
     @Mock
-    private lateinit var uiStateObserver: Observer<PayButtonState>
+    private lateinit var uiStateObserver: Observer<PayButtonUiState>
     @Mock
-    private lateinit var cvvRequiredObserver: Observer<Pair<Card, Reason>?>
-    @Mock
-    private lateinit var recoverRequiredObserver: Observer<PaymentRecovery?>
+    private lateinit var cvvRequiredObserver: Observer<SecurityCodeParams>
+
     private val paymentErrorLiveData = MutableSingleLiveData<MercadoPagoError>()
     private val paymentFinishedLiveData = MutableSingleLiveData<PaymentModel>()
-    private val requireCvvLiveData = MutableSingleLiveData<Pair<Card, Reason>>()
+    private val requireCvvLiveData = MutableSingleLiveData<Pair<Card,Reason>>()
     private val recoverInvalidEscLiveData = MutableSingleLiveData<PaymentRecovery>()
     private val visualPaymentLiveData = MutableSingleLiveData<Unit>()
 
@@ -113,7 +114,6 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
         payButtonViewModel.stateUILiveData.observeForever(uiStateObserver)
         payButtonViewModel.buttonTextLiveData.observeForever(buttonTextObserver)
         payButtonViewModel.cvvRequiredLiveData.observeForever(cvvRequiredObserver)
-        payButtonViewModel.recoverRequiredLiveData.observeForever(recoverRequiredObserver)
         payButtonViewModel.attach(handler)
 
         Whitebox.setInternalState(payButtonViewModel, "paymentConfiguration", mock(PaymentConfiguration::class.java))
@@ -196,7 +196,7 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
 
         verify(handler).enqueueOnExploding(callback.capture())
         callback.value.success()
-        verify(uiStateObserver).onChanged(any(UIError.ConnectionError::class.java))
+        verify(uiStateObserver).onChanged(any(UIError.BusinessError::class.java))
         verify(handler).onPaymentError(error)
         verify(uiStateObserver).onChanged(any(UIProgress.ButtonLoadingCanceled::class.java))
     }
@@ -279,42 +279,49 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
     @Test
     fun startPaymentAndObserveServiceWhenIsPaymentCvvRequiredEvent() {
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
-        val pair = Pair(mock(Card::class.java), mock(Reason::class.java))
+        val paymentConfigurationCaptor = argumentCaptor<PaymentConfiguration>()
+        val onChangeCaptor = argumentCaptor<SecurityCodeParams>()
+        val reason = mock(Reason::class.java)
+        val card = mock(Card::class.java)
+        val cvvRequested = mock(PayButton.CvvRequestedModel::class.java)
+        `when`(cvvRequested.renderMode).thenReturn(mock(RenderMode::class.java))
+        `when`(handler.onCvvRequested()).thenReturn(cvvRequested)
 
         payButtonViewModel.startPayment()
-        requireCvvLiveData.value = pair
+        requireCvvLiveData.value = Pair(card,reason)
 
         verify(handler).enqueueOnExploding(callback.capture())
         callback.value.success()
-        verify(cvvRequiredObserver).onChanged(pair)
+        verify(paymentService).startExpressPayment(paymentConfigurationCaptor.capture())
+        verify(handler).onCvvRequested()
+        verify(cvvRequiredObserver).onChanged(onChangeCaptor.capture())
+        val actualResult = onChangeCaptor.value
+        assertTrue(ReflectionEquals(actualResult.paymentConfiguration).matches(paymentConfigurationCaptor.value))
+        assertTrue(ReflectionEquals(actualResult.reason).matches(reason))
     }
 
     @Test
     fun startPaymentAndObserveServiceWhenIsInvalidEscEventAndShouldAskForCvv() {
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
+        val paymentConfigurationCaptor = argumentCaptor<PaymentConfiguration>()
+        val onChangeCaptor = argumentCaptor<SecurityCodeParams>()
         val paymentRecoveryMock = mock(PaymentRecovery::class.java)
         `when`(paymentRecoveryMock.shouldAskForCvv()).thenReturn(true)
+        val cvvRequested = mock(PayButton.CvvRequestedModel::class.java)
+        `when`(cvvRequested.renderMode).thenReturn(mock(RenderMode::class.java))
+        `when`(handler.onCvvRequested()).thenReturn(cvvRequested)
 
         payButtonViewModel.startPayment()
         recoverInvalidEscLiveData.value = paymentRecoveryMock
 
         verify(handler).enqueueOnExploding(callback.capture())
         callback.value.success()
-        verify(recoverRequiredObserver).onChanged(paymentRecoveryMock)
-    }
-
-    @Test
-    fun startPaymentAndObserveServiceWhenIsInvalidEscEventAndNotShouldAskForCvv() {
-        val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
-        val paymentRecoveryMock = mock(PaymentRecovery::class.java)
-        `when`(paymentRecoveryMock.shouldAskForCvv()).thenReturn(false)
-
-        payButtonViewModel.startPayment()
-        recoverInvalidEscLiveData.value = paymentRecoveryMock
-
-        verify(handler).enqueueOnExploding(callback.capture())
-        callback.value.success()
-        verify(recoverRequiredObserver).onChanged(null)
+        verify(paymentService).startExpressPayment(paymentConfigurationCaptor.capture())
+        verify(handler).onCvvRequested()
+        verify(cvvRequiredObserver).onChanged(onChangeCaptor.capture())
+        val actualResult = onChangeCaptor.value
+        assertTrue(ReflectionEquals(actualResult.paymentConfiguration).matches(paymentConfigurationCaptor.value))
+        assertTrue(ReflectionEquals(actualResult.paymentRecovery).matches(paymentRecoveryMock))
     }
 
     private fun configurePaymentSettingServiceObservableEvents() {

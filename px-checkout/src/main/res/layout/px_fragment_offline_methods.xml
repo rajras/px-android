@@ -108,6 +108,6 @@
             android:layout_marginHorizontal="@dimen/ui_3m"
             app:layout_constraintTop_toBottomOf="@id/bottom_description"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:layout="@layout/fragment_pay_button" />
+            tools:layout="@layout/px_fragment_pay_button" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

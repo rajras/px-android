@@ -111,4 +111,8 @@ public interface ExpressPayment {
 
         void onCardFormResult();
     }
+
+    enum NavigationState {
+        NONE, CARD_FORM, SECURITY_CODE
+    }
 }

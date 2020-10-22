@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/px_s_margin"
-            tools:layout="@layout/fragment_pay_button"/>
+            tools:layout="@layout/px_fragment_pay_button"/>
 
     </LinearLayout>
 

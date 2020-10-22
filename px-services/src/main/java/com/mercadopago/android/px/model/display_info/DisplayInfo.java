@@ -27,6 +27,7 @@ public final class DisplayInfo implements Parcelable, Serializable {
         return description;
     }
 
+    @Nullable
     public CvvInfo getCvvInfo() {
         return cvvInfo;
     }
@@ -64,5 +65,4 @@ public final class DisplayInfo implements Parcelable, Serializable {
             return new DisplayInfo[size];
         }
     };
-
 }

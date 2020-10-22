@@ -15,7 +15,6 @@ public final class TextUtil {
     public static final String NL = "\n";
     public static final String DOT = ".";
     public static final CharSequence SPACE = " ";
-    public static final CharSequence UNDERSCORE = "_";
     public static final String CSV_DELIMITER = ",";
 
     private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
@@ -35,10 +34,6 @@ public final class TextUtil {
 
     public static boolean isDigitsOnly(@Nullable final CharSequence text) {
         return text != null && DIGIT_PATTERN.matcher(text).matches();
-    }
-
-    public static <T extends CharSequence> T ifNotEmptyOrElse(@Nullable final T text, @NonNull final T fallback) {
-        return isNotEmpty(text) ? text : fallback;
     }
 
     @NonNull

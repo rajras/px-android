@@ -15,6 +15,9 @@ open class FrictionEventTracker protected constructor(private val path: String, 
     enum class Id(val value: String) {
         GENERIC("px_generic_error"),
         SILENT("px_silent_error"),
+        TOKEN_API_ERROR("token_api_error"),
+        PAYMENTS_API_ERROR("payments_api_error"),
+        NO_CONNECTION("no_connection"),
         INVALID_BIN("invalid_bin"),
         INVALID_CC_NUMBER("invalid_cc_number"),
         INVALID_NAME("invalid_name"),
@@ -23,7 +26,8 @@ open class FrictionEventTracker protected constructor(private val path: String, 
         INVALID_DOCUMENT("invalid_document_number"),
         INVALID_STATUS_DETAIL("invalid_status_detail"),
         INVALID_ESC("invalid_esc"),
-        INVALID_FINGERPRINT("invalid_fingerprint");
+        INVALID_FINGERPRINT("invalid_fingerprint"),
+        EXECUTE_USE_CASE("error_execute_use_case");
 
         companion object {
             const val ATTR = "id"

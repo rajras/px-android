@@ -48,6 +48,7 @@ import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogA
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
+import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
 import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
@@ -59,6 +60,7 @@ import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
 import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.view.TitlePager;
+import com.mercadopago.android.px.internal.view.animator.OneTapTransition;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
@@ -75,8 +77,6 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.HIGH_RES;
-import static com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragmentAdapter.RenderMode.LOW_RES;
 
 public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
     InstallmentsAdapter.ItemListener, SplitPaymentHeaderAdapter.SplitListener,
@@ -84,15 +84,17 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     TitlePagerAdapter.InstallmentChanged, PayButton.Handler, GenericDialog.Listener, BackHandler {
 
     private static final String TAG = ExpressPaymentFragment.class.getSimpleName();
-    public static final String TAG_OFFLINE_METHODS_FRAGMENT = "TAG_OFFLINE_METHODS_FRAGMENT";
     private static final String TAG_HEADER_DYNAMIC_DIALOG = "TAG_HEADER_DYNAMIC_DIALOG";
     private static final String EXTRA_RENDER_MODE = "render_mode";
+    private static final String EXTRA_NAVIGATION_STATE = "navigation_state";
 
     private static final int REQ_CODE_DISABLE_DIALOG = 105;
     public static final int REQ_CODE_CARD_FORM = 106;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
 
     @Nullable private CallBack callback;
+    @NonNull /* default */ ExpressPayment.NavigationState navigationState = ExpressPayment.NavigationState.NONE;
+    @Nullable private FragmentManager.FragmentLifecycleCallbacks fragmentLifecycleCallbacks;
 
     /* default */ ExpressPaymentPresenter presenter;
 
@@ -110,8 +112,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private PaymentMethodHeaderView paymentMethodHeaderView;
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
-    private PaymentMethodFragmentAdapter.RenderMode renderMode;
+    private RenderMode renderMode;
     private View loading;
+    private OneTapTransition transition;
 
     private HubAdapter hubAdapter;
 
@@ -134,7 +137,14 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
+        navigationState = ExpressPayment.NavigationState.NONE;
         presenter.onPostPaymentAction(postPaymentAction);
+    }
+
+    @NonNull
+    @Override
+    public PayButton.CvvRequestedModel onCvvRequested() {
+        return new PayButton.CvvRequestedModel(R.id.one_tap_fragment, renderMode);
     }
 
     @Override
@@ -153,42 +163,19 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Nullable
     @Override
     public Animation onCreateAnimation(final int transit, final boolean enter, final int nextAnim) {
-        final FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager != null && fragmentManager.findFragmentByTag(CardFormWithFragment.TAG) != null) {
-            final int duration = getResources().getInteger(R.integer.cf_anim_duration);
-            final int offset = getResources().getInteger(R.integer.px_card_form_animation_offset);
+        if (navigationState == ExpressPayment.NavigationState.CARD_FORM) {
             if (enter) {
-                final Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.px_summary_slide_up_in);
-                slideUp.setStartOffset(offset);
-                paymentMethodPager
-                    .startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.px_summary_slide_up_in));
-
-                final Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.px_fade_in);
-                fadeIn.setDuration(duration);
-                fadeIn.setStartOffset(offset);
-
-                paymentMethodHeaderView.startAnimation(fadeIn);
-                splitPaymentView.startAnimation(fadeIn);
-                indicator.startAnimation(fadeIn);
-                payButtonContainer.startAnimation(slideUp);
-
-                summaryView.animateEnter(duration);
+                navigationState = ExpressPayment.NavigationState.NONE;
+                transition.playEnterFromCardForm();
             } else {
-                final Animation slideDown =
-                    AnimationUtils.loadAnimation(getContext(), R.anim.px_summary_slide_down_out);
-                paymentMethodPager.startAnimation(slideDown);
-
-                final Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.px_fade_out);
-                fadeOut.setDuration(duration);
-
-                paymentMethodHeaderView.startAnimation(fadeOut);
-                indicator.startAnimation(fadeOut);
-                payButtonContainer.startAnimation(slideDown);
-                if (splitPaymentView.getVisibility() == VISIBLE) {
-                    splitPaymentView.startAnimation(fadeOut);
-                }
-
-                summaryView.animateExit(offset);
+                transition.playExitToCardForm();
+            }
+        } else if (navigationState == ExpressPayment.NavigationState.SECURITY_CODE) {
+            if (enter) {
+                navigationState = ExpressPayment.NavigationState.NONE;
+                transition.playEnterFromSecurityCode();
+            } else {
+                transition.playExitToSecurityCode();
             }
         }
         return super.onCreateAnimation(transit, enter, nextAnim);
@@ -206,11 +193,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         configureViews(view);
+        transition = new OneTapTransition(paymentMethodPager, summaryView, payButtonContainer,
+            paymentMethodHeaderView, indicator, splitPaymentView);
 
         presenter = createPresenter();
         if (savedInstanceState != null) {
-            renderMode =
-                (PaymentMethodFragmentAdapter.RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
+            renderMode = (RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
+            navigationState = (ExpressPayment.NavigationState) savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE);
             presenter.recoverFromBundle(savedInstanceState);
         } else {
             presenter.onFreshStart();
@@ -221,6 +210,28 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         summaryView.setOnLogoClickListener(v -> presenter.onHeaderClicked());
 
         paymentMethodPager.addOnPageChangeListener(this);
+
+        fragmentLifecycleCallbacks = new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentAttached(@NonNull final FragmentManager fm, @NonNull final Fragment fragment,
+                @NonNull final Context context) {
+                super.onFragmentAttached(fm, fragment, context);
+                if (fragment.getTag().equals(CardFormWithFragment.TAG)) {
+                    navigationState = ExpressPayment.NavigationState.CARD_FORM;
+                } else if (fragment instanceof SecurityCodeFragment) {
+                    navigationState = ExpressPayment.NavigationState.SECURITY_CODE;
+                }
+            }
+        };
+        getActivity().getSupportFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (fragmentLifecycleCallbacks != null) {
+            getActivity().getSupportFragmentManager().unregisterFragmentLifecycleCallbacks(fragmentLifecycleCallbacks);
+        }
     }
 
     private void configureViews(@NonNull final View view) {
@@ -306,6 +317,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         outState.putSerializable(EXTRA_RENDER_MODE, renderMode);
+        outState.putSerializable(EXTRA_NAVIGATION_STATE, navigationState);
         if (presenter != null) {
             super.onSaveInstanceState(presenter.storeInBundle(outState));
         } else {
@@ -354,7 +366,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             paymentMethodFragmentAdapter = new PaymentMethodFragmentAdapter(getChildFragmentManager());
             if (renderMode == null) {
                 summaryView.setMeasureListener((itemsClipped) -> {
-                    renderMode = itemsClipped ? LOW_RES : HIGH_RES;
+                    renderMode = itemsClipped ? RenderMode.LOW_RES : RenderMode.HIGH_RES;
                     onRenderModeDecided();
                 });
             } else {

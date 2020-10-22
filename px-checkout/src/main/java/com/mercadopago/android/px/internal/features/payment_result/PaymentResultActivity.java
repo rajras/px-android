@@ -30,8 +30,6 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.extensions.BaseExtensionsKt;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
-import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats;
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.features.payment_result.components.PaymentResultLegacyRenderer;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesFragment;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.PaymentResultFooter;
@@ -43,12 +41,12 @@ import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
+import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import kotlin.Unit;
 
-import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_ACTION;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUSTOM_EXIT;
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.getSafeIntent;
@@ -63,13 +61,6 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     private PayButtonFragment payButtonFragment;
     private RemediesFragment remediesFragment;
     private PaymentResultFooter footer;
-
-    public static void start(@NonNull final Activity activity, @NonNull final PaymentModel model) {
-        final Intent intent = new Intent(activity, PaymentResultActivity.class);
-        intent.putExtra(EXTRA_PAYMENT_MODEL, model);
-        intent.setFlags(FLAG_ACTIVITY_FORWARD_RESULT);
-        activity.startActivity(intent);
-    }
 
     public static void start(@NonNull final Fragment fragment, final int requestCode, @NonNull final PaymentModel model) {
         final Activity activity = fragment.getActivity();
@@ -284,20 +275,14 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void showGenericCongrats(@NonNull final PaymentModel paymentModel) {
-        PaymentResultActivity.start(this, paymentModel);
+    public void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
+        setResult(RESULT_ACTION, postPaymentAction.addToIntent(new Intent()));
         finish();
     }
 
     @Override
-    public void showPaymentCongrats(@NonNull final PaymentCongratsModel paymentCongratsModel) {
-        PaymentCongrats.show(paymentCongratsModel, this);
+    public void onPostCongrats(final int resultCode, @Nullable final Intent data) {
+        setResult(resultCode, data);
         finish();
-    }
-
-    @Override
-    public void onPaymentFinished(@NonNull final PaymentModel paymentModel,
-        @NonNull final PayButton.OnPaymentFinishedCallback callback) {
-        presenter.onPaymentFinished(paymentModel);
     }
 }

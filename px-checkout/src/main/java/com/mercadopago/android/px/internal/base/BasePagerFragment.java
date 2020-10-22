@@ -12,7 +12,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import com.mercadopago.android.px.R;
 
-public abstract class BaseFragment<P extends BasePresenter, M extends Parcelable> extends Fragment implements MvpView {
+public abstract class BasePagerFragment<P extends BasePresenter, M extends Parcelable> extends Fragment implements MvpView {
 
     private static final String ARG_MODEL = "ARG_MODEL";
 

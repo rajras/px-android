@@ -5,18 +5,21 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.ReviewAndConfirmConfiguration;
+import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
@@ -31,6 +34,7 @@ import com.mercadopago.android.px.internal.features.review_and_confirm.models.It
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.ReviewAndConfirmViewModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.SummaryModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.TermsAndConditionsModel;
+import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
 import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -84,7 +88,8 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     @Override
     protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_view_container_review_and_confirm);
-        payButton = (PayButtonFragment) getSupportFragmentManager().findFragmentById(R.id.pay_button);
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        payButton = (PayButtonFragment) fragmentManager.findFragmentById(R.id.pay_button);
         initializeViews();
         final Session session = Session.getInstance();
 
@@ -253,8 +258,16 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
             return;
         }
 
-        presenter.onBackPressed();
-        setResult(RESULT_CANCELED_RYC);
+        final Fragment fragment = getSupportFragmentManager().findFragmentByTag(SecurityCodeFragment.TAG);
+        if (fragment instanceof BackHandler && fragment.isAdded()) {
+            if (((BackHandler) fragment).handleBack()) {
+                return;
+            }
+        } else {
+            presenter.onBackPressed();
+            setResult(RESULT_CANCELED_RYC);
+        }
+
         super.onBackPressed();
     }
 

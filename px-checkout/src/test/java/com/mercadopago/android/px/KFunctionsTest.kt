@@ -1,6 +1,7 @@
 package com.mercadopago.android.px
 
 import org.mockito.Mockito
+import kotlin.reflect.KClass
 
 
 /**
@@ -12,6 +13,14 @@ import org.mockito.Mockito
  */
 fun <T> any(type : Class<T>): T {
     return Mockito.any(type) as T
+}
+
+inline fun <reified T : Any> any() = Mockito.any(T::class.java) ?: createInstance()
+
+inline fun <reified T : Any> createInstance(): T = createInstance(T::class)
+
+fun <T : Any> createInstance(kClass: KClass<T>): T {
+    return castNull()
 }
 
 /**
