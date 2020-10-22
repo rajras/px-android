@@ -136,8 +136,7 @@ public abstract class InitService implements InitRepository {
         };
     }
 
-    @NonNull
-        /* default */ MPCall<InitResponse> newRequest() {
+    @NonNull /* default */ MPCall<InitResponse> newRequest() {
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
         final PaymentConfiguration paymentConfiguration = paymentSettingRepository.getPaymentConfiguration();
 
@@ -178,18 +177,16 @@ public abstract class InitService implements InitRepository {
     @NonNull
     @Override
     public MPCall<InitResponse> cleanRefresh() {
-        initCache.evict();
-        return init();
+        return newCall(getPostResponse());
     }
 
     /* default */ Callback<InitResponse> getRefreshCallback(@NonNull final Callback<InitResponse> originalCallback) {
-        final Map<String, DisabledPaymentMethod> disabledPaymentMethodMap =
-            disabledPaymentMethodRepository.getDisabledPaymentMethods();
         return new Callback<InitResponse>() {
             @Override
             public void success(final InitResponse initResponse) {
+                final Map<String, DisabledPaymentMethod> disabledPaymentMethodMap =
+                    disabledPaymentMethodRepository.getDisabledPaymentMethods();
                 new ExpressMetadataSorter(initResponse.getExpress(), disabledPaymentMethodMap).sort();
-                initCache.evict();
                 getPostResponse().call(initResponse);
                 originalCallback.success(initResponse);
             }
@@ -204,10 +201,7 @@ public abstract class InitService implements InitRepository {
     @NonNull
     @Override
     public MPCall<InitResponse> refreshWithNewCard(@NonNull final String cardId) {
-        return callback -> {
-            initCache.evict();
-            newCall(noPostResponse()).enqueue(getRefreshWithNewCardCallback(cardId, callback));
-        };
+        return callback -> newCall(noPostResponse()).enqueue(getRefreshWithNewCardCallback(cardId, callback));
     }
 
     /* default */ Callback<InitResponse> getRefreshWithNewCardCallback(@NonNull final String cardId,

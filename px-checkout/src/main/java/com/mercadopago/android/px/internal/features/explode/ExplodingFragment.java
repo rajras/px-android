@@ -352,7 +352,9 @@ public class ExplodingFragment extends Fragment {
     private void doFinishLoading() {
         // now finish the remaining loading progress
         final int progress = progressBar.getProgress();
-        animator.cancel();
+        if (animator != null) {
+            animator.cancel();
+        }
         animator = ObjectAnimator.ofInt(progressBar, "progress", progress, maxLoadingTime);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
         animator.setDuration(getResources().getInteger(R.integer.px_long_animation_time));
