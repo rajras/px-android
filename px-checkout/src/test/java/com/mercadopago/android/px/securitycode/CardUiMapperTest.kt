@@ -3,7 +3,6 @@ package com.mercadopago.android.px.securitycode
 import android.os.Build
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessCardDisplayInfo
 import com.mercadopago.android.px.internal.viewmodel.CardUiConfiguration
-import com.mercadopago.android.px.internal.viewmodel.DisableConfiguration
 import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
 import com.mercadopago.android.px.model.CardDisplayInfo
 import com.mercadopago.android.px.model.SecurityCode
@@ -55,7 +54,7 @@ class CardUiMapperTest {
             businessCardDisplayInfo.securityCodeLength
         )
 
-        val actualResult = CardUiMapper().map(businessCardDisplayInfo)
+        val actualResult = CardUiMapper.map(businessCardDisplayInfo)
 
         assertTrue(ReflectionEquals(actualResult).matches(expectedResult))
     }
@@ -63,7 +62,6 @@ class CardUiMapperTest {
     @Test
     fun whenMapCardDisplayInfoToCardUiConfiguration() {
         val cardDisplayInfo = mock(CardDisplayInfo::class.java)
-        val disableConfiguration = mock(DisableConfiguration::class.java)
         val securityCode = mock(SecurityCode::class.java)
 
         with(cardDisplayInfo) {
@@ -99,10 +97,11 @@ class CardUiMapperTest {
             cardDisplayInfo.fontColor,
             cardDisplayInfo.securityCode.cardLocation,
             cardDisplayInfo.securityCode.length,
-            disableConfiguration
+            null,
+            null
         )
 
-        val actualResult = CardUiMapper(disableConfiguration).map(cardDisplayInfo)
+        val actualResult = CardUiMapper.map(cardDisplayInfo)
 
         assertTrue(ReflectionEquals(actualResult).matches(expectedResult))
     }

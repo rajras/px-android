@@ -48,7 +48,7 @@ public class AccountMoneyDescriptorModel extends PaymentMethodDescriptorView.Mod
         }
 
         if (accountMoneyMetadata.displayInfo != null) {
-            sliderTitle = accountMoneyMetadata.displayInfo.sliderTitle;
+            sliderTitle = accountMoneyMetadata.displayInfo.getSliderTitle();
             if (TextUtil.isEmpty(sliderTitle)) {
                 spannableStringBuilder.append(TextUtil.SPACE);
             } else {

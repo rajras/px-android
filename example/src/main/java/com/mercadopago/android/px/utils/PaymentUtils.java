@@ -37,7 +37,7 @@ public final class PaymentUtils {
     public static IParcelablePaymentDescriptor getGenericPaymentRejected() {
         return GenericPaymentDescriptor.with(new GenericPayment.Builder(
             Payment.StatusCodes.STATUS_REJECTED,
-            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_OTHER_REASON
+            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_HIGH_RISK
         ).setPaymentId(123L).createGenericPayment());
     }
 }

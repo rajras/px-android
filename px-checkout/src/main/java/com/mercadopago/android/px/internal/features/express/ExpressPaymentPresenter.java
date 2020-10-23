@@ -212,7 +212,6 @@ import java.util.Set;
                     actionTypeWrapper = new ActionTypeWrapper(expressMetadataList);
                     modals = initResponse.getModals();
                     payerCompliance = new PayerComplianceWrapper(initResponse.getPayerCompliance());
-                    paymentMethodDrawableItemMapper.setCustomSearchItems(initResponse.getCustomSearchItems());
                     cardsWithSplit = initResponse.getIdsWithSplitAllowed();
                     triggerableQueue.execute();
                     loadViewModel();
@@ -457,11 +456,11 @@ import java.util.Set;
         final String target = behaviour != null ? behaviour.getTarget() : null;
         final boolean isMethodSuspended = expressMetadata.getStatus().isSuspended();
 
-        if (isMethodSuspended && modal != null) {
+        if (modal != null) {
             getView().showGenericDialog(
                 new FromModalToGenericDialogItem(actionTypeWrapper.getActionType(), behaviour.getModal()).map(modal));
             return true;
-        } else if (isMethodSuspended && TextUtil.isNotEmpty(target)) {
+        } else if (TextUtil.isNotEmpty(target)) {
             new TargetBehaviourEvent(viewTracker, new TargetBehaviourTrackData(behaviourType, target)).track();
             getView().startDeepLink(target);
             return true;

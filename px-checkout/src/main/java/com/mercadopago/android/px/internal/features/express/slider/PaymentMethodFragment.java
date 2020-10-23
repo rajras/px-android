@@ -17,6 +17,9 @@ import com.mercadopago.android.px.internal.base.BasePagerFragment;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.animations.BottomSlideAnimationSet;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialog;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogAction;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
@@ -28,7 +31,7 @@ import java.util.Arrays;
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
 public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
-    extends BasePagerFragment<PaymentMethodPresenter, T> implements PaymentMethod.View, Focusable {
+    extends BasePagerFragment<PaymentMethodPresenter, T> implements PaymentMethod.View, Focusable, GenericDialog.Listener {
 
     private CardView card;
     private BottomSlideAnimationSet animation;
@@ -56,8 +59,11 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeViews(view);
+        final GenericDialogItem genericDialogItem = model.getGenericDialogItem();
         if (isDisableMethod()) {
             disable();
+        } else if (genericDialogItem != null) {
+            card.setOnClickListener(v -> GenericDialog.showDialog(getChildFragmentManager(), genericDialogItem));
         }
     }
 
@@ -205,6 +211,11 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
             v -> DisabledPaymentMethodDetailDialog
                 .showDialog(parentFragment, ((DisabledDetailDialogLauncher) parentFragment).getRequestCode(),
                     disabledPaymentMethod.getPaymentStatusDetail(), model.getStatus()));
+    }
+
+    @Override
+    public void onAction(@NonNull final GenericDialogAction genericDialogAction) {
+        //Do nothing
     }
 
     protected void tintBackground(@NonNull final ImageView background, @NonNull final String color) {

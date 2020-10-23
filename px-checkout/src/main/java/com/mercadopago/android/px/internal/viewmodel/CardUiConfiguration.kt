@@ -1,15 +1,16 @@
 package com.mercadopago.android.px.internal.viewmodel
 
 import android.graphics.Color
-import android.os.Parcel
-import android.widget.ImageView
+import android.os.Parcelable
+import com.meli.android.carddrawer.configuration.CardDrawerStyle
 import com.meli.android.carddrawer.configuration.FontType
 import com.meli.android.carddrawer.model.CardAnimationType
 import com.meli.android.carddrawer.model.CardUI
-import com.mercadopago.android.px.internal.util.KParcelable
-import com.mercadopago.android.px.internal.util.ViewUtils
-import com.mercadopago.android.px.internal.util.parcelableCreator
+import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
+import com.mercadopago.android.px.internal.util.TextUtil
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 internal class CardUiConfiguration(
     val name: String,
     val date: String,
@@ -19,96 +20,39 @@ internal class CardUiConfiguration(
     private val fontType: String?,
     private val cardPattern: IntArray,
     private val color: String,
-    private val fontColor: String,
+    private val fontColor: String?,
     private val securityCodeLocation: String,
     private val securityCodeLength: Int,
-    private val disableConfiguration: DisableConfiguration? = null,
-    private var disabled: Boolean = false) : CardUI, KParcelable {
+    private val gradientColors: List<String>? = null,
+    private val style: CardDrawerStyle? = null) : CardUI, Parcelable {
 
-    constructor(parcel: Parcel) : this(
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
-        parcel.createIntArray()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readInt(),
-        parcel.readParcelable(DisableConfiguration::class.java.classLoader),
-        parcel.readByte() != 0.toByte())
+    override fun getBankImageRes() = 0
 
-    override fun getBankImageRes(): Int = 0
+    override fun getBankImageUrl() = issuerImageUrl
 
-    override fun setBankImage(bankImage: ImageView) {
-        toGrayScaleIfDisabled(bankImage)
-    }
+    override fun getCardLogoImageUrl() = paymentMethodImageUrl
 
-    override fun setCardLogoImage(cardLogo: ImageView) {
-        toGrayScaleIfDisabled(cardLogo)
-    }
+    override fun getAnimationType() = CardAnimationType.NONE
 
-    override fun getBankImageUrl(): String? = issuerImageUrl
+    override fun getFontType() = fontType ?: FontType.LIGHT_TYPE
 
-    override fun getCardLogoImageUrl(): String? = paymentMethodImageUrl
+    override fun getCardLogoImageRes() = 0
 
-    override fun getAnimationType(): String = CardAnimationType.NONE
+    override fun getSecurityCodePattern() = securityCodeLength
 
-    override fun getFontType(): String = if (disabled) { FontType.NONE } else { fontType ?: FontType.LIGHT_TYPE }
+    override fun getExpirationPlaceHolder() = TextUtil.EMPTY
 
-    override fun getCardLogoImageRes(): Int = 0
+    override fun getSecurityCodeLocation() = securityCodeLocation
 
-    override fun getSecurityCodePattern(): Int = securityCodeLength
+    override fun getCardNumberPattern() = cardPattern
 
-    override fun getExpirationPlaceHolder(): String = ""
+    override fun getNamePlaceHolder() = TextUtil.EMPTY
 
-    override fun getSecurityCodeLocation(): String = securityCodeLocation
+    override fun getCardBackgroundColor() = Color.parseColor(color)
 
-    override fun getCardNumberPattern(): IntArray = cardPattern
+    override fun getCardFontColor() = if (fontColor.isNotNullNorEmpty()) Color.parseColor(fontColor) else 0
 
-    override fun getNamePlaceHolder(): String = ""
+    override fun getCardGradientColors() = gradientColors
 
-    override fun getCardBackgroundColor(): Int = if (disabled && disableConfiguration != null)
-        disableConfiguration.backgroundColor
-    else Color.parseColor(color)
-
-    override fun getCardFontColor(): Int = if (disabled && disableConfiguration != null)
-        disableConfiguration.fontColor
-    else Color.parseColor(fontColor)
-
-    private fun toGrayScaleIfDisabled(imageView: ImageView) {
-        if (disabled) {
-            ViewUtils.grayScaleView(imageView)
-        } else {
-            imageView.clearColorFilter()
-        }
-    }
-
-    fun disable() {
-        disabled = true
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(name)
-        parcel.writeString(date)
-        parcel.writeString(number)
-        parcel.writeString(issuerImageUrl)
-        parcel.writeString(paymentMethodImageUrl)
-        parcel.writeString(fontType)
-        parcel.writeIntArray(cardPattern)
-        parcel.writeString(color)
-        parcel.writeString(fontColor)
-        parcel.writeString(securityCodeLocation)
-        parcel.writeInt(securityCodeLength)
-        parcel.writeParcelable(disableConfiguration, flags)
-        parcel.writeByte(if (disabled) 1 else 0)
-    }
-
-    override fun describeContents() = 0
-
-    companion object {
-        @JvmField val CREATOR = parcelableCreator(::CardUiConfiguration)
-    }
+    override fun getStyle() = style
 }

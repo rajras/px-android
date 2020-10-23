@@ -1,17 +1,18 @@
 package com.mercadopago.android.px.internal.viewmodel.drawables;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
+import com.mercadopago.android.px.internal.util.KParcelable;
 import com.mercadopago.android.px.model.Reimbursement;
 import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import com.mercadopago.android.px.model.internal.Text;
 import java.io.Serializable;
 
-public abstract class DrawableFragmentItem implements Parcelable, Serializable {
+public abstract class DrawableFragmentItem implements KParcelable, Serializable {
 
     private final String id;
     private final StatusMetadata status;
@@ -19,8 +20,9 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
     private final String chargeMessage;
     private final Reimbursement reimbursement;
     private final DisabledPaymentMethod disabledPaymentMethod;
-    private String description;
-    private String issuerName;
+    private final String description;
+    private final String issuerName;
+    private final GenericDialogItem genericDialogItem;
 
     protected DrawableFragmentItem(@NonNull final Parameters parameters) {
         id = parameters.id;
@@ -31,6 +33,7 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
         disabledPaymentMethod = parameters.disabledPaymentMethod;
         description = parameters.description;
         issuerName = parameters.issuerName;
+        genericDialogItem = parameters.genericDialogItem;
     }
 
     protected DrawableFragmentItem(final Parcel in) {
@@ -42,6 +45,7 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
         disabledPaymentMethod = in.readParcelable(DisabledPaymentMethod.class.getClassLoader());
         description = in.readString();
         issuerName = in.readString();
+        genericDialogItem = in.readParcelable(GenericDialogItem.class.getClassLoader());
     }
 
     @Override
@@ -54,6 +58,7 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
         dest.writeParcelable(disabledPaymentMethod, flags);
         dest.writeString(description);
         dest.writeString(issuerName);
+        dest.writeParcelable(genericDialogItem, flags);
     }
 
     public abstract Fragment draw(@NonNull final PaymentMethodFragmentDrawer drawer);
@@ -100,7 +105,12 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
         return bottomDescription == null;
     }
 
-    /* default */ static final class Parameters {
+    @Nullable
+    public GenericDialogItem getGenericDialogItem() {
+        return genericDialogItem;
+    }
+
+    public static final class Parameters {
         /* default */ @NonNull final String id;
         /* default */ @NonNull final StatusMetadata status;
         /* default */ @Nullable private Text bottomDescription;
@@ -109,11 +119,13 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
         /* default */ @Nullable final DisabledPaymentMethod disabledPaymentMethod;
         /* default */ @NonNull final String description;
         /* default */ @NonNull final String issuerName;
+        /* default */ @NonNull final GenericDialogItem genericDialogItem;
 
         /* default */ Parameters(@NonNull final String id, @NonNull final StatusMetadata status,
             @Nullable final Text bottomDescription, @Nullable final String chargeMessage,
             @Nullable final Reimbursement reimbursement, @Nullable final DisabledPaymentMethod disabledPaymentMethod,
-            @NonNull final String description, @NonNull final String issuerName) {
+            @NonNull final String description, @NonNull final String issuerName,
+            @Nullable final GenericDialogItem genericDialogItem) {
             this.id = id;
             this.status = status;
             this.bottomDescription = bottomDescription;
@@ -122,6 +134,7 @@ public abstract class DrawableFragmentItem implements Parcelable, Serializable {
             this.disabledPaymentMethod = disabledPaymentMethod;
             this.description = description;
             this.issuerName = issuerName;
+            this.genericDialogItem = genericDialogItem;
         }
     }
 }
