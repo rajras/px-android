@@ -15,7 +15,7 @@ import java.util.*
 
 class ResultViewTrack : TrackWrapper {
     private val resultViewTrackModel: ResultViewTrackModel
-    private val paymentStatus: String
+    private val relativePath: String
     private val remediesResponse: RemediesResponse
     private var isPaymentCongratsFlow: Boolean = false
     private var isStandaloneCongrats: Boolean = false
@@ -24,7 +24,7 @@ class ResultViewTrack : TrackWrapper {
                 paymentSetting: PaymentSettingRepository, isMP: Boolean) {
         resultViewTrackModel = ResultViewTrackModel(paymentModel, screenConfiguration, paymentSetting.checkoutPreference!!,
                 paymentSetting.currency.id, isMP)
-        paymentStatus = getMappedResult(paymentModel.paymentResult)
+        relativePath = getMappedResult(paymentModel.paymentResult)
         this.remediesResponse = paymentModel.remedies
     }
 
@@ -32,7 +32,7 @@ class ResultViewTrack : TrackWrapper {
         isPaymentCongratsFlow = true
         isStandaloneCongrats = paymentModel.isStandAloneCongrats
         resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP)
-        paymentStatus = paymentModel.trackingPaymentStatus
+        relativePath = paymentModel.trackingRelativePath
         this.remediesResponse = RemediesResponse.EMPTY
     }
 
@@ -40,14 +40,14 @@ class ResultViewTrack : TrackWrapper {
 
     private fun getData(): Map<String, Any> {
         val map = resultViewTrackModel.toMap()
-        if (paymentStatus == ERROR && !isPaymentCongratsFlow) {
+        if (relativePath == ERROR && !isPaymentCongratsFlow) {
             map["remedies"] = getRemedies()
         }
         return map
     }
 
     private fun getViewPath() = String.format(Locale.US,
-        if (isStandaloneCongrats) STANDALONE_PATH else CHECKOUT_PATH, paymentStatus)
+        if (isStandaloneCongrats) STANDALONE_PATH else CHECKOUT_PATH, relativePath)
 
     private fun getMappedResult(payment: PaymentResult): String {
         return when {

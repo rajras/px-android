@@ -53,13 +53,13 @@ public class PaymentCongratsModel implements Parcelable {
     @Nullable private final PaymentCongratsResponse paymentCongratsResponse;
 
     //Internal PX data
-    @Nullable private final String autoReturn;
+    private final boolean autoReturn;
     private final boolean isStandAloneCongrats;
 
     //Internal PX Tracking data
     @Nullable private final Long paymentId;
     @NonNull private final PXPaymentCongratsTracking pxPaymentCongratsTracking;
-    @NonNull private final String trackingPaymentStatus;
+    @NonNull private final String trackingRelativePath;
     @NonNull private final PaymentData paymentData;
     @Nullable private final BigDecimal discountCouponsAmount;
 
@@ -81,7 +81,7 @@ public class PaymentCongratsModel implements Parcelable {
         bottomFragment = builder.bottomFragment;
         importantFragment = builder.importantFragment;
         paymentCongratsResponse = builder.paymentCongratsResponse;
-        trackingPaymentStatus = builder.trackingPaymentStatus;
+        trackingRelativePath = builder.trackingRelativePath;
         paymentData = builder.paymentData;
         discountCouponsAmount = builder.discountCouponsAmount;
         pxPaymentCongratsTracking = builder.pxPaymentCongratsTracking;
@@ -111,7 +111,7 @@ public class PaymentCongratsModel implements Parcelable {
         bottomFragment = in.readParcelable(ExternalFragment.class.getClassLoader());
         importantFragment = in.readParcelable(ExternalFragment.class.getClassLoader());
         paymentCongratsResponse = in.readParcelable(PaymentCongratsResponse.class.getClassLoader());
-        trackingPaymentStatus = in.readString();
+        trackingRelativePath = in.readString();
         paymentData = (PaymentData) in.readSerializable();
         if (in.readByte() == 0) {
             discountCouponsAmount = null;
@@ -119,7 +119,7 @@ public class PaymentCongratsModel implements Parcelable {
             discountCouponsAmount = new BigDecimal(in.readString());
         }
         pxPaymentCongratsTracking = in.readParcelable(PXPaymentCongratsTracking.class.getClassLoader());
-        autoReturn = in.readString();
+        autoReturn = in.readInt() == 1;
         isStandAloneCongrats = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
@@ -152,7 +152,7 @@ public class PaymentCongratsModel implements Parcelable {
         dest.writeParcelable(bottomFragment, flags);
         dest.writeParcelable(importantFragment, flags);
         dest.writeParcelable(paymentCongratsResponse, flags);
-        dest.writeString(trackingPaymentStatus);
+        dest.writeString(trackingRelativePath);
         dest.writeSerializable(paymentData);
         if (discountCouponsAmount == null) {
             dest.writeByte((byte) 0);
@@ -161,7 +161,7 @@ public class PaymentCongratsModel implements Parcelable {
             dest.writeString(discountCouponsAmount.toString());
         }
         dest.writeParcelable(pxPaymentCongratsTracking, flags);
-        dest.writeString(autoReturn);
+        dest.writeInt(autoReturn ? 1 : 0);
         dest.writeValue(isStandAloneCongrats);
     }
 
@@ -260,8 +260,7 @@ public class PaymentCongratsModel implements Parcelable {
         return congratsType;
     }
 
-    @Nullable
-    public String getAutoReturn() {
+    public boolean shouldAutoReturn() {
         return autoReturn;
     }
 
@@ -275,8 +274,8 @@ public class PaymentCongratsModel implements Parcelable {
     }
 
     @NonNull
-    public String getTrackingPaymentStatus() {
-        return trackingPaymentStatus;
+    public String getTrackingRelativePath() {
+        return trackingRelativePath;
     }
 
     @NonNull
@@ -295,15 +294,9 @@ public class PaymentCongratsModel implements Parcelable {
     }
 
     public enum CongratsType {
-        APPROVED("approved"),
-        REJECTED("rejected"),
-        PENDING("pending");
-
-        public final String name;
-
-        CongratsType(final String name) {
-            this.name = name;
-        }
+        APPROVED,
+        REJECTED,
+        PENDING;
 
         public static CongratsType fromName(final String text) {
             for (final CongratsType congratsType : CongratsType.values()) {
@@ -352,13 +345,13 @@ public class PaymentCongratsModel implements Parcelable {
         /* default */ boolean customSorting = false;
 
         //Internal PX data
-        /* default */ String autoReturn;
+        /* default */ boolean autoReturn;
         /* default */ boolean isStandAloneCongrats = true;
 
         //Internal PX Tracking data
         /* default */ Long paymentId;
         /* default */ PXPaymentCongratsTracking pxPaymentCongratsTracking;
-        /* default */ String trackingPaymentStatus;
+        /* default */ String trackingRelativePath;
         /* default */ PaymentData paymentData;
         /* default */ BigDecimal discountCouponsAmount;
 
@@ -372,13 +365,13 @@ public class PaymentCongratsModel implements Parcelable {
             }
             switch (congratsType) {
             case APPROVED:
-                trackingPaymentStatus = ResultViewTrack.SUCCESS;
+                trackingRelativePath = ResultViewTrack.SUCCESS;
                 break;
             case PENDING:
-                trackingPaymentStatus = ResultViewTrack.PENDING;
+                trackingRelativePath = ResultViewTrack.PENDING;
                 break;
             case REJECTED:
-                trackingPaymentStatus = ResultViewTrack.ERROR;
+                trackingRelativePath = ResultViewTrack.ERROR;
                 break;
             }
             paymentCongratsResponse =
@@ -668,10 +661,10 @@ public class PaymentCongratsModel implements Parcelable {
         }
 
         /**
-         * @param autoReturn autoReturn data
-         * @return builder with the added String
+         * @param autoReturn autoReturn flag
+         * @return builder with the added boolean
          */
-        /* default */ Builder withAutoReturn(final String autoReturn) {
+        /* default */ Builder withAutoReturn(final boolean autoReturn) {
             this.autoReturn = autoReturn;
             return this;
         }

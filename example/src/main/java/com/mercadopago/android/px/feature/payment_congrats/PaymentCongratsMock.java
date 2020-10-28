@@ -69,6 +69,7 @@ public final class PaymentCongratsMock {
         PXPaymentCongratsTracking tracking = new PXPaymentCongratsTracking(
             "",
             "ARS",
+            "paymentStatus",
             "paymentStatusDetail",
             12313133l,
             BigDecimal.valueOf(15.2),

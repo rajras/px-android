@@ -72,7 +72,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     public ResultViewTrackModel(@NonNull final PaymentCongratsModel paymentCongratsModel, final boolean isMP) {
         this(Style.CUSTOM,
             paymentCongratsModel.getPaymentId(),
-            paymentCongratsModel.getCongratsType().name(),
+            paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentStatus(),
             paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentStatusDetail(),
             PaymentDataHelper.isSplitPaymentInfo(paymentCongratsModel.getPaymentsInfo()),
             paymentCongratsModel.getPxPaymentCongratsTracking().getTotalAmount(),

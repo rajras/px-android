@@ -28,7 +28,6 @@ import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 import kotlin.Unit;
-import org.jetbrains.annotations.NotNull;
 
 /* default */ class BusinessPaymentResultPresenter extends BasePresenter<BusinessPaymentResultContract.View>
     implements ActionDispatcher, BusinessPaymentResultContract.Presenter, PaymentResultBody.Listener {
@@ -94,8 +93,7 @@ import org.jetbrains.annotations.NotNull;
     }
 
     private void mapPaymentModel() {
-        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper(
-            model.getAutoReturn()).map(model);
+        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper().map(model);
         getView().configureViews(viewModel, this);
         getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
         initAutoReturn(viewModel.shouldAutoReturn);
