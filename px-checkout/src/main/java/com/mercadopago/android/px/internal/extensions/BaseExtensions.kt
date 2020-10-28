@@ -3,8 +3,26 @@ package com.mercadopago.android.px.internal.extensions
 import android.app.Activity
 import android.graphics.Rect
 import androidx.fragment.app.Fragment
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-internal fun CharSequence?.isNotNullNorEmpty() = !isNullOrEmpty()
+@UseExperimental(ExperimentalContracts::class)
+internal fun CharSequence?.isNotNullNorEmpty(): Boolean {
+    contract {
+        returns(true) implies (this@isNotNullNorEmpty != null)
+    }
+
+    return !isNullOrEmpty()
+}
+
+@UseExperimental(ExperimentalContracts::class)
+internal fun Any?.isNotNull(): Boolean {
+    contract {
+        returns(true) implies (this@isNotNull != null)
+    }
+
+    return this != null
+}
 
 internal fun <T : CharSequence> T?.orIfEmpty(fallback: T) = if (isNotNullNorEmpty()) this!! else fallback
 

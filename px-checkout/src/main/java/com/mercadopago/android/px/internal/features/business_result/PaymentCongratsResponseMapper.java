@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsText;
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
-import com.mercadopago.android.px.model.internal.Action;
+import com.mercadopago.android.px.model.internal.Button;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,13 @@ import java.util.List;
 public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, PaymentCongratsResponse> {
 
     @Override
-    public PaymentCongratsResponse map(CongratsResponse congratsResponse) {
+    public PaymentCongratsResponse map(final CongratsResponse congratsResponse) {
         return new PaymentCongratsResponse(getLoyalty(congratsResponse.getScore()),
             getDiscount(congratsResponse.getDiscount()), getExpenseSplit(congratsResponse.getMoneySplit()),
             getCrossSelling(congratsResponse.getCrossSellings()),
-            getAction(congratsResponse.getViewReceipt()), congratsResponse.hasCustomOrder());
+            getAction(congratsResponse.getViewReceipt()),
+            congratsResponse.getCustomOrder(),
+            getAutoReturn(congratsResponse.getAutoReturn()));
     }
 
     private PaymentCongratsResponse.Loyalty getLoyalty(final CongratsResponse.Score score) {
@@ -43,8 +45,8 @@ public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, Paym
 
     private PaymentCongratsResponse.Discount getDiscount(final CongratsResponse.Discount discount) {
         if (discount != null) {
-            PaymentCongratsResponse.AdditionalEdgeInsets additionalEdgeInsets;
-            PaymentCongratsResponse.PXBusinessTouchpoint touchpoint;
+            final PaymentCongratsResponse.AdditionalEdgeInsets additionalEdgeInsets;
+            final PaymentCongratsResponse.PXBusinessTouchpoint touchpoint;
             if (discount.getTouchpoint() != null) {
                 additionalEdgeInsets =
                     discount.getTouchpoint().getAdditionalEdgeInsets() == null ? null :
@@ -75,20 +77,19 @@ public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, Paym
     private PaymentCongratsResponse.ExpenseSplit getExpenseSplit(
         @Nullable final CongratsResponse.MoneySplit moneySplit) {
         if (moneySplit != null) {
-            return moneySplit == null ? null
-                : new PaymentCongratsResponse.ExpenseSplit(
-                    new PaymentCongratsText(moneySplit.getTitle().getMessage(),
-                        moneySplit.getTitle().getBackgroundColor(), moneySplit.getTitle().getTextColor(),
-                        moneySplit.getTitle().getWeight()), getAction(moneySplit.getAction()),
+            return new PaymentCongratsResponse.ExpenseSplit(
+                new PaymentCongratsText(moneySplit.getTitle().getMessage(),
+                    moneySplit.getTitle().getBackgroundColor(), moneySplit.getTitle().getTextColor(),
+                    moneySplit.getTitle().getWeight()), getAction(moneySplit.getAction()),
                     moneySplit.getImageUrl());
         }
         return null;
     }
 
     @NonNull
-    private PaymentCongratsResponse.Action getAction(final Action action) {
-        if (action != null) {
-            return new PaymentCongratsResponse.Action(action.getLabel(), action.getTarget());
+    private PaymentCongratsResponse.Action getAction(final Button button) {
+        if (button != null) {
+            return new PaymentCongratsResponse.Action(button.getLabel(), button.getTarget());
         }
         return null;
     }
@@ -102,5 +103,13 @@ public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, Paym
                     item.getTarget(), item.getCampaignId()));
         }
         return discountItems;
+    }
+
+    @Nullable
+    private PaymentCongratsResponse.AutoReturn getAutoReturn(@Nullable final CongratsResponse.AutoReturn autoReturn) {
+        if (autoReturn != null) {
+            return new PaymentCongratsResponse.AutoReturn(autoReturn.getLabel(), autoReturn.getSeconds());
+        }
+        return null;
     }
 }

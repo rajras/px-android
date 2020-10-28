@@ -9,6 +9,8 @@ import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton;
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ChangePaymentMethodAction;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
@@ -19,7 +21,6 @@ import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.view.CopyAction;
 import com.mercadopago.android.px.internal.view.LinkAction;
 import com.mercadopago.android.px.internal.view.NextAction;
-import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.RecoverPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.mappers.FlowBehaviourResultMapper;
@@ -42,10 +43,9 @@ import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 import java.util.List;
-import kotlin.Unit;
 
-/* default */ class PaymentResultPresenter extends BasePresenter<PaymentResultContract.View>
-    implements ActionDispatcher, PaymentResultContract.Presenter, PaymentResultBody.Listener {
+/* default */ class PaymentResultPresenter extends BasePresenter<PaymentResult.View>
+    implements ActionDispatcher, PaymentResult.Presenter, PaymentResult.Listener {
 
     @NonNull private final PaymentSettingRepository paymentSettings;
     private final PaymentModel paymentModel;
@@ -56,7 +56,7 @@ import kotlin.Unit;
     private final FlowBehaviour flowBehaviour;
 
     private FailureRecovery failureRecovery;
-    @Nullable private CongratsAutoReturn.Timer autoReturnTimer;
+    @Nullable /* default */ CongratsAutoReturn autoReturnTimer;
 
     /* default */ PaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final InstructionsRepository instructionsRepository, @NonNull final PaymentModel paymentModel,
@@ -73,7 +73,7 @@ import kotlin.Unit;
     }
 
     @Override
-    public void attachView(final PaymentResultContract.View view) {
+    public void attachView(final PaymentResult.View view) {
         super.attachView(view);
 
         if (paymentModel.getPaymentResult().isOffPayment()) {
@@ -175,13 +175,34 @@ import kotlin.Unit;
         if (isViewAttached()) {
             final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, instruction,
                 paymentSettings.getCheckoutPreference().getAutoReturn()).map(paymentModel);
-            getView().configureViews(viewModel, paymentModel, this);
-            getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
-            if (viewModel.shouldAutoReturn) {
-                autoReturnTimer = new CongratsAutoReturn.Timer(() -> {
-                    autoReturnTimer = null;
-                    onAbort();
-                    return Unit.INSTANCE;
+            getView().configureViews(viewModel, paymentModel, this, new PaymentResultFooter.Listener() {
+                @Override
+                public void onClick(@NonNull final PaymentResultButton.Action action) {
+                    //Only known action at this moment.
+                    if (action == PaymentResultButton.Action.CONTINUE) {
+                        dispatch(new NextAction());
+                    }
+                }
+
+                @Override
+                public void onClick(@NonNull final String target) {
+                    getView().launchDeepLink(target);
+                }
+            });
+            getView().setStatusBarColor(viewModel.getHeaderModel().getBackgroundColor());
+            final CongratsAutoReturn.Model autoReturnModel = viewModel.getAutoReturnModel();
+            if (autoReturnModel != null) {
+                autoReturnTimer = new CongratsAutoReturn(autoReturnModel, new CongratsAutoReturn.Listener() {
+                    @Override
+                    public void onFinish() {
+                        autoReturnTimer = null;
+                        onAbort();
+                    }
+
+                    @Override
+                    public void updateView(@NonNull final String label) {
+                        getView().updateAutoReturnLabel(label);
+                    }
                 });
             }
         }

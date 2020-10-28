@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
 import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButton
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.util.CVVRecoveryWrapper
 import com.mercadopago.android.px.internal.util.TokenCreationWrapper
@@ -144,10 +145,10 @@ internal class RemediesViewModel(
         }
     }
 
-    override fun onButtonPressed(action: RemedyButton.Action) {
+    override fun onButtonPressed(action: PaymentResultButton.Action) {
         when(action) {
-            RemedyButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod
-            RemedyButton.Action.KYC -> remediesModel.highRisk?.let {
+            PaymentResultButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod
+            PaymentResultButton.Action.KYC -> remediesModel.highRisk?.let {
                 RemedyEvent(getRemedyTrackData(RemedyType.KYC_REQUEST)).track()
                 remedyState.value = RemedyState.GoToKyc(it.deepLink)
             }

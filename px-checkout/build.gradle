@@ -12,7 +12,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs = ['-Xjvm-default=enable']
+        freeCompilerArgs = ['-Xjvm-default=enable', '-Xuse-experimental=kotlin.contracts.ExperimentalContracts']
     }
     buildTypes {
         debugBeta {

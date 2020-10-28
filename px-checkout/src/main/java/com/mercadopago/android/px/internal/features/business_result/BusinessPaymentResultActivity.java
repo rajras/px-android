@@ -15,6 +15,7 @@ import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
@@ -26,10 +27,12 @@ import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.getSafeIn
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMP;
 
 public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentResultPresenter>
-    implements BusinessPaymentResultContract.View {
+    implements BusinessPaymentResult.View {
 
     private static final String TAG = BusinessPaymentResultActivity.class.getSimpleName();
     private static final String PAYMENT_CONGRATS = "payment_congrats";
+
+    private PaymentResultFooter footer;
 
     @Override
     protected boolean shouldHaltSession(@NonNull final Session.State state) {
@@ -39,6 +42,7 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     @Override
     protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_activity_payment_result);
+        footer = findViewById(R.id.footer);
 
         presenter = createPresenter();
         presenter.attachView(this);
@@ -69,14 +73,14 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
 
     @Override
     public void configureViews(@NonNull final BusinessPaymentResultViewModel model,
-        @NonNull final PaymentResultBody.Listener listener) {
+        @NonNull final PaymentResultBody.Listener bodyListener,
+        @NonNull final PaymentResultFooter.Listener footerListener) {
         findViewById(R.id.loading).setVisibility(View.GONE);
         final PaymentResultHeader header = findViewById(R.id.header);
-        header.setModel(model.headerModel);
+        header.setModel(model.getHeaderModel());
         final PaymentResultBody body = findViewById(R.id.body);
-        body.init(model.bodyModel, listener);
-        //TODO migrate
-        BusinessResultLegacyRenderer.render(findViewById(R.id.container), listener, model);
+        body.init(model.getBodyModel(), bodyListener);
+        footer.init(model.getFooterModel(), footerListener);
     }
 
     @Override
@@ -99,6 +103,12 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     @Override
     public void setStatusBarColor(@ColorRes final int color) {
         ViewUtils.setStatusBarColor(ContextCompat.getColor(this, color), getWindow());
+    }
+
+    @Override
+    public void updateAutoReturnLabel(@NonNull final String label) {
+        footer.showAutoReturn();
+        footer.updateAutoReturnLabel(label);
     }
 
     @Override

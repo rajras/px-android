@@ -53,7 +53,6 @@ public class PaymentCongratsModel implements Parcelable {
     @Nullable private final PaymentCongratsResponse paymentCongratsResponse;
 
     //Internal PX data
-    private final boolean autoReturn;
     private final boolean isStandAloneCongrats;
 
     //Internal PX Tracking data
@@ -85,7 +84,6 @@ public class PaymentCongratsModel implements Parcelable {
         paymentData = builder.paymentData;
         discountCouponsAmount = builder.discountCouponsAmount;
         pxPaymentCongratsTracking = builder.pxPaymentCongratsTracking;
-        autoReturn = builder.autoReturn;
         isStandAloneCongrats = builder.isStandAloneCongrats;
     }
 
@@ -119,7 +117,6 @@ public class PaymentCongratsModel implements Parcelable {
             discountCouponsAmount = new BigDecimal(in.readString());
         }
         pxPaymentCongratsTracking = in.readParcelable(PXPaymentCongratsTracking.class.getClassLoader());
-        autoReturn = in.readInt() == 1;
         isStandAloneCongrats = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
@@ -161,7 +158,6 @@ public class PaymentCongratsModel implements Parcelable {
             dest.writeString(discountCouponsAmount.toString());
         }
         dest.writeParcelable(pxPaymentCongratsTracking, flags);
-        dest.writeInt(autoReturn ? 1 : 0);
         dest.writeValue(isStandAloneCongrats);
     }
 
@@ -260,10 +256,6 @@ public class PaymentCongratsModel implements Parcelable {
         return congratsType;
     }
 
-    public boolean shouldAutoReturn() {
-        return autoReturn;
-    }
-
     public boolean getIsStandAloneCongrats() {
         return isStandAloneCongrats;
     }
@@ -351,7 +343,7 @@ public class PaymentCongratsModel implements Parcelable {
         /* default */ boolean customSorting = false;
 
         //Internal PX data
-        /* default */ boolean autoReturn;
+        /* default */ PaymentCongratsResponse.AutoReturn autoReturn;
         /* default */ boolean isStandAloneCongrats = true;
 
         //Internal PX Tracking data
@@ -382,7 +374,7 @@ public class PaymentCongratsModel implements Parcelable {
             }
             paymentCongratsResponse =
                 new PaymentCongratsResponse(loyalty, discount, expenseSplit, crossSelling, receiptAction,
-                    customSorting);
+                    customSorting, autoReturn);
 
             return new PaymentCongratsModel(this);
         }
@@ -667,10 +659,10 @@ public class PaymentCongratsModel implements Parcelable {
         }
 
         /**
-         * @param autoReturn autoReturn flag
-         * @return builder with the added boolean
+         * @param autoReturn autoReturn model
+         * @return builder with the added model
          */
-        /* default */ Builder withAutoReturn(final boolean autoReturn) {
+        /* default */ Builder withAutoReturn(final PaymentCongratsResponse.AutoReturn autoReturn) {
             this.autoReturn = autoReturn;
             return this;
         }

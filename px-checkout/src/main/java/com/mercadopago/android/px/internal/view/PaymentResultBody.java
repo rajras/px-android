@@ -29,10 +29,7 @@ import com.mercadopago.android.px.internal.features.business_result.PXDiscountBo
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
-import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.model.ExternalFragment;
-import com.mercadopago.android.px.model.internal.Action;
-import com.mercadopago.android.px.model.internal.Text;
 import java.util.List;
 
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMP;
@@ -40,7 +37,7 @@ import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMPInsta
 
 public final class PaymentResultBody extends LinearLayout {
 
-    public interface Listener extends ActionDispatcher, MLBusinessLoyaltyRingView.OnClickLoyaltyRing,
+    public interface Listener extends MLBusinessLoyaltyRingView.OnClickLoyaltyRing,
         OnClickCallback, MLBusinessDownloadAppView.OnClickDownloadApp,
         MLBusinessCrossSellingBoxView.OnClickCrossSellingBoxView,
         MLBusinessDiscountBoxView.OnClickDiscountBox {
@@ -283,9 +280,8 @@ public final class PaymentResultBody extends LinearLayout {
                 return this;
             }
 
-            public Builder setCongratsViewModel(
-                @NonNull final CongratsViewModel rewardResultViewModel) {
-                this.congratsViewModel = rewardResultViewModel;
+            public Builder setCongratsViewModel(@NonNull final CongratsViewModel congratsViewModel) {
+                this.congratsViewModel = congratsViewModel;
                 return this;
             }
 

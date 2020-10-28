@@ -5,7 +5,7 @@ import com.mercadopago.android.px.model.internal.AdditionalInfo
 import com.mercadopago.android.px.model.internal.SummaryInfo
 import com.mercadopago.android.px.preferences.CheckoutPreference
 
-class SummaryInfoMapper : Mapper<CheckoutPreference, SummaryInfo>() {
+internal class SummaryInfoMapper : Mapper<CheckoutPreference, SummaryInfo>() {
 
     override fun map(preference: CheckoutPreference): SummaryInfo {
         return AdditionalInfo.newInstance(preference.additionalInfo)?.summaryInfo ?:

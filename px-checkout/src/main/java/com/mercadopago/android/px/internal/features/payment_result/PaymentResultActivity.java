@@ -31,8 +31,8 @@ import com.mercadopago.android.px.internal.extensions.BaseExtensionsKt;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.payment_result.components.PaymentResultLegacyRenderer;
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesFragment;
-import com.mercadopago.android.px.internal.features.payment_result.remedies.view.PaymentResultFooter;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.Logger;
@@ -53,7 +53,7 @@ import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.getSafeIn
 import static com.mercadopago.android.px.internal.util.MercadoPagoUtil.isMP;
 
 public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> implements
-    PaymentResultContract.View, PayButton.Handler, RemediesFragment.Listener {
+    PaymentResult.View, PayButton.Handler, RemediesFragment.Listener {
 
     private static final String TAG = PaymentResultActivity.class.getSimpleName();
     private static final String TAG_PAY_BUTTON = "TAG_PAY_BUTTON";
@@ -62,6 +62,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     private PayButtonFragment payButtonFragment;
     private RemediesFragment remediesFragment;
     private PaymentResultFooter footer;
+    private ScrollView scrollView;
 
     public static void start(@NonNull final Fragment fragment, final int requestCode, @NonNull final PaymentModel model) {
         final Activity activity = fragment.getActivity();
@@ -77,16 +78,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_activity_payment_result);
 
-        footer = findViewById(R.id.remedies_footer);
-        final ScrollView scrollView = findViewById(R.id.scroll_view);
-        BaseExtensionsKt.addKeyBoardListener(this, () -> {
-            footer.hideQuietButton();
-            scrollView.fullScroll(View.FOCUS_DOWN);
-            return Unit.INSTANCE;
-        }, () -> {
-            footer.showQuietButton();
-            return Unit.INSTANCE;
-        });
+        footer = findViewById(R.id.footer);
+        scrollView = findViewById(R.id.scroll_view);
 
         presenter = createPresenter();
         presenter.attachView(this);
@@ -120,24 +113,38 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     @Override
     public void configureViews(@NonNull final PaymentResultViewModel model, @NonNull final PaymentModel paymentModel,
-        @NonNull final PaymentResultBody.Listener listener) {
+        @NonNull final PaymentResult.Listener listener, @NonNull final PaymentResultFooter.Listener footerListener) {
         findViewById(R.id.loading).setVisibility(View.GONE);
         final PaymentResultHeader header = findViewById(R.id.header);
-        header.setModel(model.headerModel);
+        header.setModel(model.getHeaderModel());
         final PaymentResultBody body = findViewById(R.id.body);
 
-        if (model.remediesModel.hasRemedies()) {
+        if (model.getRemediesModel().hasRemedies()) {
             body.setVisibility(View.GONE);
             loadRemedies(paymentModel, model);
         } else {
-            body.init(model.bodyModel, listener);
+            body.init(model.getBodyModel(), listener);
+            final PaymentResultFooter.Model footerModel = model.getFooterModel();
+            if (footerModel != null) {
+                footer.init(footerModel, footerListener);
+            }
             //TODO migrate
-            PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.legacyViewModel);
+            final boolean shouldDrawLegacyFooter = footerModel == null;
+            if (shouldDrawLegacyFooter) {
+                footer.setVisibility(View.GONE);
+            }
+            PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.getLegacyViewModel(),
+                shouldDrawLegacyFooter);
         }
     }
 
-    private void loadRemedies(@NonNull final PaymentModel paymentModel,
-        @NonNull final PaymentResultViewModel model) {
+    @Override
+    public void updateAutoReturnLabel(@NonNull final String label) {
+        footer.showAutoReturn();
+        footer.updateAutoReturnLabel(label);
+    }
+
+    private void loadRemedies(@NonNull final PaymentModel paymentModel, @NonNull final PaymentResultViewModel model) {
         final FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager != null) {
             remediesFragment = (RemediesFragment) fragmentManager.findFragmentByTag(RemediesFragment.TAG);
@@ -146,7 +153,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
             if (remediesFragment == null || payButtonFragment == null) {
                 final FragmentTransaction transaction = fragmentManager.beginTransaction();
                 if (remediesFragment == null) {
-                    remediesFragment = RemediesFragment.newInstance(paymentModel, model.remediesModel);
+                    remediesFragment = RemediesFragment.newInstance(paymentModel, model.getRemediesModel());
                     transaction.replace(R.id.remedies, remediesFragment, RemediesFragment.TAG);
                 }
                 if (payButtonFragment == null) {
@@ -156,8 +163,11 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 transaction.commitAllowingStateLoss();
             }
 
-            footer.setVisibility(View.VISIBLE);
-            footer.init(model.footerModel, remediesFragment);
+            startKeyboardListener();
+            final PaymentResultFooter.Model footerModel = model.getFooterModel();
+            if (footerModel != null) {
+                footer.init(footerModel, remediesFragment);
+            }
             findViewById(R.id.remedies).setVisibility(View.VISIBLE);
         }
     }
@@ -285,5 +295,16 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     public void onPostCongrats(final int resultCode, @Nullable final Intent data) {
         setResult(resultCode, data);
         finish();
+    }
+
+    private void startKeyboardListener() {
+        BaseExtensionsKt.addKeyBoardListener(this, () -> {
+            footer.hideSecondaryButton();
+            scrollView.fullScroll(View.FOCUS_DOWN);
+            return Unit.INSTANCE;
+        }, () -> {
+            footer.showSecondaryButton();
+            return Unit.INSTANCE;
+        });
     }
 }

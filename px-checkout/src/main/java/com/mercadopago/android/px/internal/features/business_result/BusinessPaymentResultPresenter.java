@@ -8,10 +8,9 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.FlowB
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.features.payment_result.CongratsAutoReturn;
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
 import com.mercadopago.android.px.internal.util.TextUtil;
-import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
-import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.ExitAction;
 import com.mercadopago.android.px.model.internal.PrimaryExitAction;
 import com.mercadopago.android.px.model.internal.SecondaryExitAction;
@@ -27,15 +26,14 @@ import com.mercadopago.android.px.tracking.internal.events.SecondaryActionEvent;
 import com.mercadopago.android.px.tracking.internal.events.SeeAllDiscountsEvent;
 import com.mercadopago.android.px.tracking.internal.events.ViewReceiptEvent;
 import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
-import kotlin.Unit;
 
-/* default */ class BusinessPaymentResultPresenter extends BasePresenter<BusinessPaymentResultContract.View>
-    implements ActionDispatcher, BusinessPaymentResultContract.Presenter, PaymentResultBody.Listener {
+/* default */ class BusinessPaymentResultPresenter extends BasePresenter<BusinessPaymentResult.View>
+    implements BusinessPaymentResult.Presenter, PaymentResultBody.Listener {
 
     @NonNull private final PaymentCongratsModel model;
-    private final ResultViewTrack viewTracker;
+    /* default */ final ResultViewTrack viewTracker;
     private final FlowBehaviour flowBehaviour;
-    @Nullable private CongratsAutoReturn.Timer autoReturnTimer;
+    @Nullable /* default */ CongratsAutoReturn autoReturnTimer;
 
     /* default */ BusinessPaymentResultPresenter(@NonNull final PaymentCongratsModel model,
         @NonNull final FlowBehaviour flowBehaviour, final boolean isMP) {
@@ -45,9 +43,9 @@ import kotlin.Unit;
     }
 
     @Override
-    public void attachView(final BusinessPaymentResultContract.View view) {
+    public void attachView(final BusinessPaymentResult.View view) {
         super.attachView(view);
-        mapPaymentModel();
+        configureView();
     }
 
     @Override
@@ -76,35 +74,44 @@ import kotlin.Unit;
         getView().processCustomExit();
     }
 
-    @Override
-    public void dispatch(final Action action) {
-        if (action instanceof ExitAction) {
-            if (action instanceof PrimaryExitAction) {
-                new PrimaryActionEvent(viewTracker).track();
-            } else if (action instanceof SecondaryExitAction) {
-                new SecondaryActionEvent(viewTracker).track();
+    private void configureView() {
+        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper().map(model);
+        getView().configureViews(viewModel, this, new PaymentResultFooter.Listener() {
+            @Override
+            public void onClick(@NonNull final ExitAction action) {
+                if (action instanceof PrimaryExitAction) {
+                    new PrimaryActionEvent(viewTracker).track();
+                } else if (action instanceof SecondaryExitAction) {
+                    new SecondaryActionEvent(viewTracker).track();
+                }
+                getView().processCustomExit(action);
             }
-            getView().processCustomExit((ExitAction) action);
-        } else {
-            throw new UnsupportedOperationException("this Action class can't be executed in this screen");
+
+            @Override
+            public void onClick(@NonNull final String target) {
+                getView().launchDeepLink(target);
+            }
+        });
+        getView().setStatusBarColor(viewModel.getHeaderModel().getBackgroundColor());
+        final CongratsAutoReturn.Model autoReturnModel = viewModel.getAutoReturnModel();
+        if (autoReturnModel != null) {
+            initAutoReturn(autoReturnModel);
         }
     }
 
-    private void mapPaymentModel() {
-        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper().map(model);
-        getView().configureViews(viewModel, this);
-        getView().setStatusBarColor(viewModel.headerModel.getBackgroundColor());
-        initAutoReturn(viewModel.shouldAutoReturn);
-    }
-
-    private void initAutoReturn(final boolean shouldAutoReturn) {
-        if (shouldAutoReturn) {
-            autoReturnTimer = new CongratsAutoReturn.Timer(() -> {
+    private void initAutoReturn(@NonNull final CongratsAutoReturn.Model model) {
+        autoReturnTimer = new CongratsAutoReturn(model, new CongratsAutoReturn.Listener() {
+            @Override
+            public void onFinish() {
                 autoReturnTimer = null;
                 onAbort();
-                return Unit.INSTANCE;
-            });
-        }
+            }
+
+            @Override
+            public void updateView(@NonNull final String label) {
+                getView().updateAutoReturnLabel(label);
+            }
+        });
     }
 
     @Override

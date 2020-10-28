@@ -19,7 +19,8 @@ public final class PaymentUtils {
         return new BusinessPayment.Builder(BusinessPayment.Decorator.APPROVED, Payment.StatusCodes.STATUS_APPROVED,
             Payment.StatusDetail.STATUS_DETAIL_ACCREDITED,
             R.drawable.px_icon_card, "Title")
-            .setPrimaryButton(new ExitAction("Button Name", 23))
+            .setPrimaryButton(new ExitAction("Primary Button", 23))
+            .setSecondaryButton(new ExitAction("Secondary Button", 24))
             .setReceiptId("123456")
             .build();
     }
@@ -36,7 +37,7 @@ public final class PaymentUtils {
     public static IParcelablePaymentDescriptor getGenericPaymentRejected() {
         return GenericPaymentDescriptor.with(new GenericPayment.Builder(
             Payment.StatusCodes.STATUS_REJECTED,
-            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_HIGH_RISK
+            Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_OTHER_REASON
         ).setPaymentId(123L).createGenericPayment());
     }
 }

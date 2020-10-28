@@ -11,10 +11,10 @@ import com.mercadopago.android.px.model.CustomSearchItem
 import com.mercadopago.android.px.model.ExpressMetadata
 import java.util.*
 
-class PaymentMethodDrawableItemMapper(
+internal class PaymentMethodDrawableItemMapper(
     private val chargeRepository: ChargeRepository,
     private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository? = null,
-    context: Context? = null) : NonNullMapper<ExpressMetadata?, DrawableFragmentItem?>() {
+    context: Context? = null) : NonNullMapper<ExpressMetadata, DrawableFragmentItem?>() {
 
     private val disableConfiguration = context?.let { DisableConfiguration(it) }
     private var customSearchItems: List<CustomSearchItem> = Collections.emptyList()

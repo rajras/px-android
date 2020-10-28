@@ -41,10 +41,10 @@ class CongratsRepositoryImpl(
         val isSuccess = StatusHelper.isSuccess(payment)
         CoroutineScope(Dispatchers.IO).launch {
             val paymentId = payment.paymentIds?.get(0) ?: payment.id.toString()
-            val paymentReward = when {
+            val congratsResponse = when {
                 hasToReturnEmptyResponse || !isSuccess -> CongratsResponse.EMPTY
                 paymentRewardCache.containsKey(paymentId) -> paymentRewardCache[paymentId]!!
-                else -> getPaymentReward(payment, paymentResult).apply { paymentRewardCache[paymentId] = this }
+                else -> getCongratsResponse(payment, paymentResult).apply { paymentRewardCache[paymentId] = this }
             }
             val remediesResponse = when {
                 hasToReturnEmptyResponse || isSuccess -> RemediesResponse.EMPTY
@@ -54,12 +54,12 @@ class CongratsRepositoryImpl(
                 }
             }
             withContext(Dispatchers.Main) {
-                handleResult(payment, paymentResult, paymentReward, remediesResponse, paymentSetting.currency, callback)
+                handleResult(payment, paymentResult, congratsResponse, remediesResponse, paymentSetting.currency, callback)
             }
         }
     }
 
-    private suspend fun getPaymentReward(payment: IPaymentDescriptor, paymentResult: PaymentResult) =
+    private suspend fun getCongratsResponse(payment: IPaymentDescriptor, paymentResult: PaymentResult) =
         try {
             val joinedPaymentIds = TextUtil.join(payment.paymentIds)
             val joinedPaymentMethodsIds = paymentResult.paymentDataList
@@ -67,7 +67,7 @@ class CongratsRepositoryImpl(
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
             congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, privateKey!!,
                 joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-                joinedPaymentMethodsIds, trackingRepository.flowId)
+                joinedPaymentMethodsIds, trackingRepository.flowId, paymentSetting.checkoutPreference?.id)
         } catch (e: Exception) {
             CongratsResponse.EMPTY
         }
