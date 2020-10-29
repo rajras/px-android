@@ -277,13 +277,13 @@ public class CongratsViewModelMapper extends Mapper<PaymentCongratsResponse, Con
 
     @NonNull
     private List<MLBusinessCrossSellingBoxData> getCrossSellingBoxData(
-        List<PaymentCongratsResponse.CrossSelling> crossSellingList) {
+        final List<PaymentCongratsResponse.CrossSelling> crossSellingList) {
 
         final List<MLBusinessCrossSellingBoxData> crossSellingBoxData = new LinkedList<>();
 
-        for (PaymentCongratsResponse.CrossSelling crossSellingItem : crossSellingList) {
+        for (final PaymentCongratsResponse.CrossSelling crossSellingItem : crossSellingList) {
 
-            PaymentCongratsResponse.Action action = crossSellingItem.getAction();
+            final PaymentCongratsResponse.Action action = crossSellingItem.getAction();
             crossSellingBoxData.add(new MLBusinessCrossSellingBoxData() {
                 @NonNull
                 @Override

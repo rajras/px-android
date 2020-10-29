@@ -35,6 +35,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_SECURITY_TYPE = "PREF_SECURITY_TYPE";
     private static final String PREF_PRODUCT_ID = "PREF_PRODUCT_ID";
     private static final String PREF_LABELS = "PREF_LABELS";
+    private static final String PREF_DISCOUNT_PARAMS = "PREF_DISCOUNT_PARAMS";
     private static final String PREF_ONE_TAP_ENABLED = "PREF_ONE_TAP_ENABLED";
     private static final String PREF_CUSTOM_STRINGS = "PREF_CUSTOM_STRINGS";
     private static final String PREF_CONFIGURATION = "PREF_CONFIGURATION";
@@ -103,6 +104,8 @@ public class PaymentSettingService implements PaymentSettingRepository {
         edit.putString(PREF_PRODUCT_ID, advancedConfiguration.getDiscountParamsConfiguration().getProductId());
         edit.putStringSet(PREF_LABELS, advancedConfiguration.getDiscountParamsConfiguration().getLabels());
         edit.putString(PREF_CUSTOM_STRINGS, JsonUtil.toJson(advancedConfiguration.getCustomStringConfiguration()));
+        edit.putString(PREF_DISCOUNT_PARAMS,
+            JsonUtil.toJson(advancedConfiguration.getDiscountParamsConfiguration().getAdditionalParams()));
         edit.putBoolean(PREF_ONE_TAP_ENABLED, advancedConfiguration.isExpressPaymentEnabled()).apply();
 
         this.advancedConfiguration = advancedConfiguration;
@@ -252,6 +255,8 @@ public class PaymentSettingService implements PaymentSettingRepository {
                 .setExpressPaymentEnable(sharedPreferences.getBoolean(PREF_ONE_TAP_ENABLED, false))
                 .setDiscountParamsConfiguration(new DiscountParamsConfiguration.Builder()
                     .setProductId(sharedPreferences.getString(PREF_PRODUCT_ID, ""))
+                    .addAdditionalParams(
+                        JsonUtil.getStringMapFromJson(sharedPreferences.getString(PREF_DISCOUNT_PARAMS, "")))
                     .setLabels(sharedPreferences.getStringSet(PREF_LABELS, Collections.emptySet())).build())
                 .setCustomStringConfiguration(JsonUtil.getGson().fromJson(
                     sharedPreferences.getString(PREF_CUSTOM_STRINGS, null), CustomStringConfiguration.class))
