@@ -11,7 +11,7 @@ import java.util.List;
 public class ReviewAndConfirmData extends AvailableMethod {
 
     @NonNull private final List<ItemInfo> items;
-    @NonNull private final BigDecimal preferenceAmount;
+    @NonNull private final BigDecimal totalAmount;
     @Nullable private final DiscountInfo discount;
 
     public ReviewAndConfirmData(@NonNull final AvailableMethod method,
@@ -20,7 +20,7 @@ public class ReviewAndConfirmData extends AvailableMethod {
         @Nullable final DiscountInfo discount) {
         super(method.paymentMethodId, method.paymentMethodType);
         items = itemInfos;
-        preferenceAmount = totalAmount;
+        this.totalAmount = totalAmount;
         this.discount = discount;
     }
 }

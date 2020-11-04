@@ -23,7 +23,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     private final String paymentStatusDetail;
     private final String currencyId;
     private final boolean hasSplitPayment;
-    private final BigDecimal preferenceAmount;
+    private final BigDecimal totalAmount;
     private final BigDecimal discountCouponAmount;
     private final String paymentMethodId;
     private final String paymentMethodType;
@@ -111,7 +111,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
         this.paymentStatus = paymentStatus;
         this.paymentStatusDetail = paymentStatusDetail;
         this.hasSplitPayment = hasSplitPayment;
-        preferenceAmount = totalAmount;
+        this.totalAmount = totalAmount;
         this.discountCouponAmount = discountCouponAmount;
         this.scoreLevel = scoreLevel;
         this.discountsCount = discountsCount;
