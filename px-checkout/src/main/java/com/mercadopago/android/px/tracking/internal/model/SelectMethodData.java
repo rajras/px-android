@@ -11,7 +11,7 @@ public class SelectMethodData extends TrackingMapModel {
 
     @NonNull private final List<AvailableMethod> availableMethods;
     @NonNull private final List<ItemInfo> items;
-    @NonNull private final BigDecimal preferenceAmount;
+    @NonNull private final BigDecimal totalAmount;
     private final int availableMethodsQuantity;
     private final int disabledMethodsQuantity;
 
@@ -20,7 +20,7 @@ public class SelectMethodData extends TrackingMapModel {
         this.availableMethods = availableMethods;
         this.items = items;
         this.disabledMethodsQuantity = disabledMethodsQuantity;
-        preferenceAmount = totalAmount;
+        this.totalAmount = totalAmount;
         availableMethodsQuantity = availableMethods.size() - disabledMethodsQuantity;
     }
 }
