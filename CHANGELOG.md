@@ -1,8 +1,13 @@
+## VERSION 4.62.1
+_06_11_2020_
+* FIX - Restored congrats methods signature that caused crashes for other teams.
+* FIX - Payment data extra info on result track.
+
 ## VERSION 4.62.0
 _05_11_2020_
-* FEATURE - Dynamic discounts params
-* FIX - Wrong payment status code in result track
-* FIX - Changed preference amount field track to total amount
+* FEATURE - Dynamic discounts params.
+* FIX - Wrong payment status code in result track.
+* FIX - Changed preference amount field track to total amount.
 
 ## VERSION 4.61.0
 _22_10_2020_

@@ -10,9 +10,10 @@ import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.TrackingHelper;
 import com.mercadopago.android.px.tracking.internal.mapper.FromDiscountItemToItemId;
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public final class ResultViewTrackModel extends TrackingMapModel {
@@ -31,7 +32,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     private final String campaignId;
     private final String campaignsIds;
     private final int discountsCount;
-    private final Map<String, Object> extraInfo = Collections.emptyMap();
+    private final Map<String, Object> extraInfo = new HashMap<>();
     private boolean hasBottomView;
     private boolean hasTopView;
     private boolean hasImportantView;
@@ -72,7 +73,7 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     public ResultViewTrackModel(@NonNull final PaymentCongratsModel paymentCongratsModel, final boolean isMP) {
         this(Style.CUSTOM,
             paymentCongratsModel.getPaymentId(),
-            paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentStatus(),
+            TrackingHelper.getPaymentStatus(paymentCongratsModel),
             paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentStatusDetail(),
             PaymentDataHelper.isSplitPaymentInfo(paymentCongratsModel.getPaymentsInfo()),
             paymentCongratsModel.getPxPaymentCongratsTracking().getTotalAmount(),
