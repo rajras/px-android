@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.addons;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.model.Track;
 import java.util.Map;
 
@@ -46,4 +47,9 @@ public interface TrackingBehaviour {
      * @param track with the data to track
      */
     default void track(@NonNull final Track track) { }
+
+    @Nullable
+    default String getExperimentSeed() {
+        return null;
+    }
 }
