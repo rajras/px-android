@@ -5,6 +5,7 @@ import android.os.Parcelable
 import com.mercadopago.android.px.internal.extensions.readBigDecimal
 import com.mercadopago.android.px.internal.extensions.writeBigDecimal
 import com.mercadopago.android.px.internal.util.JsonUtil
+import com.mercadopago.android.px.internal.util.TextUtil
 import java.math.BigDecimal
 
 data class PXPaymentCongratsTracking(
@@ -20,6 +21,20 @@ data class PXPaymentCongratsTracking(
     val paymentMethodId: String?,
     val paymentMethodType: String?
 ) : Parcelable {
+
+    constructor(
+        campaignId: String?,
+        currencyId: String?,
+        paymentStatusDetail: String?,
+        paymentId: Long?,
+        totalAmount: BigDecimal?,
+        flowExtraInfo: Map<String, Any>? = HashMap(),
+        flow: String?,
+        sessionId: String?,
+        paymentMethodId: String?,
+        paymentMethodType: String?
+    ) : this(campaignId, currencyId, TextUtil.EMPTY, paymentStatusDetail, paymentId, totalAmount, flowExtraInfo, flow, sessionId,
+        paymentMethodId, paymentMethodType)
 
     constructor(parcel: Parcel) : this(
         parcel.readString(),
