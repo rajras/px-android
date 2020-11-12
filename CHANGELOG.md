@@ -1,3 +1,12 @@
+## VERSION 4.63.0
+_12_11_2020_
+* FEATURE - Installments v2 experiment.
+* FEATURE - Improved congrats auto return experience.
+* ENHANCEMENT - Added experiment seed getter into tracking behaviour.
+* FIX - Prevent pay button to be enabled without a usable slider option.
+* FIX - Incorrectly tracking Business congrats on view stop.
+* FIX - Added last four digits to token when esc is disabled.
+
 ## VERSION 4.62.1
 _06_11_2020_
 * FIX - Restored congrats methods signature that caused crashes for other teams.
