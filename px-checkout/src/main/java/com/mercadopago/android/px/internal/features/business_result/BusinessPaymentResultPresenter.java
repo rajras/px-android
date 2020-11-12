@@ -68,8 +68,6 @@ import kotlin.Unit;
         if (autoReturnTimer != null) {
             autoReturnTimer.cancel();
         }
-        viewTracker.track();
-        flowBehaviour.trackConversion(new FlowBehaviourResultMapper().map(model.getCongratsType()));
     }
 
     @Override
