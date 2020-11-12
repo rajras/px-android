@@ -61,7 +61,6 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
-import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.FromExpressMetadataToPaymentConfiguration;
@@ -292,14 +291,20 @@ import java.util.Set;
         final ExpressMetadata expressMetadata = getCurrentExpressMetadata();
         final AmountConfiguration amountConfiguration =
             amountConfigurationRepository.getConfigurationFor(expressMetadata.getCustomOptionId());
-        final List<PayerCost> payerCostList =
-            amountConfiguration.getAppliedPayerCost(splitSelectionState.userWantsToSplit());
+        final List<PayerCost> payerCostList = getCurrentPayerCosts();
         final int selectedIndex = amountConfiguration.getCurrentPayerCostIndex(splitSelectionState.userWantsToSplit(),
             payerCostSelectionRepository.get(expressMetadata.getCustomOptionId()));
         final List<InstallmentRowHolder.Model> models =
             new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), expressMetadata.getBenefits(),
                 getVariants()).map(payerCostList);
         getView().updateInstallmentsList(selectedIndex, models);
+    }
+
+    private List<PayerCost> getCurrentPayerCosts() {
+        final ExpressMetadata expressMetadata = getCurrentExpressMetadata();
+        final AmountConfiguration amountConfiguration =
+            amountConfigurationRepository.getConfigurationFor(expressMetadata.getCustomOptionId());
+        return amountConfiguration.getAppliedPayerCost(splitSelectionState.userWantsToSplit());
     }
 
     /**
@@ -500,10 +505,8 @@ import java.util.Set;
             new FromSelectedExpressMetadataToAvailableMethods(escManagerBehaviour.getESCCardIds(),
                 configuration.getPayerCost(), configuration.getSplitPayment())
                 .map(getCurrentExpressMetadata()));
-        final Experiment experiment;
-        if ((PaymentTypes.isCreditCardPaymentType(configuration.getPaymentTypeId()) ||
-            PaymentTypes.isDigitalCurrency(configuration.getPaymentTypeId())) &&
-            (experiment = experimentsRepository.getExperiment(KnownExperiment.INSTALLMENTS_HIGHLIGHT)) != null) {
+        final Experiment experiment = experimentsRepository.getExperiment(KnownExperiment.INSTALLMENTS_HIGHLIGHT);
+        if (getCurrentPayerCosts().size() > 1 && experiment != null) {
             experiments.add(experiment);
         }
         new ConfirmEvent(confirmData, experiments).track();
