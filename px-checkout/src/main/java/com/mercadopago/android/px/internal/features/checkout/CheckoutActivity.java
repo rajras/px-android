@@ -16,6 +16,7 @@ import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPayment;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
@@ -133,7 +134,8 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
                 session.getPluginRepository(),
                 session.getPaymentRepository(),
                 session.getCongratsRepository(),
-                session.getInternalConfiguration());
+                session.getInternalConfiguration(),
+                session.getExperimentsRepository());
 
         privateKey = savedInstanceState.getString(EXTRA_PRIVATE_KEY);
         merchantPublicKey = savedInstanceState.getString(EXTRA_PUBLIC_KEY);
@@ -160,7 +162,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
                 return;
             }
 
-            if(earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_ONETAP_FRAGMENT))) {
+            if (earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_ONETAP_FRAGMENT))) {
                 return;
             }
 
@@ -198,12 +200,13 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
             session.getPluginRepository(),
             session.getPaymentRepository(),
             session.getCongratsRepository(),
-            session.getInternalConfiguration());
+            session.getInternalConfiguration(),
+            session.getExperimentsRepository());
     }
 
     @Override
     @SuppressLint("SourceLockedOrientationActivity")
-    public void showOneTap() {
+    public void showOneTap(@NonNull final Variant variant) {
         //One tap only supports portrait
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
@@ -213,7 +216,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.px_slide_right_to_left_in, R.anim.px_slide_right_to_left_out)
-                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(), TAG_ONETAP_FRAGMENT)
+                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(variant), TAG_ONETAP_FRAGMENT)
                 .commitNowAllowingStateLoss();
         }
     }

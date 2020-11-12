@@ -8,7 +8,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
-import com.mercadopago.android.px.tracking.internal.model.ConfirmData
 
 interface PayButton {
 
@@ -39,13 +38,14 @@ interface PayButton {
         @JvmDefault fun enqueueOnExploding(callback: OnEnqueueResolvedCallback) = callback.success()
         @JvmDefault fun onPostPaymentAction(postPaymentAction: PostPaymentAction) = Unit
         @JvmDefault fun onCvvRequested() = CvvRequestedModel()
+        @JvmDefault fun onPaymentExecuted(configuration: PaymentConfiguration) = Unit
         @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel, callback: OnPaymentFinishedCallback) = callback.call()
         @JvmDefault fun onPaymentError(error: MercadoPagoError) = Unit
         @JvmDefault fun onPostCongrats(resultCode: Int, data: Intent?) = Unit
     }
 
     interface OnReadyForPaymentCallback {
-        fun call(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData? = null)
+        fun call(paymentConfiguration: PaymentConfiguration)
     }
 
     interface OnEnqueueResolvedCallback {

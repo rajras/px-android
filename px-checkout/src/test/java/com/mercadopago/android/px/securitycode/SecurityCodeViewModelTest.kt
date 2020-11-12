@@ -204,7 +204,7 @@ class SecurityCodeViewModelTest : BasicRobolectricTest() {
         securityCodeViewModel.handlePrepayment(callback)
 
         verify(securityCodeTrackerMock).trackConfirmSecurityCode()
-        verify(callback).call(paymentConfiguration, null)
+        verify(callback).call(paymentConfiguration)
     }
 
     @Test

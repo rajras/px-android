@@ -1,57 +1,41 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import com.mercadopago.android.px.R;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.express.slider.ViewAdapter;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
 
-public class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobalLayoutListener {
+public abstract class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobalLayoutListener {
 
-    private View previousView;
-    private View currentView;
-    private View nextView;
+    protected View previousView;
+    protected View currentView;
+    protected View nextView;
     private int currentWidth;
     private ViewAdapter adapter;
 
-    public TitlePager(final Context context,
-        @Nullable final AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public TitlePager(final Context context, @Nullable final AttributeSet attrs,
-        final int defStyleAttr) {
+    public TitlePager(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        inflate();
     }
 
-    private void init(final Context context) {
-        inflate(context, R.layout.px_view_title_pager, this);
-    }
+    protected abstract void inflate();
 
-    public void setBadgeExperimentVariant(@NonNull final Variant variant) {
-        ((PaymentMethodDescriptorView)previousView).configureExperiment(variant);
-        ((PaymentMethodDescriptorView)currentView).configureExperiment(variant);
-        ((PaymentMethodDescriptorView)nextView).configureExperiment(variant);
+    public final void setBadgeExperimentVariant(@NonNull final Variant variant) {
+        ((PaymentMethodDescriptorView) previousView).configureExperiment(variant);
+        ((PaymentMethodDescriptorView) currentView).configureExperiment(variant);
+        ((PaymentMethodDescriptorView) nextView).configureExperiment(variant);
     }
 
     @Override
     protected void onFinishInflate() {
-        super.onFinishInflate();
-        if (getChildCount() != 3) {
-            throw new RuntimeException("Incorrect number of children for Title Pager (must be 3)");
-        }
-        previousView = getChildAt(0);
-        currentView = getChildAt(1);
-        nextView = getChildAt(2);
-
         getViewTreeObserver().addOnGlobalLayoutListener(this);
+        super.onFinishInflate();
     }
 
     @Override
@@ -63,11 +47,11 @@ public class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobal
         }
     }
 
-    public void setAdapter(final ViewAdapter adapter) {
+    public final void setAdapter(final ViewAdapter adapter) {
         this.adapter = adapter;
     }
 
-    public void updatePosition(final float offset, final GoingToModel goingTo) {
+    public final void updatePosition(final float offset, final GoingToModel goingTo) {
         float positionOffset = offset;
 
         if (positionOffset == 0.0f) {
@@ -93,7 +77,7 @@ public class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobal
         nextView.setX(currentWidth - offsetInPixels);
     }
 
-    public void orderViews(final GoingToModel goingTo) {
+    public final void orderViews(final GoingToModel goingTo) {
         final View auxView;
         if (goingTo == GoingToModel.BACKWARDS) {
             auxView = previousView;
@@ -115,4 +99,8 @@ public class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobal
         previousView.setX(-currentWidth);
         nextView.setX(currentWidth);
     }
+
+    public abstract void showInstallments();
+
+    public abstract void hideInstallments();
 }

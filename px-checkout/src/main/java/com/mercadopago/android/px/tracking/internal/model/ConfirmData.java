@@ -34,23 +34,23 @@ public class ConfirmData extends AvailableMethod {
         final Map<String, Object> extraInfo = new HashMap<>();
         extraInfo.put("has_payer_information", isCompliant);
         extraInfo.put("additional_information_needed", hasAdditionalInfoNeeded);
-        return new ConfirmData(ConfirmEvent.ReviewType.ONE_TAP, new AvailableMethod(paymentMethodId, paymentTypeId, extraInfo));
+        return new ConfirmData(ReviewType.ONE_TAP, new AvailableMethod(paymentMethodId, paymentTypeId, extraInfo));
     }
 
     public static ConfirmData from(@NonNull final Set<String> cardsWithEsc,
         @NonNull final UserSelectionRepository userSelectionRepository) {
         final AvailableMethod ava = new FromUserSelectionToAvailableMethod(cardsWithEsc).map(userSelectionRepository);
-        return new ConfirmData(ConfirmEvent.ReviewType.TRADITIONAL, ava);
+        return new ConfirmData(ReviewType.TRADITIONAL, ava);
     }
 
-    public ConfirmData(@NonNull final ConfirmEvent.ReviewType reviewType, final int paymentMethodSelectedIndex,
+    public ConfirmData(@NonNull final ReviewType reviewType, final int paymentMethodSelectedIndex,
         @NonNull final AvailableMethod availableMethod) {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
         this.paymentMethodSelectedIndex = paymentMethodSelectedIndex;
     }
 
-    public ConfirmData(@NonNull final ConfirmEvent.ReviewType reviewType,
+    public ConfirmData(@NonNull final ReviewType reviewType,
         @NonNull final AvailableMethod availableMethod) {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
@@ -73,5 +73,16 @@ public class ConfirmData extends AvailableMethod {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public enum ReviewType {
+        ONE_TAP("one_tap"),
+        TRADITIONAL("traditional");
+
+        public final String value;
+
+        ReviewType(@NonNull final String value) {
+            this.value = value;
+        }
     }
 }

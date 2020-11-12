@@ -54,6 +54,7 @@ public final class DebitCardDescriptorModel extends PaymentMethodDescriptorView.
         @NonNull final TextView textView) {
 
         final Spannable amount = TextFormatter.withCurrency(currency)
+            .withSpace()
             .amount(getCurrentPayerCost().getInstallmentAmount())
             .normalDecimals()
             .into(textView)

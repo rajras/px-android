@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.MvpView;
-import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -32,7 +32,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
         boolean isActive();
 
-        void showOneTap();
+        void showOneTap(@NonNull final Variant variant);
 
         void hideProgress();
 

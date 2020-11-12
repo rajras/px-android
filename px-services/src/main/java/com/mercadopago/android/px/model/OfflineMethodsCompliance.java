@@ -1,8 +1,7 @@
 package com.mercadopago.android.px.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 public final class OfflineMethodsCompliance extends InitiativeCompliance {
 
@@ -29,7 +28,7 @@ public final class OfflineMethodsCompliance extends InitiativeCompliance {
     }
 
     @Override
-    public void writeToParcel(@NotNull final Parcel dest, final int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(turnComplianceDeepLink);
         dest.writeParcelable(sensitiveInformation, flags);
@@ -42,5 +41,4 @@ public final class OfflineMethodsCompliance extends InitiativeCompliance {
     public SensitiveInformation getSensitiveInformation() {
         return sensitiveInformation;
     }
-
 }

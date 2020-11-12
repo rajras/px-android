@@ -5,12 +5,11 @@
     android:layout_height="wrap_content"
     tools:parentTag="android.widget.FrameLayout">
 
-    <com.mercadopago.android.px.internal.view.TitlePagerDefault
+    <com.mercadopago.android.px.internal.view.TitlePagerV2
         android:id="@+id/title_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/px_s_margin"
-        android:paddingBottom="@dimen/px_s_margin">
+        android:paddingBottom="@dimen/ui_3m">
 
         <com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView
             android:layout_width="match_parent"
@@ -18,8 +17,9 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:paddingLeft="@dimen/px_m_margin"
-            android:paddingRight="@dimen/px_title_pager_padding_right"
+            android:paddingTop="@dimen/ui_3m"
+            android:paddingStart="@dimen/px_m_margin"
+            android:paddingEnd="@dimen/px_title_pager_padding_right"
             android:textSize="@dimen/px_s_text"
             tools:text="1x $1200 CFT: 0,00%" />
 
@@ -29,8 +29,9 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:paddingLeft="@dimen/px_m_margin"
-            android:paddingRight="@dimen/px_title_pager_padding_right"
+            android:paddingTop="@dimen/ui_3m"
+            android:paddingStart="@dimen/px_m_margin"
+            android:paddingEnd="@dimen/px_title_pager_padding_right"
             android:textSize="@dimen/px_s_text" />
 
         <com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView
@@ -39,44 +40,33 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:paddingLeft="@dimen/px_m_margin"
-            android:paddingRight="@dimen/px_title_pager_padding_right"
+            android:paddingTop="@dimen/ui_3m"
+            android:paddingStart="@dimen/px_m_margin"
+            android:paddingEnd="@dimen/px_title_pager_padding_right"
             android:textSize="@dimen/px_s_text" />
 
-    </com.mercadopago.android.px.internal.view.TitlePagerDefault>
-
-    <FrameLayout
-        android:id="@+id/installments_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/px_s_margin">
-
-        <com.mercadopago.android.px.internal.view.MPTextView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/px_m_margin"
-            android:paddingLeft="@dimen/px_m_margin"
-            android:paddingEnd="@dimen/px_title_pager_padding_right"
-            android:paddingRight="@dimen/px_title_pager_padding_right"
-            android:paddingBottom="@dimen/px_s_margin"
-            android:text="@string/px_select_installments_title"
-            android:textColor="@color/px_expressCheckoutInstallmentTitle"
-            android:textSize="@dimen/px_s_text" />
+            tools:visibility="gone">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/px_xxxs_height"
-            android:layout_gravity="bottom"
-            android:background="@color/px_expressCheckoutSeparatorLine" />
-    </FrameLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/installments_recycler_view"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false"
+                android:overScrollMode="never"
+                android:layout_width="match_parent"
+                android:layout_height="165dp" />
 
-    <FrameLayout
-        android:id="@+id/pulse_experiment_container"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical|end"
-        />
+            <View
+                android:id="@+id/shadow"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:background="@drawable/shadow_top"
+                android:layout_gravity="bottom">
+            </View>
+        </FrameLayout>
+    </com.mercadopago.android.px.internal.view.TitlePagerV2>
 
     <ImageView
         android:id="@+id/helper"

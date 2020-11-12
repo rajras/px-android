@@ -40,6 +40,12 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
+private const val REQ_CODE_CONGRATS = 300
+private const val REQ_CODE_PAYMENT_PROCESSOR = 302
+private const val REQ_CODE_BIOMETRICS = 303
+private const val REQ_CODE_SECURITY_CODE = 304
+private const val EXTRA_STATE = "extra_state"
+private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
 
 class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
@@ -313,15 +319,5 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
 
     fun addOnStateChange(stateChange: PayButton.StateChange) {
         this.payButtonStateChange = stateChange
-    }
-
-    companion object {
-        const val TAG = "TAG_BUTTON_FRAGMENT"
-        const val REQ_CODE_CONGRATS = 300
-        private const val REQ_CODE_PAYMENT_PROCESSOR = 302
-        private const val REQ_CODE_BIOMETRICS = 303
-        private const val REQ_CODE_SECURITY_CODE = 304
-        private const val EXTRA_STATE = "extra_state"
-        private const val EXTRA_VISIBILITY = "extra_visibility"
     }
 }

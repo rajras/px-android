@@ -28,6 +28,7 @@ import com.mercadopago.android.px.model.SummaryAmount;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.views.InstallmentsViewTrack;
+import java.util.Collections;
 import java.util.List;
 
 public class InstallmentsPresenter extends BasePresenter<InstallmentsView> implements
@@ -195,7 +196,7 @@ public class InstallmentsPresenter extends BasePresenter<InstallmentsView> imple
         } else {
             new InstallmentsViewTrack(payerCosts, userSelectionRepository).track();
             final List<InstallmentRowHolder.Model> models =
-                new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null).map(payerCosts);
+                new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null, Collections.emptyList()).map(payerCosts);
             getView().showInstallments(models);
         }
     }

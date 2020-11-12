@@ -56,6 +56,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     PaymentResultContract.View, PayButton.Handler, RemediesFragment.Listener {
 
     private static final String TAG = PaymentResultActivity.class.getSimpleName();
+    private static final String TAG_PAY_BUTTON = "TAG_PAY_BUTTON";
     public static final String EXTRA_PAYMENT_MODEL = "extra_payment_model";
     public static final String EXTRA_RESULT_CODE = "extra_result_code";
     private PayButtonFragment payButtonFragment;
@@ -140,7 +141,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         final FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager != null) {
             remediesFragment = (RemediesFragment) fragmentManager.findFragmentByTag(RemediesFragment.TAG);
-            payButtonFragment = (PayButtonFragment) fragmentManager.findFragmentByTag(PayButtonFragment.TAG);
+            payButtonFragment = (PayButtonFragment) fragmentManager.findFragmentByTag(TAG_PAY_BUTTON);
 
             if (remediesFragment == null || payButtonFragment == null) {
                 final FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -150,7 +151,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 }
                 if (payButtonFragment == null) {
                     payButtonFragment = new PayButtonFragment();
-                    transaction.replace(R.id.pay_button, payButtonFragment, PayButtonFragment.TAG);
+                    transaction.replace(R.id.pay_button, payButtonFragment, TAG_PAY_BUTTON);
                 }
                 transaction.commitAllowingStateLoss();
             }

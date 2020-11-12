@@ -4,17 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.internal.base.BasePresenter;
-import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
+import com.mercadopago.android.px.internal.experiments.KnownVariant;
 import com.mercadopago.android.px.internal.navigation.DefaultPaymentMethodDriver;
 import com.mercadopago.android.px.internal.navigation.OnChangePaymentMethodDriver;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
+import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
+import com.mercadopago.android.px.internal.view.experiments.ExperimentHelper;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Cause;
@@ -36,6 +38,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
     @NonNull private final InitRepository initRepository;
     @NonNull private final CongratsRepository congratsRepository;
     @NonNull private final InternalConfiguration internalConfiguration;
+    @NonNull private ExperimentsRepository experimentsRepository;
 
     /* default */ CheckoutPresenter(@NonNull final CheckoutStateModel persistentData,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
@@ -44,7 +47,8 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
         @NonNull final PluginRepository pluginRepository,
         @NonNull final PaymentRepository paymentRepository,
         @NonNull final CongratsRepository congratsRepository,
-        @NonNull final InternalConfiguration internalConfiguration) {
+        @NonNull final InternalConfiguration internalConfiguration,
+        @NonNull final ExperimentsRepository experimentsRepository) {
 
         this.paymentSettingRepository = paymentSettingRepository;
         this.userSelectionRepository = userSelectionRepository;
@@ -53,6 +57,7 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
         this.paymentRepository = paymentRepository;
         this.congratsRepository = congratsRepository;
         this.internalConfiguration = internalConfiguration;
+        this.experimentsRepository = experimentsRepository;
         state = persistentData;
     }
 
@@ -114,7 +119,8 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
 
         if (state.isExpressCheckout) {
             getView().hideProgress();
-            getView().showOneTap();
+            getView().showOneTap(ExperimentHelper.INSTANCE.getVariantFrom(
+                experimentsRepository.getExperiments(), KnownVariant.SCROLLED));
         } else {
             getView().showPaymentMethodSelection();
         }

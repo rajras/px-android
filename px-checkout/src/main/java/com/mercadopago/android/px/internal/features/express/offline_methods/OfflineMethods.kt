@@ -5,6 +5,7 @@ import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized
 import com.mercadopago.android.px.model.ExpressMetadata
 import com.mercadopago.android.px.model.OfflinePaymentType
+import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.model.internal.Text
 
 internal interface OfflineMethods {
@@ -21,6 +22,7 @@ internal interface OfflineMethods {
         fun onMethodSelected(selectedItem: OfflineMethodItem)
         fun onPrePayment(callback: PayButton.OnReadyForPaymentCallback)
         fun onBack()
+        fun onPaymentExecuted(configuration: PaymentConfiguration)
     }
 
     interface OnMethodSelectedListener {

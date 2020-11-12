@@ -34,6 +34,7 @@ import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.util.nonNullObserveOnce
 import com.mercadopago.android.px.internal.view.MPTextView
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized
+import com.mercadopago.android.px.model.internal.PaymentConfiguration
 
 class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
     private var fadeInAnimation: Animation? = null
@@ -207,6 +208,10 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
 
     override fun prePayment(callback: OnReadyForPaymentCallback) {
         viewModel.onPrePayment(callback)
+    }
+
+    override fun onPaymentExecuted(configuration: PaymentConfiguration) {
+        viewModel.onPaymentExecuted(configuration)
     }
 
     override fun onAttach(context: Context) {

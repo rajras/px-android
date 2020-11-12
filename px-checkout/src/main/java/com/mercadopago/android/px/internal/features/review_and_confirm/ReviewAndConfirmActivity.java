@@ -46,7 +46,7 @@ import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.ExitAction;
 import com.mercadopago.android.px.model.Payer;
 import com.mercadopago.android.px.model.display_info.LinkableText;
-import org.jetbrains.annotations.NotNull;
+import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANCELED_RYC;
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_CANCEL_PAYMENT;
@@ -291,12 +291,17 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     }
 
     @Override
-    public void prePayment(@NotNull final PayButton.OnReadyForPaymentCallback callback) {
+    public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         presenter.onPrePayment(callback);
     }
 
     @Override
-    public void onPostPaymentAction(@NotNull final PostPaymentAction postPaymentAction) {
+    public void onPaymentExecuted(@NonNull final PaymentConfiguration configuration) {
+        presenter.onPaymentExecuted(configuration);
+    }
+
+    @Override
+    public void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
         presenter.onPostPaymentAction(postPaymentAction);
     }
 

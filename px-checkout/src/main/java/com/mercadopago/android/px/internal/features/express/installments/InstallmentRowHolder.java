@@ -1,15 +1,15 @@
 package com.mercadopago.android.px.internal.features.express.installments;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.font.FontHelper;
 import com.mercadopago.android.px.internal.font.PxFont;
@@ -28,35 +28,35 @@ public class InstallmentRowHolder extends RecyclerView.ViewHolder {
 
     private final View container;
     private final TextView installmentsText;
-    private final MPTextView reimbursement;
-    private final MPTextView installmentsInterestTop;
-    private final MPTextView installmentsInterestCenter;
+    protected final MPTextView bottomText;
+    private final MPTextView topText;
+    private final MPTextView centerText;
 
     /* default */ InstallmentRowHolder(final View itemView) {
         super(itemView);
         container = itemView.findViewById(R.id.container);
         installmentsText = itemView.findViewById(R.id.mpsdkInstallmentsText);
-        installmentsInterestTop = itemView.findViewById(R.id.mpsdkInstallmentsInterestTop);
-        reimbursement = itemView.findViewById(R.id.mpsdkReimbursement);
-        installmentsInterestCenter = itemView.findViewById(R.id.mpsdkInstallmentsInterest);
+        topText = itemView.findViewById(R.id.mpsdkInstallmentsInterestTop);
+        bottomText = itemView.findViewById(R.id.mpsdkReimbursement);
+        centerText = itemView.findViewById(R.id.mpsdkInstallmentsInterest);
     }
 
     /* default */ void populate(final InstallmentsAdapter.ItemListener itemListener, @NonNull final Model model) {
         final int hiddenVisibility = model.showBigRow ? View.INVISIBLE : View.GONE;
         setInstallmentsText(model.currency, model.payerCost);
-        final boolean hasReimbursement = loadReimbursement(model.reimbursement, hiddenVisibility);
-        loadInstallmentsInterest(model, hasReimbursement, hiddenVisibility);
-        hideUnusedViews(hasReimbursement, hiddenVisibility);
+        final boolean hasBottomText = loadBottomText(model, hiddenVisibility);
+        loadInstallmentsInterest(model, hasBottomText, hiddenVisibility);
+        hideUnusedViews(hasBottomText, hiddenVisibility);
         itemView.setOnClickListener(v -> itemListener.onClick(model.payerCost));
     }
 
-    private boolean loadReimbursement(@Nullable final Text reimbursementText, final int visibility) {
-        return ViewUtils.loadOrHide(visibility, reimbursementText, reimbursement);
+    protected boolean loadBottomText(@NonNull final Model model, final int visibility) {
+        return ViewUtils.loadOrHide(visibility, model.reimbursement, bottomText);
     }
 
     private void loadInstallmentsInterest(@NonNull final Model model,
-        final boolean hasReimbursement, final int visibility) {
-        final MPTextView installmentsInterest = hasReimbursement ? installmentsInterestTop : installmentsInterestCenter;
+        final boolean hasBottomText, final int visibility) {
+        final MPTextView installmentsInterest = hasBottomText ? topText : centerText;
         final boolean interestFree = ViewUtils.loadOrHide(visibility, model.interestFree, installmentsInterest);
         if (!interestFree) {
             ViewUtils.loadOrGone(getAmountWithRateText(model.currency, model.payerCost), installmentsInterest);
@@ -69,8 +69,8 @@ public class InstallmentRowHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void hideUnusedViews(final boolean hasReimbursement, final int visibility) {
-        final MPTextView viewToHide = hasReimbursement ? installmentsInterestCenter : installmentsInterestTop;
+    private void hideUnusedViews(final boolean hasBottomText, final int visibility) {
+        final MPTextView viewToHide = hasBottomText ? centerText : topText;
         viewToHide.setVisibility(visibility);
     }
 

@@ -21,6 +21,7 @@ import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
+import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import java.util.List;
 
 public interface ExpressPayment {
@@ -28,6 +29,8 @@ public interface ExpressPayment {
     interface View extends MvpView {
 
         void clearAdapters();
+
+        void configureRenderMode(@NonNull List<Variant> variants);
 
         void configureAdapters(@NonNull final Site site, @NonNull final Currency currency);
 
@@ -41,7 +44,9 @@ public interface ExpressPayment {
             final int payerCostSelected,
             @NonNull final SplitSelectionState splitSelectionState);
 
-        void showInstallmentsList(final int selectedIndex, @NonNull List<InstallmentRowHolder.Model> models);
+        void updateInstallmentsList(final int selectedIndex, @NonNull List<InstallmentRowHolder.Model> models);
+
+        void animateInstallmentsList();
 
         void showToolbarElementDescriptor(@NonNull final ElementDescriptorView.Model elementDescriptorModel);
 
@@ -92,6 +97,8 @@ public interface ExpressPayment {
 
         void onInstallmentsRowPressed();
 
+        void updateInstallments();
+
         void onInstallmentSelectionCanceled();
 
         void onSliderOptionSelected(final int paymentMethodIndex);
@@ -107,6 +114,8 @@ public interface ExpressPayment {
         void handlePrePaymentAction(@NonNull final PayButton.OnReadyForPaymentCallback callback);
 
         void handleGenericDialogAction(@NonNull @ActionType final String type);
+
+        void onPaymentExecuted(@NonNull final PaymentConfiguration paymentConfiguration);
 
         void handleDeepLink();
 

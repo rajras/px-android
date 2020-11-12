@@ -16,6 +16,7 @@ import com.mercadopago.android.px.model.OfflineMethodsCompliance
 import com.mercadopago.android.px.model.SensitiveInformation
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.events.BackEvent
+import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent
 import com.mercadopago.android.px.tracking.internal.events.KnowYourCustomerFlowEvent
 import com.mercadopago.android.px.tracking.internal.model.ConfirmData
 import com.mercadopago.android.px.tracking.internal.views.OfflineMethodsViewTracker
@@ -79,12 +80,15 @@ internal class OfflineMethodsViewModel(private val initRepository: InitRepositor
 
     private fun requireCurrentConfiguration(item: OfflineMethodItem, callback: OnReadyForPaymentCallback) {
         val paymentMethodId = item.paymentMethodId.orIfEmpty(TextUtil.EMPTY)
-        val paymentTypeId = item.paymentTypeId.orIfEmpty(TextUtil.EMPTY)
-        val confirmData = ConfirmData.from(paymentTypeId, paymentMethodId,
-            payerCompliance?.isCompliant == true, item.isAdditionalInfoNeeded)
-        val paymentConfiguration = PaymentConfiguration(paymentMethodId, paymentTypeId,
+        val paymentConfiguration = PaymentConfiguration(paymentMethodId, item.paymentTypeId.orIfEmpty(TextUtil.EMPTY),
             paymentMethodId, isCard = false, splitPayment = false, payerCost = null)
-        callback.call(paymentConfiguration, confirmData)
+        callback.call(paymentConfiguration)
+    }
+
+    override fun onPaymentExecuted(configuration: PaymentConfiguration) {
+        val confirmData = ConfirmData.from(configuration.paymentTypeId, configuration.paymentMethodId,
+            payerCompliance?.isCompliant == true, selectedItem?.isAdditionalInfoNeeded == true)
+        ConfirmEvent(confirmData).track()
     }
 
     private fun completePayerInformation(sensitiveInformation: SensitiveInformation) {

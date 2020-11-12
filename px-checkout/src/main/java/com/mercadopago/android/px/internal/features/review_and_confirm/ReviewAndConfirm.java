@@ -5,6 +5,7 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
+import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 
 public interface ReviewAndConfirm {
 
@@ -20,6 +21,8 @@ public interface ReviewAndConfirm {
         void onPrePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback);
 
         void onChangePaymentMethod();
+
+        void onPaymentExecuted(@NonNull final PaymentConfiguration configuration);
 
         void onBackPressed();
 

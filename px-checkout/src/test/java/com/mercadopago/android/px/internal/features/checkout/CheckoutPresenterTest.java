@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
+import com.mercadopago.android.px.internal.experiments.ScrolledVariant;
+import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
+import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -61,6 +64,7 @@ public class CheckoutPresenterTest {
     @Mock private PaymentRepository paymentRepository;
     @Mock private CongratsRepository congratsRepository;
     @Mock private InternalConfiguration internalConfiguration;
+    @Mock private ExperimentsRepository experimentsRepository;
 
     private CheckoutPresenter presenter;
     private CheckoutStateModel checkoutStateModel;
@@ -500,7 +504,8 @@ public class CheckoutPresenterTest {
         final Checkout.View view, final CheckoutStateModel checkoutStateModel) {
 
         presenter = new CheckoutPresenter(checkoutStateModel, paymentSettingRepository, userSelectionRepository,
-            initRepository, pluginRepository, paymentRepository, congratsRepository, internalConfiguration);
+            initRepository, pluginRepository, paymentRepository, congratsRepository, internalConfiguration,
+            experimentsRepository);
 
         presenter.attachView(view);
         return presenter;
@@ -556,6 +561,6 @@ public class CheckoutPresenterTest {
 
     private void verifyShowOneTap() {
         verify(checkoutView, atLeastOnce()).hideProgress();
-        verify(checkoutView).showOneTap();
+        verify(checkoutView).showOneTap(any());
     }
 }

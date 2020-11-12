@@ -23,6 +23,7 @@ import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
+import com.mercadopago.android.px.internal.viewmodel.mappers.AmountDescriptorMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodDescriptorMapper;
 import com.mercadopago.android.px.mocks.CurrencyStub;
 import com.mercadopago.android.px.mocks.SiteStub;
@@ -159,7 +160,8 @@ public class ExpressPaymentPresenterTest {
                 payerCostSelectionRepository, discountRepository, amountRepository, initRepository,
                 amountConfigurationRepository, chargeRepository, escManagerBehaviour, paymentMethodDrawableItemMapper,
                 experimentsRepository, payerComplianceRepository, trackingRepository,
-                mock(PaymentMethodDescriptorMapper.class), mock(CustomTextsRepository.class));
+                mock(PaymentMethodDescriptorMapper.class), mock(CustomTextsRepository.class),
+                mock(AmountDescriptorMapper.class));
 
         verifyAttachView();
     }
@@ -247,6 +249,7 @@ public class ExpressPaymentPresenterTest {
         verify(view).showToolbarElementDescriptor(any(ElementDescriptorView.Model.class));
         verify(view).updateAdapters(any(HubAdapter.Model.class));
         verify(view).updateViewForPosition(anyInt(), anyInt(), any(SplitSelectionState.class));
+        verify(view).configureRenderMode(any());
         verify(view).configureAdapters(any(Site.class), any(Currency.class));
         verify(view).updatePaymentMethods(anyListOf(DrawableFragmentItem.class));
     }

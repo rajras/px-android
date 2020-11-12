@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.tracking.internal.events;
 
+import androidx.annotation.NonNull;
 import com.mercadopago.android.px.model.AccountMoneyMetadata;
 import com.mercadopago.android.px.model.CardDisplayInfo;
 import com.mercadopago.android.px.model.CardMetadata;
@@ -9,7 +10,6 @@ import com.mercadopago.android.px.tracking.internal.mapper.FromSelectedExpressMe
 import com.mercadopago.android.px.tracking.internal.model.ConfirmData;
 import java.math.BigDecimal;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,10 +32,10 @@ public class ConfirmEventTest {
     @Mock private ExpressMetadata expressMetadata;
     @Mock private Set<String> cardIdsWithEsc;
 
-    @NotNull
+    @NonNull
     private ConfirmEvent getConfirmEvent(final PayerCost payerCost) {
         final ConfirmData
-            confirmTrackerData = new ConfirmData(ConfirmEvent.ReviewType.ONE_TAP, PAYMENT_METHOD_SELECTED_INDEX,
+            confirmTrackerData = new ConfirmData(ConfirmData.ReviewType.ONE_TAP, PAYMENT_METHOD_SELECTED_INDEX,
             new FromSelectedExpressMetadataToAvailableMethods(cardIdsWithEsc,
                 payerCost, false)
                 .map(expressMetadata));

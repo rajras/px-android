@@ -12,6 +12,7 @@ import com.mercadopago.android.px.tracking.PXTracker;
 import com.mercadopago.android.px.tracking.PXTrackingListener;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.model.DiscountInfo;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class OneTapViewTest {
     public void verifyPath() {
         assertEquals(EXPECTED_PATH,
             new OneTapViewTracker(Collections.EMPTY_LIST, checkoutPreference, discountModel, Collections.emptySet(),
-                Collections.emptySet(), DISABLED_METHODS_QUANTITY).getTrack().getPath());
+                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList()).getTrack().getPath());
     }
 
     @Test
@@ -62,7 +63,7 @@ public class OneTapViewTest {
         PXTracker.setListener(listener);
         final OneTapViewTracker tracker =
             new OneTapViewTracker(Collections.EMPTY_LIST, checkoutPreference, discountModel, Collections.emptySet(),
-                Collections.emptySet(), DISABLED_METHODS_QUANTITY);
+                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList());
         tracker.track();
         verify(listener).onView(eq(EXPECTED_PATH), eq(expectedOneTapData()));
     }

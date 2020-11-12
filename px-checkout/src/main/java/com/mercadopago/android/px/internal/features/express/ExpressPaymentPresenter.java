@@ -4,14 +4,17 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.model.internal.Configuration;
+import com.mercadopago.android.px.addons.model.internal.Experiment;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.core.internal.TriggerableQueue;
 import com.mercadopago.android.px.internal.base.BasePresenter;
-import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.experiments.BadgeVariant;
-import com.mercadopago.android.px.internal.experiments.PulseVariant;
+import com.mercadopago.android.px.internal.experiments.KnownExperiment;
+import com.mercadopago.android.px.internal.experiments.KnownVariant;
+import com.mercadopago.android.px.internal.experiments.ScrolledVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
+import com.mercadopago.android.px.internal.experiments.VariantHandler;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
 import com.mercadopago.android.px.internal.features.express.offline_methods.OfflineMethods;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
@@ -45,6 +48,7 @@ import com.mercadopago.android.px.internal.viewmodel.ConfirmButtonViewModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper;
+import com.mercadopago.android.px.internal.viewmodel.mappers.AmountDescriptorMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ConfirmButtonViewModelMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ElementDescriptorMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.InstallmentViewModelMapper;
@@ -57,6 +61,7 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
+import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.FromExpressMetadataToPaymentConfiguration;
@@ -100,6 +105,7 @@ import java.util.Set;
     @NonNull private final TrackingRepository trackingRepository;
     @NonNull private final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper;
     @NonNull private final CustomTextsRepository customTextsRepository;
+    @NonNull private final AmountDescriptorMapper amountDescriptorMapper;
     @NonNull /* default */ final InitRepository initRepository;
     private final PayerCostSelectionRepository payerCostSelectionRepository;
     private final PaymentMethodDrawableItemMapper paymentMethodDrawableItemMapper;
@@ -126,7 +132,8 @@ import java.util.Set;
         @NonNull final PayerComplianceRepository payerComplianceRepository,
         @NonNull final TrackingRepository trackingRepository,
         @NonNull final PaymentMethodDescriptorMapper paymentMethodDescriptorMapper,
-        @NonNull final CustomTextsRepository customTextsRepository) {
+        @NonNull final CustomTextsRepository customTextsRepository,
+        @NonNull final AmountDescriptorMapper amountDescriptorMapper) {
 
         this.paymentSettingRepository = paymentSettingRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
@@ -143,6 +150,7 @@ import java.util.Set;
         this.trackingRepository = trackingRepository;
         this.paymentMethodDescriptorMapper = paymentMethodDescriptorMapper;
         this.customTextsRepository = customTextsRepository;
+        this.amountDescriptorMapper = amountDescriptorMapper;
 
         splitSelectionState = new SplitSelectionState();
         triggerableQueue = new TriggerableQueue();
@@ -162,7 +170,7 @@ import java.util.Set;
         final List<SummaryView.Model> summaryModels =
             new SummaryViewModelMapper(paymentSettingRepository.getCurrency(), discountRepository, amountRepository,
                 elementDescriptorModel, this, summaryInfo, chargeRepository, amountConfigurationRepository,
-                customTextsRepository).map(new ArrayList<>(expressMetadataList));
+                customTextsRepository, amountDescriptorMapper).map(new ArrayList<>(expressMetadataList));
 
         final List<PaymentMethodDescriptorView.Model> paymentModels =
             paymentMethodDescriptorMapper.map(expressMetadataList);
@@ -177,8 +185,9 @@ import java.util.Set;
         final HubAdapter.Model model =
             new HubAdapter.Model(paymentModels, summaryModels, splitHeaderModels, confirmButtonViewModels);
 
-        getView().configurePaymentMethodHeader(getExperiment());
+        getView().configurePaymentMethodHeader(getVariants());
         getView().showToolbarElementDescriptor(elementDescriptorModel);
+        getView().configureRenderMode(getVariants());
         getView().configureAdapters(paymentSettingRepository.getSite(), paymentSettingRepository.getCurrency());
         getView().updateAdapters(model);
         updateElements();
@@ -243,7 +252,8 @@ import java.util.Set;
         final OneTapViewTracker oneTapViewTracker =
             new OneTapViewTracker(expressMetadataList, paymentSettingRepository.getCheckoutPreference(),
                 discountRepository.getCurrentConfiguration(), escManagerBehaviour.getESCCardIds(), cardsWithSplit,
-                disabledPaymentMethodRepository.getDisabledPaymentMethods().size());
+                disabledPaymentMethodRepository.getDisabledPaymentMethods().size(),
+                experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL));
         setCurrentViewTracker(oneTapViewTracker);
     }
 
@@ -269,19 +279,27 @@ import java.util.Set;
 
     @Override
     public void onInstallmentsRowPressed() {
+        updateInstallments();
+        getView().animateInstallmentsList();
         final ExpressMetadata expressMetadata = getCurrentExpressMetadata();
-        final String customOptionId = expressMetadata.getCustomOptionId();
         final AmountConfiguration amountConfiguration =
-            amountConfigurationRepository.getConfigurationFor(customOptionId);
+            amountConfigurationRepository.getConfigurationFor(expressMetadata.getCustomOptionId());
+        new InstallmentsEventTrack(expressMetadata, amountConfiguration).track();
+    }
+
+    @Override
+    public void updateInstallments() {
+        final ExpressMetadata expressMetadata = getCurrentExpressMetadata();
+        final AmountConfiguration amountConfiguration =
+            amountConfigurationRepository.getConfigurationFor(expressMetadata.getCustomOptionId());
         final List<PayerCost> payerCostList =
             amountConfiguration.getAppliedPayerCost(splitSelectionState.userWantsToSplit());
         final int selectedIndex = amountConfiguration.getCurrentPayerCostIndex(splitSelectionState.userWantsToSplit(),
-            payerCostSelectionRepository.get(customOptionId));
+            payerCostSelectionRepository.get(expressMetadata.getCustomOptionId()));
         final List<InstallmentRowHolder.Model> models =
-            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), expressMetadata.getBenefits())
-                .map(payerCostList);
-        getView().showInstallmentsList(selectedIndex, models);
-        new InstallmentsEventTrack(expressMetadata, amountConfiguration).track();
+            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), expressMetadata.getBenefits(),
+                getVariants()).map(payerCostList);
+        getView().updateInstallmentsList(selectedIndex, models);
     }
 
     /**
@@ -322,7 +340,14 @@ import java.util.Set;
             .getAppliedPayerCost(splitSelectionState.userWantsToSplit())
             .indexOf(payerCostSelected);
         updateElementPosition(selected);
-        getView().collapseInstallmentsSelection();
+        getVariant(KnownVariant.SCROLLED).process(new VariantHandler() {
+            @Override
+            public void visit(@NonNull final ScrolledVariant variant) {
+                if (variant.isDefault()) {
+                    getView().collapseInstallmentsSelection();
+                }
+            }
+        });
     }
 
     public void onDisabledDescriptorViewClick() {
@@ -449,12 +474,7 @@ import java.util.Set;
         final PaymentConfiguration configuration = new FromExpressMetadataToPaymentConfiguration(
             amountConfigurationRepository, splitSelectionState, payerCostSelectionRepository).map(expressMetadata);
 
-        final ConfirmData confirmTrackerData = new ConfirmData(ConfirmEvent.ReviewType.ONE_TAP, paymentMethodIndex,
-            new FromSelectedExpressMetadataToAvailableMethods(escManagerBehaviour.getESCCardIds(),
-                configuration.getPayerCost(), configuration.getSplitPayment())
-                .map(expressMetadata));
-
-        callback.call(configuration, confirmTrackerData);
+        callback.call(configuration);
     }
 
     @Override
@@ -471,6 +491,22 @@ import java.util.Set;
             break;
         default: // do nothing
         }
+    }
+
+    @Override
+    public void onPaymentExecuted(@NonNull final PaymentConfiguration configuration) {
+        final List<Experiment> experiments = new ArrayList<>();
+        final ConfirmData confirmData = new ConfirmData(ConfirmData.ReviewType.ONE_TAP, paymentMethodIndex,
+            new FromSelectedExpressMetadataToAvailableMethods(escManagerBehaviour.getESCCardIds(),
+                configuration.getPayerCost(), configuration.getSplitPayment())
+                .map(getCurrentExpressMetadata()));
+        final Experiment experiment;
+        if ((PaymentTypes.isCreditCardPaymentType(configuration.getPaymentTypeId()) ||
+            PaymentTypes.isDigitalCurrency(configuration.getPaymentTypeId())) &&
+            (experiment = experimentsRepository.getExperiment(KnownExperiment.INSTALLMENTS_HIGHLIGHT)) != null) {
+            experiments.add(experiment);
+        }
+        new ConfirmEvent(confirmData, experiments).track();
     }
 
     /* default */ void resetState(@NonNull final InitResponse initResponse) {
@@ -516,8 +552,12 @@ import java.util.Set;
         postDisableModelUpdate();
     }
 
-    private List<Variant> getExperiment() {
-        return ExperimentHelper.INSTANCE
-            .getVariantsFrom(experimentsRepository.getExperiments(), new PulseVariant(), new BadgeVariant());
+    private List<Variant> getVariants() {
+        return ExperimentHelper.INSTANCE.getVariantsFrom(
+            experimentsRepository.getExperiments(), KnownVariant.PULSE, KnownVariant.BADGE, KnownVariant.SCROLLED);
+    }
+
+    private Variant getVariant(@NonNull final KnownVariant knownVariant) {
+        return ExperimentHelper.INSTANCE.getVariantFrom(experimentsRepository.getExperiments(), knownVariant);
     }
 }

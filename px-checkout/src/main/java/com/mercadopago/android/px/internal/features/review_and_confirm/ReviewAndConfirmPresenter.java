@@ -18,6 +18,7 @@ import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
+import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
 import com.mercadopago.android.px.tracking.internal.model.ConfirmData;
 import com.mercadopago.android.px.tracking.internal.views.ReviewAndConfirmViewTracker;
 import java.util.Set;
@@ -89,12 +90,16 @@ import java.util.Set;
                 isCard,
                 false,
                 payerCost
-                ),
-            ConfirmData.from(
-                escManagerBehaviour.getESCCardIds(),
-                userSelectionRepository
             )
         );
+    }
+
+    @Override
+    public void onPaymentExecuted(@NonNull final PaymentConfiguration configuration) {
+        new ConfirmEvent(ConfirmData.from(
+            escManagerBehaviour.getESCCardIds(),
+            userSelectionRepository
+        )).track();
     }
 
     @Override

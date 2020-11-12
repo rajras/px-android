@@ -26,7 +26,9 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
+import com.mercadopago.android.px.internal.experiments.ScrolledVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
+import com.mercadopago.android.px.internal.experiments.VariantHandler;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OtherPaymentMethodFragment;
 import com.mercadopago.android.px.internal.features.express.animations.ExpandAndCollapseAnimation;
@@ -34,6 +36,7 @@ import com.mercadopago.android.px.internal.features.express.animations.FadeAnima
 import com.mercadopago.android.px.internal.features.express.animations.FadeAnimator;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentsAdapter;
+import com.mercadopago.android.px.internal.features.express.installments.InstallmentsAdapterV2;
 import com.mercadopago.android.px.internal.features.express.offline_methods.OfflineMethodsFragment;
 import com.mercadopago.android.px.internal.features.express.slider.ConfirmButtonAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
@@ -43,6 +46,7 @@ import com.mercadopago.android.px.internal.features.express.slider.PaymentMethod
 import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.SummaryViewAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.TitlePagerAdapter;
+import com.mercadopago.android.px.internal.features.express.slider.TitlePagerAdapterV2;
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialog;
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogAction;
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
@@ -62,6 +66,7 @@ import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.view.TitlePager;
 import com.mercadopago.android.px.internal.view.animator.OneTapTransition;
+import com.mercadopago.android.px.internal.view.experiments.ExperimentHelper;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
@@ -72,8 +77,10 @@ import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.StatusMetadata;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
+import com.mercadopago.android.px.model.internal.PaymentConfiguration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
@@ -81,12 +88,13 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
-    InstallmentsAdapter.ItemListener, SplitPaymentHeaderAdapter.SplitListener,
-    PaymentMethodFragment.DisabledDetailDialogLauncher, OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener,
-    TitlePagerAdapter.InstallmentChanged, PayButton.Handler, GenericDialog.Listener, BackHandler {
+    SplitPaymentHeaderAdapter.SplitListener, PaymentMethodFragment.DisabledDetailDialogLauncher,
+    OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener, TitlePagerAdapter.InstallmentChanged,
+    PayButton.Handler, GenericDialog.Listener, BackHandler {
 
     private static final String TAG = ExpressPaymentFragment.class.getSimpleName();
     private static final String TAG_HEADER_DYNAMIC_DIALOG = "TAG_HEADER_DYNAMIC_DIALOG";
+    private static final String EXTRA_VARIANT = "EXTRA_VARIANT";
     private static final String EXTRA_RENDER_MODE = "render_mode";
     private static final String EXTRA_NAVIGATION_STATE = "navigation_state";
 
@@ -105,6 +113,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private RecyclerView installmentsRecyclerView;
     /* default */ DynamicHeightViewPager paymentMethodPager;
     /* default */ View pagerAndConfirmButtonContainer;
+    /* default */ RenderMode renderMode;
     private ScrollingPagerIndicator indicator;
     @Nullable private ExpandAndCollapseAnimation expandAndCollapseAnimation;
     @Nullable private FadeAnimator fadeAnimation;
@@ -112,9 +121,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Nullable private Animation slideDownAndFadeAnimation;
     private InstallmentsAdapter installmentsAdapter;
     private PaymentMethodHeaderView paymentMethodHeaderView;
+    private TitlePagerAdapter titlePagerAdapter;
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
-    private RenderMode renderMode;
     private View loading;
     private OneTapTransition transition;
 
@@ -123,8 +132,12 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private PayButtonFragment payButtonFragment;
     private OfflineMethodsFragment offlineMethodsFragment;
 
-    public static Fragment getInstance() {
-        return new ExpressPaymentFragment();
+    public static Fragment getInstance(@NonNull final Variant variant) {
+        final ExpressPaymentFragment expressPaymentFragment = new ExpressPaymentFragment();
+        final Bundle bundle = new Bundle();
+        bundle.putParcelable(EXTRA_VARIANT, variant);
+        expressPaymentFragment.setArguments(bundle);
+        return expressPaymentFragment;
     }
 
     @Override
@@ -135,6 +148,11 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         presenter.handlePrePaymentAction(callback);
+    }
+
+    @Override
+    public void onPaymentExecuted(@NonNull final PaymentConfiguration configuration) {
+        presenter.onPaymentExecuted(configuration);
     }
 
     @Override
@@ -237,6 +255,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void configureViews(@NonNull final View view) {
+        configurePaymentMethodHeader(view);
         payButtonFragment = (PayButtonFragment) getChildFragmentManager().findFragmentById(R.id.pay_button);
         payButtonContainer = view.findViewById(R.id.pay_button);
         offlineMethodsFragment =
@@ -248,13 +267,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         pagerAndConfirmButtonContainer = view.findViewById(R.id.container);
         paymentMethodPager = view.findViewById(R.id.payment_method_pager);
         indicator = view.findViewById(R.id.indicator);
-        installmentsRecyclerView = view.findViewById(R.id.installments_recycler_view);
-        expandAndCollapseAnimation = new ExpandAndCollapseAnimation(installmentsRecyclerView);
-
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        installmentsRecyclerView.setLayoutManager(linearLayoutManager);
-        installmentsRecyclerView
-            .addItemDecoration(new DividerItemDecoration(view.getContext(), linearLayoutManager.getOrientation()));
 
         paymentMethodPager.setPageMargin(
             ((int) (getResources().getDimensionPixelSize(R.dimen.px_m_margin) * PAGER_NEGATIVE_MARGIN_MULTIPLIER)));
@@ -262,8 +274,28 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         slideDownAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, INVISIBLE));
         slideUpAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, VISIBLE));
 
-        paymentMethodHeaderView = view.findViewById(R.id.installments_header);
+        if (getActivity() instanceof AppCompatActivity) {
+            summaryView.configureToolbar((AppCompatActivity) getActivity(), v -> presenter.cancel());
+        }
 
+        hubAdapter = new HubAdapter(Arrays.asList(titlePagerAdapter,
+            new SummaryViewAdapter(summaryView),
+            new SplitPaymentHeaderAdapter(splitPaymentView, this),
+            new PaymentMethodHeaderAdapter(paymentMethodHeaderView),
+            new ConfirmButtonAdapter(payButtonFragment)
+        ));
+    }
+
+    private void configurePaymentMethodHeader(@NonNull final View view) {
+        final Bundle arguments = getArguments();
+        if (arguments == null || !arguments.containsKey(EXTRA_VARIANT)) {
+            throw new IllegalStateException("One tap should have a variant to display");
+        }
+        final Variant variant = Objects.requireNonNull(arguments.getParcelable(EXTRA_VARIANT));
+        ExperimentHelper.INSTANCE.applyExperimentViewBy(
+            view.findViewById(R.id.installments_header_experiment_container), variant, getLayoutInflater());
+
+        paymentMethodHeaderView = view.findViewById(R.id.installments_header);
         paymentMethodHeaderView.setListener(new PaymentMethodHeaderView.Listener() {
             @Override
             public void onDescriptorViewClicked() {
@@ -279,22 +311,37 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             public void onDisabledDescriptorViewClick() {
                 presenter.onDisabledDescriptorViewClick();
             }
+
+            @Override
+            public void onInstallmentViewUpdated() {
+                presenter.updateInstallments();
+            }
         });
 
-        if (getActivity() instanceof AppCompatActivity) {
-            summaryView.configureToolbar((AppCompatActivity) getActivity(), v -> presenter.cancel());
-        }
-
+        installmentsRecyclerView = view.findViewById(R.id.installments_recycler_view);
         final TitlePager titlePager = view.findViewById(R.id.title_pager);
-        final TitlePagerAdapter titlePagerAdapter = new TitlePagerAdapter(titlePager, this);
+        variant.process(new VariantHandler() {
+            @Override
+            public void visit(@NonNull final ScrolledVariant variant) {
+                if (variant.isDefault()) {
+                    titlePagerAdapter = new TitlePagerAdapter(titlePager, ExpressPaymentFragment.this);
+                    installmentsAdapter = new InstallmentsAdapter(ExpressPaymentFragment.this::onInstallmentSelected);
+                    expandAndCollapseAnimation = new ExpandAndCollapseAnimation(installmentsRecyclerView);
+                    installmentsRecyclerView.setVisibility(GONE);
+                } else {
+                    titlePagerAdapter = new TitlePagerAdapterV2(titlePager, ExpressPaymentFragment.this);
+                    installmentsAdapter = new InstallmentsAdapterV2(ExpressPaymentFragment.this::onInstallmentSelected);
+                }
+            }
+        });
         titlePager.setAdapter(titlePagerAdapter);
 
-        hubAdapter = new HubAdapter(Arrays.asList(titlePagerAdapter,
-            new SummaryViewAdapter(summaryView),
-            new SplitPaymentHeaderAdapter(splitPaymentView, this),
-            new PaymentMethodHeaderAdapter(paymentMethodHeaderView),
-            new ConfirmButtonAdapter(payButtonFragment)
-        ));
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        installmentsRecyclerView.setLayoutManager(linearLayoutManager);
+        installmentsRecyclerView
+            .addItemDecoration(new DividerItemDecoration(view.getContext(), linearLayoutManager.getOrientation()));
+
+        installmentsRecyclerView.setAdapter(installmentsAdapter);
     }
 
     private ExpressPaymentPresenter createPresenter() {
@@ -314,7 +361,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             configurationModule.getPayerComplianceRepository(),
             configurationModule.getTrackingRepository(),
             MapperProvider.INSTANCE.getPaymentMethodDescriptorMapper(),
-            configurationModule.getCustomTextsRepository());
+            configurationModule.getCustomTextsRepository(),
+            MapperProvider.INSTANCE.getAmountDescriptorMapper());
     }
 
     @Override
@@ -358,10 +406,21 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
+    public void configureRenderMode(@NonNull final List<Variant> variants) {
+        for (final Variant variant : variants) {
+            variant.process(new VariantHandler() {
+                @Override
+                public void visit(@NonNull final ScrolledVariant variant) {
+                    if (!variant.isDefault()) {
+                        renderMode = RenderMode.LOW_RES;
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
     public void configureAdapters(@NonNull final Site site, @NonNull final Currency currency) {
-        installmentsAdapter = new InstallmentsAdapter(this);
-        installmentsRecyclerView.setAdapter(installmentsAdapter);
-        installmentsRecyclerView.setVisibility(GONE);
 
         // Order is important, should update all others adapters before update paymentMethodAdapter
 
@@ -397,15 +456,20 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
     }
 
-    @Override
-    public void showInstallmentsList(final int selectedIndex, @NonNull final List<InstallmentRowHolder.Model> models) {
-        animateViewPagerDown();
-        installmentsRecyclerView.scrollToPosition(selectedIndex);
+    public void updateInstallmentsList(final int index, @NonNull final List<InstallmentRowHolder.Model> models) {
+        installmentsRecyclerView.scrollToPosition(index);
         installmentsAdapter.setModels(models);
-        installmentsAdapter.setPayerCostSelected(selectedIndex);
+        installmentsAdapter.setPayerCostSelected(index);
         installmentsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void animateInstallmentsList() {
+        animateViewPagerDown();
         hubAdapter.showInstallmentsList();
-        expandAndCollapseAnimation.expand();
+        if (expandAndCollapseAnimation != null) {
+            expandAndCollapseAnimation.expand();
+        }
     }
 
     @Override
@@ -436,7 +500,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         paymentMethodPager.startAnimation(slideUpAndFadeAnimation);
         fadeAnimation.fadeIn(payButtonContainer);
         fadeAnimation.fadeIn(indicator);
-        expandAndCollapseAnimation.collapse();
+        if (expandAndCollapseAnimation != null) {
+            expandAndCollapseAnimation.collapse();
+        }
         paymentMethodFragmentAdapter.notifyDataSetChanged();
     }
 
@@ -466,8 +532,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         hubAdapter.updateData(paymentMethodIndex, payerCostSelected, splitSelectionState);
     }
 
-    @Override
-    public void onClick(final PayerCost payerCostSelected) {
+    /* default */ void onInstallmentSelected(final PayerCost payerCostSelected) {
         presenter.onPayerCostSelected(payerCostSelected);
     }
 

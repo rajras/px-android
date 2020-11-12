@@ -31,11 +31,13 @@ public class SummaryDetailDescriptorFactory {
     @NonNull private final Currency currency;
     @Nullable private final PaymentTypeChargeRule chargeRule;
     @Nullable private final AmountConfiguration amountConfiguration;
+    private AmountDescriptorMapper amountDescriptorMapper;
 
     public SummaryDetailDescriptorFactory(@NonNull final AmountDescriptorView.OnClickListener listener,
         @NonNull final DiscountConfigurationModel discountModel, @NonNull final AmountRepository amountRepository,
         @NonNull final SummaryInfo summaryInfo, @NonNull final Currency currency,
-        @Nullable final PaymentTypeChargeRule chargeRule, @Nullable final AmountConfiguration amountConfiguration) {
+        @Nullable final PaymentTypeChargeRule chargeRule, @Nullable final AmountConfiguration amountConfiguration,
+        @NonNull final AmountDescriptorMapper amountDescriptorMapper) {
         this.listener = listener;
         this.discountModel = discountModel;
         this.amountRepository = amountRepository;
@@ -43,6 +45,7 @@ public class SummaryDetailDescriptorFactory {
         this.currency = currency;
         this.chargeRule = chargeRule;
         this.amountConfiguration = amountConfiguration;
+        this.amountDescriptorMapper = amountDescriptorMapper;
     }
 
     public List<AmountDescriptorView.Model> create() {
@@ -62,7 +65,7 @@ public class SummaryDetailDescriptorFactory {
         final IDetailColor detailColor = new DiscountDetailColor();
         final boolean hasSplit = amountConfiguration != null && amountConfiguration.allowSplit();
         if (discountOverview != null) {
-            list.add(new AmountDescriptorView.Model(new AmountDescriptorMapper().map(discountOverview), detailColor,
+            list.add(new AmountDescriptorView.Model(amountDescriptorMapper.map(discountOverview), detailColor,
                 hasSplit)
                 .setDetailDrawable(new SummaryViewDetailDrawable(), detailColor)
                 .setListener(v -> listener.onDiscountAmountDescriptorClicked(discountModel)));

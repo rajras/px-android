@@ -14,11 +14,14 @@ import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentDriver
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
-import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingCanceled
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingFinished
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingStarted
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.FingerprintRequired
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
-import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
+import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
 import com.mercadopago.android.px.internal.model.SecurityType
 import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
@@ -28,18 +31,24 @@ import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.Currency
+import com.mercadopago.android.px.model.Payment
+import com.mercadopago.android.px.model.PaymentRecovery
+import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
-import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
-import com.mercadopago.android.px.tracking.internal.model.ConfirmData
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
+
+private const val BUNDLE_PAYMENT_CONFIGURATION = "BUNDLE_PAYMENT_CONFIGURATION"
+private const val BUNDLE_PAYMENT_MODEL = "BUNDLE_PAYMENT_MODEL"
+private const val BUNDLE_OBSERVING_SERVICE = "BUNDLE_OBSERVING_SERVICE"
+private const val RETRY_COUNTER = "retry_counter"
 
 internal class PayButtonViewModel(
     private val paymentService: PaymentRepository,
@@ -59,7 +68,6 @@ internal class PayButtonViewModel(
     }
 
     private var handler: PayButton.Handler? = null
-    private var confirmTrackerData: ConfirmData? = null
     private var paymentConfiguration: PaymentConfiguration? = null
     private var paymentModel: PaymentModel? = null
 
@@ -84,14 +92,13 @@ internal class PayButtonViewModel(
 
     override fun preparePayment() {
         paymentConfiguration = null
-        confirmTrackerData = null
         if (connectionHelper.checkConnection()) {
             handler?.prePayment(object : OnReadyForPaymentCallback {
-                override fun call(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData?) {
+                override fun call(paymentConfiguration: PaymentConfiguration) {
                     if (paymentConfiguration.customOptionId.isNotNullNorEmpty()) {
                         paymentSettingRepository.clearToken()
                     }
-                    startSecuredPayment(paymentConfiguration, confirmTrackerData)
+                    startSecuredPayment(paymentConfiguration)
                 }
             })
         } else {
@@ -99,9 +106,8 @@ internal class PayButtonViewModel(
         }
     }
 
-    private fun startSecuredPayment(paymentConfiguration: PaymentConfiguration, confirmTrackerData: ConfirmData?) {
+    private fun startSecuredPayment(paymentConfiguration: PaymentConfiguration) {
         this.paymentConfiguration = paymentConfiguration
-        this.confirmTrackerData = confirmTrackerData
         val data: SecurityValidationData = SecurityValidationDataFactory
             .create(productIdProvider, paymentSettingRepository.checkoutPreference!!.totalAmount, paymentConfiguration)
         stateUILiveData.value = FingerprintRequired(data)
@@ -122,13 +128,15 @@ internal class PayButtonViewModel(
         }
         handler?.enqueueOnExploding(object : PayButton.OnEnqueueResolvedCallback {
             override fun success() {
-                paymentService.startExpressPayment(paymentConfiguration!!)
-                paymentService.observableEvents?.let { observeService(it) }
-                confirmTrackerData?.let { ConfirmEvent(it).track() }
+                paymentConfiguration?.let { configuration ->
+                    paymentService.startExpressPayment(configuration)
+                    paymentService.observableEvents?.let { observeService(it) }
+                    handler?.onPaymentExecuted(configuration)
+                }
             }
 
             override fun failure() {
-               stateUILiveData.value = ButtonLoadingCanceled
+                stateUILiveData.value = ButtonLoadingCanceled
             }
         })
     }
@@ -164,7 +172,7 @@ internal class PayButtonViewModel(
             value?.let { pair ->
                 handler?.onCvvRequested()?.let {
                     this.cvvRequiredLiveData.value = SecurityCodeParams(paymentConfiguration!!,
-                        it.fragmentContainer, it.renderMode, card= pair.first, reason = pair.second)
+                        it.fragmentContainer, it.renderMode, card = pair.first, reason = pair.second)
                 }
             }
             stateUILiveData.value = ButtonLoadingCanceled
@@ -270,7 +278,6 @@ internal class PayButtonViewModel(
 
     override fun storeInBundle(bundle: Bundle) {
         bundle.putParcelable(BUNDLE_PAYMENT_CONFIGURATION, paymentConfiguration)
-        bundle.putParcelable(BUNDLE_CONFIRM_DATA, confirmTrackerData)
         bundle.putParcelable(BUNDLE_PAYMENT_MODEL, paymentModel)
         bundle.putBoolean(BUNDLE_OBSERVING_SERVICE, observingService)
         bundle.putInt(RETRY_COUNTER, retryCounter)
@@ -278,22 +285,13 @@ internal class PayButtonViewModel(
 
     override fun recoverFromBundle(bundle: Bundle) {
         paymentConfiguration = bundle.getParcelable(BUNDLE_PAYMENT_CONFIGURATION)
-        confirmTrackerData = bundle.getParcelable(BUNDLE_CONFIRM_DATA)
         paymentModel = bundle.getParcelable(BUNDLE_PAYMENT_MODEL)
         observingService = bundle.getBoolean(BUNDLE_OBSERVING_SERVICE)
-        retryCounter = bundle.getInt(RETRY_COUNTER,0)
+        retryCounter = bundle.getInt(RETRY_COUNTER, 0)
         if (observingService) {
             paymentService.observableEvents?.let {
                 observeService(it)
             } ?: onPaymentProcessingError()
         }
-    }
-
-    companion object {
-        const val BUNDLE_PAYMENT_CONFIGURATION = "BUNDLE_PAYMENT_CONFIGURATION"
-        const val BUNDLE_CONFIRM_DATA = "BUNDLE_CONFIRM_DATA"
-        const val BUNDLE_PAYMENT_MODEL = "BUNDLE_PAYMENT_MODEL"
-        const val BUNDLE_OBSERVING_SERVICE = "BUNDLE_OBSERVING_SERVICE"
-        private const val RETRY_COUNTER = "retry_counter"
     }
 }

@@ -36,6 +36,7 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
     @NonNull private final ChargeRepository chargeRepository;
     @NonNull private final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull private final CustomTextsRepository customTextsRepository;
+    @NonNull private final AmountDescriptorMapper amountDescriptorMapper;
 
     public SummaryViewModelMapper(@NonNull final Currency currency,
         @NonNull final DiscountRepository discountRepository, @NonNull final AmountRepository amountRepository,
@@ -43,7 +44,8 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
         @NonNull final AmountDescriptorView.OnClickListener listener,
         @NonNull final SummaryInfo summaryInfo, @NonNull final ChargeRepository chargeRepository,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
-        @NonNull final CustomTextsRepository customTextsRepository) {
+        @NonNull final CustomTextsRepository customTextsRepository,
+        @NonNull final AmountDescriptorMapper amountDescriptorMapper) {
         this.currency = currency;
         this.discountRepository = discountRepository;
         this.amountRepository = amountRepository;
@@ -53,6 +55,7 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
         this.chargeRepository = chargeRepository;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.customTextsRepository = customTextsRepository;
+        this.amountDescriptorMapper = amountDescriptorMapper;
     }
 
     @Override
@@ -86,7 +89,7 @@ public class SummaryViewModelMapper extends CacheableMapper<ExpressPaymentMethod
         final PaymentTypeChargeRule chargeRule = chargeRepository.getChargeRule(paymentTypeId);
         final List<AmountDescriptorView.Model> summaryDetailList =
             new SummaryDetailDescriptorFactory(listener, discountModel, amountRepository, summaryInfo, currency,
-                chargeRule, amountConfiguration).create();
+                chargeRule, amountConfiguration, amountDescriptorMapper).create();
 
         final AmountDescriptorView.Model totalRow = new AmountDescriptorView.Model(
             new TotalLocalized(customTextsRepository),

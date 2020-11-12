@@ -134,14 +134,13 @@ internal class PayButtonViewModelTest: BasicRobolectricTest() {
         val callback = argumentCaptor<PayButton.OnReadyForPaymentCallback>()
         payButtonViewModel.preparePayment()
         verify(handler).prePayment(callback.capture())
-        callback.value.call(mock(PaymentConfiguration::class.java), mock(ConfirmData::class.java))
+        callback.value.call(mock(PaymentConfiguration::class.java))
         verify(uiStateObserver).onChanged(any(UIProgress.FingerprintRequired::class.java))
     }
 
     @Test
     fun handleBiometricsResultWithoutFrictionAndSuccess() {
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
-        Whitebox.setInternalState(payButtonViewModel, "confirmTrackerData", mock(ConfirmData::class.java))
 
         payButtonViewModel.handleBiometricsResult(isSuccess = true, securityRequested = true)
 

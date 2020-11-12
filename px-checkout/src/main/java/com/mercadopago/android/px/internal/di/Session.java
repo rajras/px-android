@@ -21,7 +21,7 @@ import com.mercadopago.android.px.internal.datasource.CheckoutRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.CongratsRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
 import com.mercadopago.android.px.internal.datasource.EscPaymentManagerImp;
-import com.mercadopago.android.px.internal.datasource.ExperimentsService;
+import com.mercadopago.android.px.internal.datasource.ExperimentsRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.IdentificationService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
 import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
@@ -218,7 +218,7 @@ public final class Session extends ApplicationModule {
 
     public ExperimentsRepository getExperimentsRepository() {
         if (experimentsRepository == null) {
-            experimentsRepository = new ExperimentsService(getSharedPreferences());
+            experimentsRepository = new ExperimentsRepositoryImpl(getSharedPreferences());
         }
 
         return experimentsRepository;

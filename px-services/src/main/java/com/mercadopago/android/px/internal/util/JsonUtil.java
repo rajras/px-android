@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 public final class JsonUtil {
@@ -24,12 +25,17 @@ public final class JsonUtil {
     private JsonUtil() {
     }
 
+    public static <T> List<T> getListFromJson(@Nullable final String json, @NonNull final Class<T> classOfT) {
+        final Type typeOfT = TypeToken.getParameterized(List.class, classOfT).getType();
+        return GSON.fromJson(json, typeOfT);
+    }
+
     public static <T> T fromJson(@Nullable final String json, @NonNull final Class<T> classOfT) {
         return GSON.fromJson(json, classOfT);
     }
 
-    public static <T> T fromJson(@Nullable final String json, @NonNull final Type classOfT) {
-        return GSON.fromJson(json, classOfT);
+    public static <T> T fromJson(@Nullable final String json, @NonNull final Type type) {
+        return GSON.fromJson(json, type);
     }
 
     public static Map<String, Object> getMapFromJson(@Nullable final String json) {

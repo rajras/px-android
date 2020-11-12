@@ -10,9 +10,11 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
+import com.mercadopago.android.px.internal.util.CurrenciesUtil;
 import com.mercadopago.android.px.internal.viewmodel.mappers.InstallmentViewModelMapper;
 import com.mercadopago.android.px.mocks.StubSummaryAmount;
 import com.mercadopago.android.px.model.AmountConfiguration;
+import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -65,6 +67,7 @@ public class InstallmentsPresenterTest {
         PowerMockito.mockStatic(MPTracker.class);
         when(MPTracker.getInstance()).thenReturn(mock(MPTracker.class));
         when(paymentSettingRepository.getSite()).thenReturn(Sites.ARGENTINA);
+        when(paymentSettingRepository.getCurrency()).thenReturn(new Currency());
         when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
         when(advancedConfiguration.isAmountRowEnabled()).thenReturn(true);
         when(userSelectionRepository.getPaymentMethod()).thenReturn(paymentMethod);
@@ -109,7 +112,7 @@ public class InstallmentsPresenterTest {
         final List<PayerCost> payerCosts = response.getAmountConfiguration(response.getDefaultAmountConfiguration())
             .getPayerCosts();
         final List<InstallmentRowHolder.Model> models =
-            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null).map(payerCosts);
+            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null, Collections.emptyList()).map(payerCosts);
 
         presenter.initialize();
         presenter.onClick(payerCosts.get(0));
@@ -181,7 +184,7 @@ public class InstallmentsPresenterTest {
     public void whenCardSelectedAndMultiplePayerCostThenDisplayThem() {
         final List<PayerCost> payerCosts = Arrays.asList(mock(PayerCost.class), mock(PayerCost.class));
         final List<InstallmentRowHolder.Model> models =
-            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null).map(payerCosts);
+            new InstallmentViewModelMapper(paymentSettingRepository.getCurrency(), null, Collections.emptyList()).map(payerCosts);
         when(userSelectionRepository.hasCardSelected()).thenReturn(true);
         when(amountConfiguration.getPayerCosts()).thenReturn(payerCosts);
 
