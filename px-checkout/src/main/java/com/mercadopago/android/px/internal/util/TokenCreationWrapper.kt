@@ -55,7 +55,9 @@ internal class TokenCreationWrapper private constructor(builder: Builder) {
 
     suspend fun createTokenWithoutEsc(cvv: String) = SavedCardToken(card!!.id, cvv).run {
             validateSecurityCode(card)
-            createToken(this)
+            createToken(this).apply {
+                resolve(success = { token -> token.lastFourDigits = card.lastFourDigits })
+            }
         }
 
     suspend fun cloneToken(cvv: String) = when (val response = doCloneToken()) {
