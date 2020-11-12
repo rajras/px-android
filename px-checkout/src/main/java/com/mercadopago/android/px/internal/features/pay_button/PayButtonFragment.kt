@@ -54,7 +54,11 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
     private lateinit var button: MeliButton
     private val viewModel: PayButtonViewModel by viewModel()
     private var observingPostPaymentAction = false
-    private var payButtonStateChange: PayButton.StateChange = object : PayButton.StateChange { }
+    private var payButtonStateChange: PayButton.StateChange = object : PayButton.StateChange {
+        override fun overrideStateChange(uiState: PayButton.State): Boolean {
+            return false
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.px_fragment_pay_button, container, false)
