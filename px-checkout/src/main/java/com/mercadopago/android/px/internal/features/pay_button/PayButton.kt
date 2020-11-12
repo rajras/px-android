@@ -58,7 +58,7 @@ interface PayButton {
     }
 
     interface StateChange {
-        fun overrideStateChange(uiState: State) = false
+        fun overrideStateChange(uiState: State): Boolean
     }
 
     data class CvvRequestedModel(val fragmentContainer: Int = 0, val renderMode: RenderMode = RenderMode.NO_CARD)

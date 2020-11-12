@@ -245,6 +245,7 @@ public class ExpressPaymentPresenterTest {
     private void verifyAttachView() {
         expressPaymentPresenter.attachView(view);
 
+        verify(view).configurePayButton(any());
         verify(view).configurePaymentMethodHeader(anyList());
         verify(view).showToolbarElementDescriptor(any(ElementDescriptorView.Model.class));
         verify(view).updateAdapters(any(HubAdapter.Model.class));

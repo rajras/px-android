@@ -28,6 +28,8 @@ public interface ExpressPayment {
 
     interface View extends MvpView {
 
+        void configurePayButton(@NonNull PayButton.StateChange listener);
+
         void clearAdapters();
 
         void configureRenderMode(@NonNull List<Variant> variants);

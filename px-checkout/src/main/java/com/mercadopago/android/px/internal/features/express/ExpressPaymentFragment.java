@@ -286,6 +286,11 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         ));
     }
 
+    @Override
+    public void configurePayButton(@NonNull final PayButton.StateChange listener) {
+        payButtonFragment.addOnStateChange(listener);
+    }
+
     private void configurePaymentMethodHeader(@NonNull final View view) {
         final Bundle arguments = getArguments();
         if (arguments == null || !arguments.containsKey(EXTRA_VARIANT)) {

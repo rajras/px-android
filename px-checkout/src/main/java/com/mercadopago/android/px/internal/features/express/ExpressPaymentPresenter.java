@@ -183,7 +183,7 @@ import java.util.Set;
 
         final HubAdapter.Model model =
             new HubAdapter.Model(paymentModels, summaryModels, splitHeaderModels, confirmButtonViewModels);
-
+        getView().configurePayButton(this::overridePayButtonStateChange);
         getView().configurePaymentMethodHeader(getVariants());
         getView().showToolbarElementDescriptor(elementDescriptorModel);
         getView().configureRenderMode(getVariants());
@@ -510,6 +510,13 @@ import java.util.Set;
             experiments.add(experiment);
         }
         new ConfirmEvent(confirmData, experiments).track();
+    }
+
+    private boolean overridePayButtonStateChange(@NonNull final PayButton.State uiState) {
+        final ExpressMetadata currentExpressMetadata = getCurrentExpressMetadata();
+        return uiState == PayButton.State.ENABLE && (currentExpressMetadata.isNewCard() ||
+            currentExpressMetadata.isOfflineMethods() || disabledPaymentMethodRepository.hasPaymentMethodId(
+            currentExpressMetadata.getCustomOptionId()));
     }
 
     /* default */ void resetState(@NonNull final InitResponse initResponse) {
