@@ -1,13 +1,12 @@
 package com.mercadopago.android.px.internal.viewmodel.mappers;
 
 import android.content.Context;
+import android.widget.ImageView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import android.widget.ImageView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.features.payment_vault.SearchItemOnClickListenerHandler;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
-import com.mercadopago.android.px.internal.util.MercadoPagoUtil;
 import com.mercadopago.android.px.internal.util.ResourceUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
@@ -28,9 +27,10 @@ public class CustomSearchOptionViewModelMapper
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
     }
 
+    @NonNull
     @Override
-    public List<PaymentMethodViewModel> map(@NonNull final Iterable<CustomSearchItem> val) {
-        final List<PaymentMethodViewModel> sortedList = super.map(val);
+    public List<PaymentMethodViewModel> map(@NonNull final Iterable<? extends CustomSearchItem> values) {
+        final List<PaymentMethodViewModel> sortedList = super.map(values);
         Collections.sort(sortedList, (o1, o2) -> Boolean.compare(o1.isDisabled(), o2.isDisabled()));
         return sortedList;
     }

@@ -11,7 +11,7 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.preferences.CheckoutPreference
 
-class PaymentProcessorMapper(private val paymentListenerMapper: PaymentListenerMapper,
+internal class PaymentProcessorMapper(private val paymentListenerMapper: PaymentListenerMapper,
     private val checkoutDataMapper: CheckoutDataMapper) : Mapper<PaymentProcessor, SplitPaymentProcessor>() {
 
     override fun map(paymentProcessor: PaymentProcessor): SplitPaymentProcessor {

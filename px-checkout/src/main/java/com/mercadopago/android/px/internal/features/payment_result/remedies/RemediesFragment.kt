@@ -11,9 +11,10 @@ import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.extensions.visible
 import com.mercadopago.android.px.internal.features.pay_button.PayButton
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.CvvRemedy
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.HighRiskRemedy
-import com.mercadopago.android.px.internal.features.payment_result.remedies.view.PaymentResultFooter
+import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.RetryPaymentFragment
 import com.mercadopago.android.px.internal.util.MercadoPagoUtil
 import com.mercadopago.android.px.internal.util.nonNullObserve
@@ -79,11 +80,7 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
         viewModel.onPayButtonPressed(callback)
     }
 
-    override fun onLoudButtonClicked(action: RemedyButton.Action) {
-        viewModel.onButtonPressed(action)
-    }
-
-    override fun onQuietButtonClicked(action: RemedyButton.Action) {
+    override fun onClick(action: PaymentResultButton.Action) {
         viewModel.onButtonPressed(action)
     }
 

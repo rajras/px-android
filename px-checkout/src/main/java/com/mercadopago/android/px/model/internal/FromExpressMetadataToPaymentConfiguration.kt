@@ -7,7 +7,7 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
 import com.mercadopago.android.px.model.ExpressMetadata
 import com.mercadopago.android.px.model.PayerCost
 
-class FromExpressMetadataToPaymentConfiguration(
+internal class FromExpressMetadataToPaymentConfiguration(
     private val amountConfigurationRepository: AmountConfigurationRepository,
     private val splitSelectionState: SplitSelectionState,
     private val payerCostSelectionRepository: PayerCostSelectionRepository

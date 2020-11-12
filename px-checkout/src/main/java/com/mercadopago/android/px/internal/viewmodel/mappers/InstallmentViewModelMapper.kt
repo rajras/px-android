@@ -9,7 +9,7 @@ import com.mercadopago.android.px.model.BenefitsMetadata
 import com.mercadopago.android.px.model.Currency
 import com.mercadopago.android.px.model.PayerCost
 
-class InstallmentViewModelMapper(private val currency: Currency, private val benefits: BenefitsMetadata?,
+internal class InstallmentViewModelMapper(private val currency: Currency, private val benefits: BenefitsMetadata?,
     private val variants: List<Variant>) : Mapper<PayerCost, InstallmentRowHolder.Model>() {
 
     override fun map(value: PayerCost): InstallmentRowHolder.Model {

@@ -14,14 +14,16 @@ public final class PaymentResultLegacyRenderer {
     }
 
     public static void render(@NonNull final ViewGroup parent, @NonNull final ActionDispatcher callback,
-        @NonNull final PaymentResultLegacyViewModel viewModel) {
+        @NonNull final PaymentResultLegacyViewModel viewModel, final boolean renderLegacyFooter) {
         final Body bodyComponent = getBodyComponent(viewModel, callback);
         if (bodyComponent.hasSomethingToDraw()) {
             parent.findViewById(R.id.body).setVisibility(View.GONE);
-            getBodyComponent(viewModel, callback).render(parent.findViewById(R.id.legacy_body));
+            bodyComponent.render(parent.findViewById(R.id.legacy_body));
         }
 
-        parent.addView(new FooterPaymentResult(viewModel.model.getPaymentResult(), callback).render(parent));
+        if (renderLegacyFooter) {
+            parent.addView(new FooterPaymentResult(viewModel.model.getPaymentResult(), callback).render(parent));
+        }
     }
 
     private static Body getBodyComponent(@NonNull final PaymentResultLegacyViewModel viewModel,

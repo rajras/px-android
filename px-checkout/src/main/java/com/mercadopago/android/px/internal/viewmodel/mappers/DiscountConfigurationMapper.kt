@@ -5,7 +5,7 @@ import com.mercadopago.android.px.internal.viewmodel.DiscountDetailModel
 import com.mercadopago.android.px.internal.viewmodel.DiscountHeader
 import com.mercadopago.android.px.model.DiscountDescription
 
-object DiscountConfigurationMapper: Mapper<DiscountDescription, DiscountDetailModel>() {
+internal object DiscountConfigurationMapper: Mapper<DiscountDescription, DiscountDetailModel>() {
 
     override fun map(model: DiscountDescription): DiscountDetailModel {
         return DiscountDetailModel(

@@ -7,7 +7,7 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
 import com.mercadopago.android.px.model.BusinessPayment
 
-class ExplodeDecoratorMapper : Mapper<PaymentModel, ExplodeDecorator>() {
+internal class ExplodeDecoratorMapper : Mapper<PaymentModel, ExplodeDecorator>() {
     override fun map(model: PaymentModel): ExplodeDecorator {
         val payment = model.payment
         return when {

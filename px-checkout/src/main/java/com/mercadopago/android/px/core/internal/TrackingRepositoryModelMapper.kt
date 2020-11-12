@@ -4,7 +4,7 @@ import com.mercadopago.android.px.configuration.TrackingConfiguration
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
 
-object TrackingRepositoryModelMapper : Mapper<TrackingConfiguration, TrackingRepository.Model>() {
+internal object TrackingRepositoryModelMapper : Mapper<TrackingConfiguration, TrackingRepository.Model>() {
 
     override fun map(configuration: TrackingConfiguration): TrackingRepository.Model {
         return TrackingRepository.Model(configuration.sessionId, configuration.flowId, configuration.flowDetail)

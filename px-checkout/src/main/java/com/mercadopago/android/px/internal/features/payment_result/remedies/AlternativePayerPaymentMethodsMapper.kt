@@ -7,7 +7,7 @@ import com.mercadopago.android.px.model.SecurityCode
 import com.mercadopago.android.px.model.internal.remedies.Installment
 import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 
-class AlternativePayerPaymentMethodsMapper(private val escCardIds: Set<String>) :
+internal class AlternativePayerPaymentMethodsMapper(private val escCardIds: Set<String>) :
     Mapper<Triple<SecurityCode?, String, CustomSearchItem>, RemedyPaymentMethod>() {
 
     override fun map(it: Triple<SecurityCode?, String, CustomSearchItem>): RemedyPaymentMethod {
