@@ -129,6 +129,7 @@ internal class RemediesViewModel(
     }
 
     private fun startCvvRecovery(callback: PayButton.OnEnqueueResolvedCallback) {
+        RemedyEvent(getRemedyTrackData(RemedyType.CVV_REQUEST)).track()
         CoroutineScope(Dispatchers.IO).launch {
             val response = CVVRecoveryWrapper(
                 cardTokenRepository,
@@ -138,7 +139,6 @@ internal class RemediesViewModel(
             withContext(Dispatchers.Main) {
                 response.resolve(success = { token ->
                     paymentSettingRepository.configure(token)
-                    RemedyEvent(getRemedyTrackData(RemedyType.CVV_REQUEST)).track()
                     callback.success()
                 }, error = { callback.failure() })
             }
