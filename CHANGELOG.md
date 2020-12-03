@@ -1,3 +1,7 @@
+## VERSION 4.65.0
+_03_12_2020_
+* FEATURE - Appending params to back_url and redirect_url
+
 ## VERSION 4.64.0
 _26_11_2020_
 * FEATURE - Added support to cards without cvv.
