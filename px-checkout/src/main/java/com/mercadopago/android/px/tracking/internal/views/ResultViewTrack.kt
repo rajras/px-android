@@ -17,7 +17,6 @@ class ResultViewTrack : TrackWrapper {
     private val resultViewTrackModel: ResultViewTrackModel
     private val relativePath: String
     private val remediesResponse: RemediesResponse
-    private var isPaymentCongratsFlow: Boolean = false
     private var isStandaloneCongrats: Boolean = false
 
     constructor(paymentModel: PaymentModel, screenConfiguration: PaymentResultScreenConfiguration,
@@ -29,7 +28,6 @@ class ResultViewTrack : TrackWrapper {
     }
 
     constructor(paymentModel: PaymentCongratsModel, isMP: Boolean) {
-        isPaymentCongratsFlow = true
         isStandaloneCongrats = paymentModel.isStandAloneCongrats
         resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP)
         relativePath = paymentModel.trackingRelativePath
@@ -40,7 +38,7 @@ class ResultViewTrack : TrackWrapper {
 
     private fun getData(): Map<String, Any> {
         val map = resultViewTrackModel.toMap()
-        if (relativePath == ERROR && !isPaymentCongratsFlow) {
+        if (relativePath == ERROR && !isStandaloneCongrats) {
             map["remedies"] = getRemedies()
         }
         return map
