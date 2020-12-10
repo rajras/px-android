@@ -1,6 +1,9 @@
 ## VERSION 4.66.0
 _10_12_2020_
 * FEATURE - Added Loyalty Broadcaster in Payment Congrats
+* ENHANCEMENT - Added Discount Center track factory
+* FIX - Added missing "remedies" to business congrats error track
+* FIX - Security code reason track
 
 ## VERSION 4.65.0
 _03_12_2020_
