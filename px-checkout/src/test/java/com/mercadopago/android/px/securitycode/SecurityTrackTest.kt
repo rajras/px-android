@@ -38,7 +38,7 @@ class SecurityTrackTest {
     fun whenSecurityCodeViewTrack() {
         val securityCodeViewTrack = SecurityCodeViewTrack(securityCodeData, Reason.NO_REASON)
         val resultActual = securityCodeViewTrack.getTrack()
-        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name }
+        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name.toLowerCase(Locale.getDefault()) }
         val resultExpected = TrackFactory.withView(SecurityCodeTrack.ACTION_BASE_PATH).addData(resultExpectedMap).build()
 
         assertEqualsTracks(resultActual, resultExpected)
@@ -48,7 +48,7 @@ class SecurityTrackTest {
     fun whenAbortSecurityCodeTrack() {
         val abortSecurityCodeTrack = AbortSecurityCodeTrack(securityCodeData, Reason.NO_REASON)
         val resultActual = abortSecurityCodeTrack.getTrack()
-        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name }
+        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name.toLowerCase(Locale.getDefault()) }
         val resultExpected = TrackFactory.withView("${SecurityCodeTrack.ACTION_BASE_PATH}/abort").addData(resultExpectedMap).build()
 
         assertEqualsTracks(resultActual, resultExpected)
@@ -58,7 +58,7 @@ class SecurityTrackTest {
     fun whenConfirmSecurityCodeTrack() {
         val confirmSecurityCodeTrack = ConfirmSecurityCodeTrack(securityCodeData, Reason.NO_REASON)
         val resultActual = confirmSecurityCodeTrack.getTrack()
-        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name }
+        val resultExpectedMap = securityCodeData.toMap().also { it["reason"] = Reason.NO_REASON.name.toLowerCase(Locale.getDefault()) }
         val resultExpected = TrackFactory.withView("${SecurityCodeTrack.ACTION_BASE_PATH}/confirm").addData(resultExpectedMap).build()
 
         assertEqualsTracks(resultActual, resultExpected)
