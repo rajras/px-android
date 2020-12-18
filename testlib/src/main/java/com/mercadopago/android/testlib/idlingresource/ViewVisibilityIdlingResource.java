@@ -53,12 +53,7 @@ public class ViewVisibilityIdlingResource implements IdlingResource {
                 mResourceCallback.onTransitionToIdle();
             }
         } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isIdleNow();
-                }
-            }, IDLE_POLL_DELAY_MILLIS);
+            new Handler().postDelayed(() -> isIdleNow(), IDLE_POLL_DELAY_MILLIS);
         }
 
         return isIdle;

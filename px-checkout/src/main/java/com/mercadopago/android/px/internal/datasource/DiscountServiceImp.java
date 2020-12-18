@@ -8,16 +8,12 @@ import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PaymentMethod;
-import com.mercadopago.android.px.model.PaymentTypes;
-import com.mercadopago.android.px.model.SummaryAmount;
 import java.util.Map;
 
 public class DiscountServiceImp implements DiscountRepository {
 
     /* default */ ConfigurationSolver configurationSolver;
     /* default */ Map<String, DiscountConfigurationModel> discountsConfigurations;
-
-    @Nullable private String defaultSelectedGuessingConfiguration;
     private final UserSelectionRepository userSelectionRepository;
 
     public DiscountServiceImp(@NonNull final InitRepository initRepository,
@@ -43,19 +39,7 @@ public class DiscountServiceImp implements DiscountRepository {
                 // The user did not select any payment method, thus the dominant discount is the general config
                 return getConfiguration(configurationSolver.getDefaultSelectedAmountConfiguration());
             } else {
-                // Guessing card
-                if (PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId())) {
-                    // Guessing card config
-                    return getConfiguration(defaultSelectedGuessingConfiguration);
-                } else if (PaymentTypes.isAccountMoney(paymentMethod.getPaymentTypeId())) {
-                    // Account money has it's own configuration as saved cards
-                    return getConfiguration(configurationSolver.getConfigurationHashFor(paymentMethod.getId()));
-                } else {
-                    // Off payment not custom options
-                    // The user select account money or an off payment method / everything else.
-                    return getConfiguration(configurationSolver.getConfigurationHashFor(
-                        paymentMethod.getId()));
-                }
+                return getConfiguration(configurationSolver.getConfigurationHashFor(paymentMethod.getId()));
             }
         }
     }
@@ -73,11 +57,5 @@ public class DiscountServiceImp implements DiscountRepository {
             return DiscountConfigurationModel.NONE;
         }
         return discountModel == null ? defaultConfig : discountModel;
-    }
-
-    @Override
-    public void addConfigurations(@NonNull final SummaryAmount summaryAmount) {
-        discountsConfigurations.putAll(summaryAmount.getDiscountsConfigurations());
-        defaultSelectedGuessingConfiguration = summaryAmount.getDefaultAmountConfiguration();
     }
 }

@@ -39,5 +39,4 @@ class ExperimentsRepositoryImpl(private val sharedPreferences: SharedPreferences
         sharedPreferences.edit().remove(PREF_EXPERIMENTS).apply()
         internalExperiments = null
     }
-
 }

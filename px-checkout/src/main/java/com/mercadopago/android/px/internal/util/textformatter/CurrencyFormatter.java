@@ -11,11 +11,9 @@ public class CurrencyFormatter extends ChainFormatter {
 
     final Currency currency;
     private boolean hasSpace;
-    private boolean hasSymbol;
 
     CurrencyFormatter(final Currency currency) {
         this.currency = currency;
-        hasSymbol = true;
     }
 
     public AmountFormatter amount(@NonNull final BigDecimal amount) {
@@ -25,22 +23,12 @@ public class CurrencyFormatter extends ChainFormatter {
     @Override
     public Spannable apply(final CharSequence charSequence) {
         final String space = hasSpace ? " " : "";
-        final String symbol = hasSymbol ? currency.getSymbol() : "";
-        return new SpannableString(String.format(Locale.getDefault(), "%s%s%s", symbol, space, charSequence));
-    }
-
-    public CurrencyFormatter noSpace() {
-        hasSpace = false;
-        return this;
+        return new SpannableString(
+            String.format(Locale.getDefault(), "%s%s%s", currency.getSymbol(), space, charSequence));
     }
 
     public CurrencyFormatter withSpace() {
         hasSpace = true;
-        return this;
-    }
-
-    public CurrencyFormatter noSymbol() {
-        hasSymbol = false;
         return this;
     }
 }

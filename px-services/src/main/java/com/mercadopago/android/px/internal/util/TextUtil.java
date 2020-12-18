@@ -13,11 +13,8 @@ public final class TextUtil {
 
     public static final String EMPTY = "";
     public static final String NL = "\n";
-    public static final String DOT = ".";
-    public static final CharSequence SPACE = " ";
+    public static final String SPACE = " ";
     public static final String CSV_DELIMITER = ",";
-
-    private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
     private static final Pattern PLACE_HOLDER_PATTERN = Pattern.compile("\\{[0-9]*\\}");
 
     private TextUtil() {
@@ -30,10 +27,6 @@ public final class TextUtil {
 
     public static boolean isNotEmpty(@Nullable final CharSequence text) {
         return !isEmpty(text);
-    }
-
-    public static boolean isDigitsOnly(@Nullable final CharSequence text) {
-        return text != null && DIGIT_PATTERN.matcher(text).matches();
     }
 
     @NonNull

@@ -6,30 +6,21 @@ import androidx.annotation.NonNull;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.addons.model.SecurityValidationData;
-import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
-import com.mercadopago.android.px.core.internal.MercadoPagoCardStorage;
 import com.mercadopago.android.px.core.internal.TrackingRepositoryModelMapper;
-import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.core.ApplicationModule;
 import com.mercadopago.android.px.internal.datasource.AmountConfigurationRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.AmountService;
-import com.mercadopago.android.px.internal.datasource.BankDealsService;
 import com.mercadopago.android.px.internal.datasource.CardTokenService;
 import com.mercadopago.android.px.internal.datasource.CheckoutRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.CongratsRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
 import com.mercadopago.android.px.internal.datasource.EscPaymentManagerImp;
 import com.mercadopago.android.px.internal.datasource.ExperimentsRepositoryImpl;
-import com.mercadopago.android.px.internal.datasource.IdentificationService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
-import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
-import com.mercadopago.android.px.internal.datasource.PaymentMethodsService;
 import com.mercadopago.android.px.internal.datasource.PaymentService;
-import com.mercadopago.android.px.internal.datasource.PluginService;
 import com.mercadopago.android.px.internal.datasource.PrefetchInitService;
-import com.mercadopago.android.px.internal.datasource.SummaryAmountService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.datasource.cache.Cache;
 import com.mercadopago.android.px.internal.datasource.cache.InitCacheCoordinator;
@@ -39,28 +30,19 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.PXPay
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
-import com.mercadopago.android.px.internal.repository.BankDealsRepository;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.ExperimentsRepository;
-import com.mercadopago.android.px.internal.repository.IdentificationRepository;
 import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
-import com.mercadopago.android.px.internal.repository.IssuersRepository;
-import com.mercadopago.android.px.internal.repository.PaymentMethodsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
-import com.mercadopago.android.px.internal.repository.PluginRepository;
-import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
-import com.mercadopago.android.px.internal.services.BankDealService;
 import com.mercadopago.android.px.internal.services.CheckoutService;
 import com.mercadopago.android.px.internal.services.CongratsService;
 import com.mercadopago.android.px.internal.services.GatewayService;
-import com.mercadopago.android.px.internal.services.InstallmentService;
 import com.mercadopago.android.px.internal.services.InstructionsClient;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -88,15 +70,8 @@ public final class Session extends ApplicationModule {
     private PaymentRepository paymentRepository;
     private AmountConfigurationRepository amountConfigurationRepository;
     private Cache<InitResponse> initCache;
-    private PluginService pluginRepository;
-    private InternalConfiguration internalConfiguration;
     private InstructionsService instructionsRepository;
-    private SummaryAmountRepository summaryAmountRepository;
-    private IssuersRepository issuersRepository;
     private CardTokenRepository cardTokenRepository;
-    private BankDealsRepository bankDealsRepository;
-    private IdentificationRepository identificationRepository;
-    private PaymentMethodsRepository paymentMethodsRepository;
     private CongratsRepository congratsRepository;
     private ExperimentsRepository experimentsRepository;
     private EscPaymentManagerImp escPaymentManager;
@@ -109,6 +84,7 @@ public final class Session extends ApplicationModule {
         networkModule = new NetworkModule(context);
     }
 
+    @NonNull
     public static Session getInstance() {
         if (instance == null) {
             throw new IllegalStateException(
@@ -117,6 +93,7 @@ public final class Session extends ApplicationModule {
         return instance;
     }
 
+    @NonNull
     public static Session initialize(@NonNull final Context context) {
         instance = new Session(context);
         ConfigurationModule.initialize(instance.configurationModule);
@@ -153,10 +130,7 @@ public final class Session extends ApplicationModule {
                 trackingData.getFlowExtraInfo()));
     }
 
-    public void init(@NonNull final MercadoPagoCardStorage cardStorage) {
-        clear();
-    }
-
+    @NonNull
     public State getSessionState() {
         try {
             if (configurationModule.getPaymentSettings().getPaymentConfiguration() != null) {
@@ -192,19 +166,15 @@ public final class Session extends ApplicationModule {
         initRepository = null;
         paymentRepository = null;
         initCache = null;
-        pluginRepository = null;
-        internalConfiguration = null;
         instructionsRepository = null;
-        summaryAmountRepository = null;
         amountConfigurationRepository = null;
-        issuersRepository = null;
         cardTokenRepository = null;
-        paymentMethodsRepository = null;
         congratsRepository = null;
         escPaymentManager = null;
         viewModelModule = null;
     }
 
+    @NonNull
     public InitRepository getInitRepository() {
         if (initRepository == null) {
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
@@ -216,27 +186,13 @@ public final class Session extends ApplicationModule {
         return initRepository;
     }
 
+    @NonNull
     public ExperimentsRepository getExperimentsRepository() {
         if (experimentsRepository == null) {
             experimentsRepository = new ExperimentsRepositoryImpl(getSharedPreferences());
         }
 
         return experimentsRepository;
-    }
-
-    public SummaryAmountRepository getSummaryAmountRepository() {
-        if (summaryAmountRepository == null) {
-            final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
-            final AdvancedConfiguration advancedConfiguration = paymentSettings.getAdvancedConfiguration();
-            final UserSelectionRepository userSelectionRepository =
-                getConfigurationModule().getUserSelectionRepository();
-            final InstallmentService paymentService =
-                networkModule.getRetrofitClient().create(InstallmentService.class);
-
-            summaryAmountRepository = new SummaryAmountService(paymentService, paymentSettings,
-                advancedConfiguration, userSelectionRepository, configurationModule.getProductIdProvider());
-        }
-        return summaryAmountRepository;
     }
 
     @NonNull
@@ -299,21 +255,11 @@ public final class Session extends ApplicationModule {
     }
 
     @NonNull
-    public PluginRepository getPluginRepository() {
-        if (pluginRepository == null) {
-            pluginRepository =
-                new PluginService(getApplicationContext(), getConfigurationModule().getPaymentSettings());
-        }
-        return pluginRepository;
-    }
-
-    @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
             paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
                 configurationModule.getPaymentSettings(),
                 configurationModule.getDisabledPaymentMethodRepository(),
-                getPluginRepository(),
                 getDiscountRepository(),
                 getAmountRepository(),
                 getApplicationContext(),
@@ -345,21 +291,6 @@ public final class Session extends ApplicationModule {
     }
 
     @NonNull
-    public InternalConfiguration getInternalConfiguration() {
-        return internalConfiguration == null ? new InternalConfiguration(false) : internalConfiguration;
-    }
-
-    /**
-     * Set internal configuration after building MercadoPagoCheckout.
-     *
-     * @param internalConfiguration internal configuration for checkout.
-     */
-    @SuppressWarnings("unused")
-    public void setInternalConfiguration(@NonNull final InternalConfiguration internalConfiguration) {
-        this.internalConfiguration = internalConfiguration;
-    }
-
-    @NonNull
     public InstructionsRepository getInstructionsRepository() {
         if (instructionsRepository == null) {
             instructionsRepository =
@@ -369,18 +300,7 @@ public final class Session extends ApplicationModule {
         return instructionsRepository;
     }
 
-    public IssuersRepository getIssuersRepository() {
-        if (issuersRepository == null) {
-            final com.mercadopago.android.px.internal.services.IssuersService issuersService =
-                networkModule.getRetrofitClient().create(
-                    com.mercadopago.android.px.internal.services.IssuersService.class);
-
-            issuersRepository = new IssuersServiceImp(issuersService, getConfigurationModule().getPaymentSettings(),
-                getConfigurationModule().getUserSelectionRepository());
-        }
-        return issuersRepository;
-    }
-
+    @NonNull
     public CardTokenRepository getCardTokenRepository() {
         if (cardTokenRepository == null) {
             final GatewayService gatewayService =
@@ -391,36 +311,7 @@ public final class Session extends ApplicationModule {
         return cardTokenRepository;
     }
 
-    public BankDealsRepository getBankDealsRepository() {
-        if (bankDealsRepository == null) {
-            final BankDealService bankDealsService =
-                networkModule.getRetrofitClient().create(BankDealService.class);
-            bankDealsRepository = new BankDealsService(bankDealsService, getApplicationContext(),
-                getConfigurationModule().getPaymentSettings());
-        }
-        return bankDealsRepository;
-    }
-
-    public IdentificationRepository getIdentificationRepository() {
-        if (identificationRepository == null) {
-            final com.mercadopago.android.px.internal.services.IdentificationService identificationService =
-                networkModule.getRetrofitClient()
-                    .create(com.mercadopago.android.px.internal.services.IdentificationService.class);
-            identificationRepository =
-                new IdentificationService(identificationService, getConfigurationModule().getPaymentSettings());
-        }
-        return identificationRepository;
-    }
-
-    public PaymentMethodsRepository getPaymentMethodsRepository() {
-        if (paymentMethodsRepository == null) {
-            final CheckoutService checkoutService = networkModule.getRetrofitClient().create(CheckoutService.class);
-            paymentMethodsRepository =
-                new PaymentMethodsService(getConfigurationModule().getPaymentSettings(), checkoutService);
-        }
-        return paymentMethodsRepository;
-    }
-
+    @NonNull
     public CongratsRepository getCongratsRepository() {
         if (congratsRepository == null) {
             final CongratsService congratsService = networkModule.getRetrofitClient().create(CongratsService.class);
@@ -434,6 +325,7 @@ public final class Session extends ApplicationModule {
         return congratsRepository;
     }
 
+    @NonNull
     public ViewModelModule getViewModelModule() {
         if (viewModelModule == null) {
             viewModelModule = new ViewModelModule();
@@ -441,6 +333,7 @@ public final class Session extends ApplicationModule {
         return viewModelModule;
     }
 
+    @NonNull
     public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
         return new PrefetchInitService(checkout, networkModule.getRetrofitClient().create(CheckoutService.class),
             getMercadoPagoESC(), configurationModule.getTrackingRepository());

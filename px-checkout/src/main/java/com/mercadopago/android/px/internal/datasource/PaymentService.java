@@ -20,7 +20,6 @@ import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
-import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TokenErrorWrapper;
@@ -71,7 +70,6 @@ public class PaymentService implements PaymentRepository {
     @NonNull /* default */ final PaymentServiceHandlerWrapper handlerWrapper;
     @NonNull /* default */ final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull /* default */ final UserSelectionRepository userSelectionRepository;
-    @NonNull /* default */ final PluginRepository pluginRepository;
 
     @Nullable private PaymentWrapper payment;
     @NonNull private final File paymentFile;
@@ -79,7 +77,6 @@ public class PaymentService implements PaymentRepository {
     public PaymentService(@NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
-        @NonNull final PluginRepository pluginRepository,
         @NonNull final DiscountRepository discountRepository,
         @NonNull final AmountRepository amountRepository,
         @NonNull final Context context,
@@ -95,7 +92,6 @@ public class PaymentService implements PaymentRepository {
         this.escPaymentManager = escPaymentManager;
         this.escManagerBehaviour = escManagerBehaviour;
         this.userSelectionRepository = userSelectionRepository;
-        this.pluginRepository = pluginRepository;
         this.paymentSettingRepository = paymentSettingRepository;
         this.discountRepository = discountRepository;
         this.amountRepository = amountRepository;
@@ -141,12 +137,6 @@ public class PaymentService implements PaymentRepository {
             payment = fileManager.readParcelable(paymentFile, PaymentWrapper.CREATOR);
         }
         return payment;
-    }
-
-    @Override
-    public boolean hasRecoverablePayment() {
-        final PaymentWrapper payment = getPaymentWrapper();
-        return payment != null && payment.isStatusDetailRecoverable();
     }
 
     @NonNull

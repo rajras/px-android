@@ -2,20 +2,11 @@ package com.mercadopago.android.px.internal.repository;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
-import com.mercadopago.android.px.model.CardToken;
 import com.mercadopago.android.px.model.SavedCardToken;
 import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Token;
 
 public interface CardTokenRepository {
-
-    /**
-     * After gathering user card's information, create a Token to create Payment.
-     *
-     * @param cardToken: Card information to create Token.
-     * @return Token associated to Card.
-     */
-    MPCall<Token> createTokenAsync(final CardToken cardToken);
 
     /**
      * After gathering user save card's information, create a Token to create Payment.

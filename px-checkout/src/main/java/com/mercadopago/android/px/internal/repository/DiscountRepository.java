@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.repository;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
-import com.mercadopago.android.px.model.SummaryAmount;
 import javax.annotation.Nonnull;
 
 public interface DiscountRepository {
@@ -27,11 +26,4 @@ public interface DiscountRepository {
      * @return The discount configuration, returns null if the ID is invalid.
      */
     DiscountConfigurationModel getConfigurationFor(@Nonnull final String id);
-
-    /**
-     * Adds to the repository the discount configurations to be consumed.
-     *
-     * @param summaryAmount new discount configurations for guessing.
-     */
-    void addConfigurations(@NonNull final SummaryAmount summaryAmount);
 }

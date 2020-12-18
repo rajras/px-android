@@ -23,7 +23,7 @@ internal class GenericDialogViewModel(private val model: GenericDialogItem) : Ba
 
     private fun getGenericDialogAction(actionable: Actionable): GenericDialogAction {
         return if (actionable.deepLink.isNotNullNorEmpty()) {
-            GenericDialogAction.DeepLinkAction(actionable.deepLink!!)
+            GenericDialogAction.DeepLinkAction(actionable.deepLink)
         } else {
             GenericDialogAction.CustomAction(actionable.action!!)
         }

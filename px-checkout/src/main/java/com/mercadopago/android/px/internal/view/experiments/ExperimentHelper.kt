@@ -27,5 +27,6 @@ object ExperimentHelper {
     }
 
     @JvmOverloads
-    fun applyExperimentViewBy(root: ViewGroup, variant: Variant, inflater: LayoutInflater = LayoutInflater.from(root.context)): View = inflater.inflate(variant.resVariant, root)
+    fun applyExperimentViewBy(root: ViewGroup, variant: Variant, inflater: LayoutInflater =
+        LayoutInflater.from(root.context)): View = inflater.inflate(variant.resVariant, root)
 }

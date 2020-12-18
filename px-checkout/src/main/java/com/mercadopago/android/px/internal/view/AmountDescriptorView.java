@@ -101,7 +101,7 @@ public class AmountDescriptorView extends ConstraintLayout {
             final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
             spannableStringBuilder.append(descriptor.getText()).append(TextUtil.SPACE);
             final String textAmount = model.right.get(getContext()).toString();
-            final String[] listAmount = textAmount.split(" ");
+            final String[] listAmount = textAmount.split(TextUtil.SPACE);
             if (listAmount.length > 0) {
                 spannableStringBuilder
                     .append(listAmount[listAmount.length - 1])

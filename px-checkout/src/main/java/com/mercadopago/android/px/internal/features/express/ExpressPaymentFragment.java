@@ -461,6 +461,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
     }
 
+    @Override
     public void updateInstallmentsList(final int index, @NonNull final List<InstallmentRowHolder.Model> models) {
         installmentsRecyclerView.scrollToPosition(index);
         installmentsAdapter.setModels(models);

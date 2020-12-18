@@ -28,21 +28,6 @@ internal open class InterestFormatter(private val spannableStringBuilder: Spanna
         return this
     }
 
-    fun withTextMessage(text: String) = apply {
-        this.text = text
-        return this
-    }
-
-    fun withTextColor(@ColorInt color: Int) = apply {
-        textColor = color
-        return this
-    }
-
-    fun withTextFont(font: PxFont) = apply {
-        this.font = font
-        return this
-    }
-
     fun apply(context: Context) {
         if (text.isNotEmpty()) {
             val indexStart = spannableStringBuilder.length
