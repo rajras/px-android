@@ -1,3 +1,7 @@
+## VERSION 4.67.0
+_18_12_2020_
+* ENHANCEMENT - Removed old checkout flow.
+
 ## VERSION 4.66.0
 _10_12_2020_
 * FEATURE - Added Loyalty Broadcaster in Payment Congrats
