@@ -37,18 +37,17 @@ class CongratsRepositoryImpl(
 
     override fun getPostPaymentData(payment: IPaymentDescriptor, paymentResult: PaymentResult,
         callback: PostPaymentCallback) {
-        val hasAccessToken = TextUtil.isNotEmpty(privateKey)
-        val hasToReturnEmptyResponse = !hasAccessToken
+        val whiteLabel = TextUtil.isEmpty(privateKey)
         val isSuccess = StatusHelper.isSuccess(payment)
         CoroutineScope(Dispatchers.IO).launch {
             val paymentId = payment.paymentIds?.get(0) ?: payment.id.toString()
             val congratsResponse = when {
-                hasToReturnEmptyResponse || !isSuccess -> CongratsResponse.EMPTY
+                whiteLabel || !isSuccess -> CongratsResponse.EMPTY
                 paymentRewardCache.containsKey(paymentId) -> paymentRewardCache[paymentId]!!
                 else -> getCongratsResponse(payment, paymentResult).apply { paymentRewardCache[paymentId] = this }
             }
             val remediesResponse = when {
-                hasToReturnEmptyResponse || isSuccess -> RemediesResponse.EMPTY
+                whiteLabel || isSuccess || payment is BusinessPayment -> RemediesResponse.EMPTY
                 remediesCache.containsKey(paymentId) -> remediesCache[paymentId]!!
                 else -> {
                     getRemedies(payment, paymentResult.paymentData).apply { remediesCache[paymentId] = this }
