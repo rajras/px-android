@@ -1,3 +1,7 @@
+## VERSION 4.67.1
+_23_12_2020_
+* FIX - Removed remedies api call with business payments
+
 ## VERSION 4.67.0
 _18_12_2020_
 * ENHANCEMENT - Removed old checkout flow.
