@@ -17,6 +17,7 @@ interface CongratsService {
         @Query("ifpe") turnedIFPECompliant: Boolean,
         @Query("payment_methods_ids") paymentMethodsIds: String,
         @Query("flow_name") flowName: String,
+        @Query("merchant_order_id") merchantOrderId: Long?,
         @Query("pref_id") preferenceId: String?): CongratsResponse
 
     @POST("{environment}/px_mobile/v1/remedies/{payment_id}")

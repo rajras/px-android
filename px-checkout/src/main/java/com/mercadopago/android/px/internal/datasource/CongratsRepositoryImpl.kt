@@ -65,9 +65,10 @@ class CongratsRepositoryImpl(
             val joinedPaymentMethodsIds = paymentResult.paymentDataList
                 .joinToString(TextUtil.CSV_DELIMITER) { p -> (p.paymentMethod.id) }
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
+            val preference = paymentSetting.checkoutPreference
             congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, PermissionHelper.instance.isLocationGranted(),
                 privateKey!!, joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
-                joinedPaymentMethodsIds, trackingRepository.flowId, paymentSetting.checkoutPreference?.id)
+                joinedPaymentMethodsIds, trackingRepository.flowId, preference?.merchantOrderId, preference?.id)
         } catch (e: Exception) {
             CongratsResponse.EMPTY
         }
