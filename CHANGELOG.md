@@ -1,3 +1,8 @@
+## VERSION 4.68.0
+_07_01_2021_
+* ENHANCEMENT - Added merchantOrderId to congrats api call
+* FEATURE - Added WebPay flow for debit card in Chile.
+
 ## VERSION 4.67.1
 _23_12_2020_
 * FIX - Removed remedies api call with business payments
