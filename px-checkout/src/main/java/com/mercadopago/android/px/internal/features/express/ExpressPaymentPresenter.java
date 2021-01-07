@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.express;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.addons.model.internal.Configuration;
 import com.mercadopago.android.px.addons.model.internal.Experiment;
@@ -36,7 +37,7 @@ import com.mercadopago.android.px.internal.repository.PayerCostSelectionReposito
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
-import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.util.CardFormWrapper;
 import com.mercadopago.android.px.internal.util.PayerComplianceWrapper;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.AmountDescriptorView;
@@ -492,7 +493,7 @@ import java.util.Set;
         case ActionType.ADD_NEW_CARD:
             getView().setPagerIndex(actionTypeWrapper.getIndexToReturn());
             getView().startAddNewCardFlow(
-                new CardFormWithFragmentWrapper(paymentSettingRepository, trackingRepository));
+                new CardFormWrapper(paymentSettingRepository, trackingRepository));
             break;
         default: // do nothing
         }
@@ -553,6 +554,21 @@ import java.util.Set;
                 if (isViewAttached()) {
                     getView().hideLoading();
                 }
+            }
+        });
+    }
+
+    @Override
+    public void onCardAdded(@NonNull final String cardId, @NonNull final LifecycleListener.Callback callback) {
+        initRepository.refreshWithNewCard(cardId).enqueue(new Callback<InitResponse>() {
+            @Override
+            public void success(final InitResponse initResponse) {
+                callback.onSuccess();
+            }
+
+            @Override
+            public void failure(final ApiException apiException) {
+                callback.onError();
             }
         });
     }

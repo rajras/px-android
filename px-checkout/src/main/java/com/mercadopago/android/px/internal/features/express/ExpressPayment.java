@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.features.express;
 
 import androidx.annotation.NonNull;
+import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.experiments.Variant;
@@ -9,7 +10,7 @@ import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.features.generic_modal.ActionType;
 import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogItem;
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
-import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.util.CardFormWrapper;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
@@ -72,7 +73,7 @@ public interface ExpressPayment {
         void showGenericDialog(@NonNull GenericDialogItem item);
 
         void startAddNewCardFlow(
-            final CardFormWithFragmentWrapper cardFormWithFragmentWrapper);
+            final CardFormWrapper cardFormWrapper);
 
         void startDeepLink(@NonNull String deepLink);
 
@@ -122,6 +123,8 @@ public interface ExpressPayment {
         void handleDeepLink();
 
         void onPostPaymentAction(@NonNull final PostPaymentAction postPaymentAction);
+
+        void onCardAdded(@NonNull final String cardId, @NonNull final LifecycleListener.Callback callback);
 
         void onCardFormResult();
     }

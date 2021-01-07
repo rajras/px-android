@@ -2,15 +2,16 @@ package com.mercadopago.android.px.internal.features.express.add_new_card;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.base.MvpView;
-import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.util.CardFormWrapper;
+import com.mercadopago.android.px.model.CardFormInitType;
 
 /* default */ interface AddNewCard {
 
     interface View extends MvpView {
-        void startCardForm(@NonNull final CardFormWithFragmentWrapper cardFormWithFragmentWrapper);
+        void startCardForm(@NonNull final CardFormWrapper cardFormWrapper, @NonNull final CardFormInitType initType);
     }
 
     interface Actions {
-        void onAddNewCardSelected();
+        void onAddNewCardSelected(@NonNull CardFormInitType initType);
     }
 }

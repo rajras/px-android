@@ -1,11 +1,12 @@
 package com.mercadopago.android.px.internal.util
 
-import com.mercadolibre.android.cardform.internal.CardFormWithFragment.Builder.Companion.withAccessToken
+import com.mercadolibre.android.cardform.internal.CardFormWeb
+import com.mercadolibre.android.cardform.internal.CardFormWithFragment
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
-import java.util.*
+import java.util.Collections
 
-class CardFormWithFragmentWrapper(
+internal class CardFormWrapper(
     settingRepository: PaymentSettingRepository,
     private val trackingRepository: TrackingRepository) {
 
@@ -14,7 +15,15 @@ class CardFormWithFragmentWrapper(
     private val excludedPaymentTypes = settingRepository.checkoutPreference?.excludedPaymentTypes
         ?: Collections.emptyList()
 
-    fun getCardFormWithFragment() = withAccessToken(privateKey, siteId, trackingRepository.flowId)
+    fun getCardFormWithFragment() = CardFormWithFragment
+        .Builder
+        .withAccessToken(privateKey, siteId, trackingRepository.flowId)
+        .setSessionId(trackingRepository.sessionId)
+        .setExcludedTypes(excludedPaymentTypes).build()
+
+    fun getCardFormWithWebView() = CardFormWeb
+        .Builder
+        .withAccessToken(privateKey, siteId, trackingRepository.flowId)
         .setSessionId(trackingRepository.sessionId)
         .setExcludedTypes(excludedPaymentTypes).build()
 }

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +21,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+import com.mercadolibre.android.andesui.bottomsheet.AndesBottomSheet;
+import com.mercadolibre.android.cardform.CardForm;
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
+import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
@@ -30,6 +35,8 @@ import com.mercadopago.android.px.internal.experiments.ScrolledVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.experiments.VariantHandler;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
+import com.mercadopago.android.px.internal.features.express.add_new_card.sheet_options.CardFormBottomSheetModel;
+import com.mercadopago.android.px.internal.features.express.add_new_card.sheet_options.CardFormBottomSheetFragment;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OtherPaymentMethodFragment;
 import com.mercadopago.android.px.internal.features.express.animations.ExpandAndCollapseAnimation;
 import com.mercadopago.android.px.internal.features.express.animations.FadeAnimationListener;
@@ -53,7 +60,7 @@ import com.mercadopago.android.px.internal.features.generic_modal.GenericDialogI
 import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment;
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
-import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.util.CardFormWrapper;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
@@ -99,8 +106,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private static final String EXTRA_NAVIGATION_STATE = "navigation_state";
 
     private static final int REQ_CODE_DISABLE_DIALOG = 105;
-    public static final int REQ_CODE_CARD_FORM = 106;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
+    public static final int REQ_CARD_FORM_WEB_VIEW = 953;
+    public static final int REQ_CODE_CARD_FORM = 106;
 
     @Nullable private CallBack callback;
     @NonNull /* default */ ExpressPayment.NavigationState navigationState = ExpressPayment.NavigationState.NONE;
@@ -125,6 +133,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private LabeledSwitch splitPaymentView;
     private PaymentMethodFragmentAdapter paymentMethodFragmentAdapter;
     private View loading;
+    private AndesBottomSheet cardFormBottomSheet;
     private OneTapTransition transition;
 
     private HubAdapter hubAdapter;
@@ -219,7 +228,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         presenter = createPresenter();
         if (savedInstanceState != null) {
             renderMode = (RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
-            navigationState = (ExpressPayment.NavigationState) savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE);
+            navigationState =
+                (ExpressPayment.NavigationState) savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE);
             presenter.recoverFromBundle(savedInstanceState);
         } else {
             presenter.onFreshStart();
@@ -263,7 +273,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         splitPaymentView = view.findViewById(R.id.labeledSwitch);
         summaryView = view.findViewById(R.id.summary_view);
         loading = view.findViewById(R.id.loading);
-
+        cardFormBottomSheet = view.findViewById(R.id.new_card_sheet_options);
         pagerAndConfirmButtonContainer = view.findViewById(R.id.container);
         paymentMethodPager = view.findViewById(R.id.payment_method_pager);
         indicator = view.findViewById(R.id.indicator);
@@ -520,6 +530,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             setPagerIndex(0);
         } else if (requestCode == REQ_CODE_CARD_FORM) {
             handleCardFormResult(resultCode);
+        } else if (requestCode == REQ_CARD_FORM_WEB_VIEW) {
+            handlerCardFormWebViewResult(resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -528,6 +540,25 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     public void handleCardFormResult(final int resultCode) {
         if (resultCode == RESULT_OK) {
             presenter.onCardFormResult();
+        }
+    }
+
+    private void handlerCardFormWebViewResult(final int resultCode, final Intent data) {
+        if (resultCode == RESULT_OK) {
+            final String cardId = data.getStringExtra(CardForm.RESULT_CARD_ID_KEY);
+            showLoading();
+            presenter.onCardAdded(cardId, new LifecycleListener.Callback() {
+                @Override
+                public void onSuccess() {
+                    presenter.onCardFormResult();
+                    hideLoading();
+                }
+
+                @Override
+                public void onError() {
+                    hideLoading();
+                }
+            });
         }
     }
 
@@ -595,6 +626,22 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
+    public void onLoadCardFormSheetOptions(final CardFormBottomSheetModel cardFormBottomSheetModel) {
+        final CardFormBottomSheetFragment cardFormSheetContainer =
+            CardFormBottomSheetFragment.newInstance(cardFormBottomSheetModel);
+        cardFormSheetContainer.setCardFormOptionClick(() -> cardFormBottomSheet.collapse());
+        cardFormBottomSheet.setContent(
+            getChildFragmentManager(),
+            cardFormSheetContainer,
+            null);
+    }
+
+    @Override
+    public void onNewCardWithSheetOptions() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> cardFormBottomSheet.expand(), 200);
+    }
+
+    @Override
     public void showOfflineMethodsExpanded() {
         offlineMethodsFragment.showExpanded();
     }
@@ -619,10 +666,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void startAddNewCardFlow(final CardFormWithFragmentWrapper cardFormWithFragmentWrapper) {
+    public void startAddNewCardFlow(final CardFormWrapper cardFormWrapper) {
         final FragmentManager manager = getFragmentManager();
         if (manager != null) {
-            cardFormWithFragmentWrapper.getCardFormWithFragment()
+            cardFormWrapper.getCardFormWithFragment()
                 .start(manager, REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
         }
     }

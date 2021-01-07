@@ -15,16 +15,22 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.BasePagerFragment;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
-import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
-import com.mercadopago.android.px.internal.util.CardFormWithFragmentWrapper;
+import com.mercadopago.android.px.internal.features.express.add_new_card.sheet_options.CardFormBottomSheetModel;
+import com.mercadopago.android.px.internal.util.CardFormWrapper;
+import com.mercadopago.android.px.internal.util.ListUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.internal.viewmodel.drawables.OtherPaymentMethodFragmentItem;
+import com.mercadopago.android.px.model.CardFormInitType;
 import com.mercadopago.android.px.model.NewCardMetadata;
 import com.mercadopago.android.px.model.OfflinePaymentTypesMetadata;
+import com.mercadopago.android.px.model.internal.CardFormOption;
 import com.mercadopago.android.px.model.internal.Text;
+import java.util.List;
 import kotlin.Unit;
 
+import static com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment.REQ_CARD_FORM_WEB_VIEW;
+import static com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment.REQ_CODE_CARD_FORM;
 import static com.mercadopago.android.px.internal.util.AccessibilityUtilsKt.executeIfAccessibilityTalkBackEnable;
 
 public class OtherPaymentMethodFragment
@@ -44,8 +50,10 @@ public class OtherPaymentMethodFragment
     @Override
     protected OtherPaymentMethodPresenter createPresenter() {
         final CheckoutConfigurationModule configurationModule = Session.getInstance().getConfigurationModule();
-        return new OtherPaymentMethodPresenter(
-            configurationModule.getPaymentSettings(), configurationModule.getTrackingRepository());
+        return new OtherPaymentMethodPresenter(new CardFormWrapper(
+            configurationModule.getPaymentSettings(),
+            configurationModule.getTrackingRepository()
+        ));
     }
 
     @Nullable
@@ -72,12 +80,33 @@ public class OtherPaymentMethodFragment
 
     private void configureAddNewCard(@NonNull final NewCardMetadata newCardMetadata) {
         addNewCardView.setVisibility(View.VISIBLE);
+        final List<CardFormOption> cardFormOptions = newCardMetadata.getSheetOptions();
+        final View.OnClickListener onClickListener;
+
+        if (ListUtil.isEmpty(cardFormOptions)) {
+            onClickListener = v -> presenter.onAddNewCardSelected(newCardMetadata.getCardFormInitType());
+        } else {
+            final Fragment parentFragment = getParentFragment();
+            final CardFormBottomSheetModel model = new CardFormBottomSheetModel(
+                newCardMetadata.getLabel().getMessage(),
+                cardFormOptions);
+
+            if (parentFragment instanceof OnOtherPaymentMethodClickListener) {
+                final OnOtherPaymentMethodClickListener listener = ((OnOtherPaymentMethodClickListener) parentFragment);
+                listener.onLoadCardFormSheetOptions(model);
+                onClickListener = v -> listener.onNewCardWithSheetOptions();
+            } else {
+                throw new IllegalStateException(
+                    "Parent fragment must implement " + OnOtherPaymentMethodClickListener.class.getSimpleName());
+            }
+        }
+
         configureViews(
             addNewCardView,
             R.drawable.px_ico_new_card,
             newCardMetadata.getLabel(),
             newCardMetadata.getDescription(),
-            v -> presenter.onAddNewCardSelected());
+            onClickListener);
     }
 
     private void configureOffMethods(@NonNull final OfflinePaymentTypesMetadata offlineMethods) {
@@ -145,15 +174,30 @@ public class OtherPaymentMethodFragment
     }
 
     @Override
-    public void startCardForm(@NonNull final CardFormWithFragmentWrapper cardFormWithFragmentWrapper) {
-        final FragmentManager manager;
-        if (getParentFragment() != null && (manager = getParentFragment().getFragmentManager()) != null) {
-            cardFormWithFragmentWrapper.getCardFormWithFragment()
-                .start(manager, ExpressPaymentFragment.REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
+    public void startCardForm(@NonNull final CardFormWrapper cardFormWrapper, @NonNull final CardFormInitType initType) {
+        switch (initType) {
+            case STANDARD: {
+                final FragmentManager manager;
+                if (getParentFragment() != null && (manager = getParentFragment().getFragmentManager()) != null) {
+                    cardFormWrapper.getCardFormWithFragment()
+                        .start(manager, REQ_CODE_CARD_FORM, R.id.one_tap_fragment);
+                }
+                break;
+            }
+            case WEB_PAY: {
+                final Fragment fragment;
+                if ((fragment = getParentFragment()) != null) {
+                    cardFormWrapper.getCardFormWithWebView().start(fragment, REQ_CARD_FORM_WEB_VIEW);
+                }
+            }
         }
     }
 
     public interface OnOtherPaymentMethodClickListener {
+        void onLoadCardFormSheetOptions(final CardFormBottomSheetModel cardFormBottomSheetModel);
+
+        void onNewCardWithSheetOptions();
+
         void onOtherPaymentMethodClicked();
     }
 }

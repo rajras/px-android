@@ -2,14 +2,21 @@ package com.mercadopago.android.px.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.Nullable;
+import com.mercadopago.android.px.model.internal.CardFormOption;
 import com.mercadopago.android.px.model.internal.Text;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public final class NewCardMetadata implements Parcelable, Serializable {
 
     private final Text label;
     private final Text description;
     private final String version;
+    private final CardFormInitType cardFormInitType;
+
+    @Nullable
+    private final ArrayList<CardFormOption> sheetOptions;
 
     public static final Creator<NewCardMetadata> CREATOR = new Creator<NewCardMetadata>() {
         @Override
@@ -35,10 +42,21 @@ public final class NewCardMetadata implements Parcelable, Serializable {
         return version;
     }
 
+    public CardFormInitType getCardFormInitType() {
+        return cardFormInitType;
+    }
+
+    @Nullable
+    public ArrayList<CardFormOption> getSheetOptions() {
+        return sheetOptions;
+    }
+
     protected NewCardMetadata(final Parcel in) {
         label = in.readParcelable(Text.class.getClassLoader());
         description = in.readParcelable(Text.class.getClassLoader());
         version = in.readString();
+        cardFormInitType = CardFormInitType.valueOf(in.readString());
+        sheetOptions = in.readArrayList(CardFormOption.class.getClassLoader());
     }
 
     @Override
@@ -46,6 +64,8 @@ public final class NewCardMetadata implements Parcelable, Serializable {
         dest.writeParcelable(label, flags);
         dest.writeParcelable(description, flags);
         dest.writeString(version);
+        dest.writeString(cardFormInitType != null ? cardFormInitType.name() : CardFormInitType.STANDARD.name());
+        dest.writeList(sheetOptions);
     }
 
     @Override
