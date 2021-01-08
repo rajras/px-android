@@ -16,7 +16,6 @@ import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.internal.CongratsResponse
 import com.mercadopago.android.px.model.internal.InitResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
-import com.mercadopago.android.px.services.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,7 +65,7 @@ class CongratsRepositoryImpl(
                 .joinToString(TextUtil.CSV_DELIMITER) { p -> (p.paymentMethod.id) }
             val campaignId = paymentResult.paymentData.campaign?.run { id } ?: ""
             val preference = paymentSetting.checkoutPreference
-            congratsService.getCongrats(BuildConfig.API_ENVIRONMENT, PermissionHelper.instance.isLocationGranted(),
+            congratsService.getCongrats(PermissionHelper.instance.isLocationGranted(),
                 privateKey!!, joinedPaymentIds, platform, campaignId, payerComplianceRepository.turnedIFPECompliant(),
                 joinedPaymentMethodsIds, trackingRepository.flowId, preference?.merchantOrderId, preference?.id)
         } catch (e: Exception) {
@@ -103,7 +102,6 @@ class CongratsRepositoryImpl(
                 AlternativePayerPaymentMethodsMapper(escCardIds).map(payerPaymentMethods.filter { it.second != customOptionId })
             ).map(paymentData)
             congratsService.getRemedies(
-                BuildConfig.API_ENVIRONMENT_NEW,
                 payment.id.toString(),
                 privateKey!!,
                 hasOneTap,
