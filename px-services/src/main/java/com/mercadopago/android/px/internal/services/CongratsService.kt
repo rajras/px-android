@@ -3,12 +3,13 @@ package com.mercadopago.android.px.internal.services
 import com.mercadopago.android.px.model.internal.CongratsResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesBody
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
+import com.mercadopago.android.px.services.BuildConfig
 import retrofit2.http.*
 
 interface CongratsService {
-    @GET("{environment}/px_mobile/congrats")
+
+    @GET("${BuildConfig.API_ENVIRONMENT}/px_mobile/congrats")
     suspend fun getCongrats(
-        @Path(value = "environment", encoded = true) environment: String,
         @Header("X-Location-Enabled") locationEnabled: Boolean,
         @Query("access_token") accessToken: String,
         @Query("payment_ids") paymentIds: String,
@@ -20,9 +21,8 @@ interface CongratsService {
         @Query("merchant_order_id") merchantOrderId: Long?,
         @Query("pref_id") preferenceId: String?): CongratsResponse
 
-    @POST("{environment}/px_mobile/v1/remedies/{payment_id}")
+    @POST("${BuildConfig.API_ENVIRONMENT_NEW}/px_mobile/v1/remedies/{payment_id}")
     suspend fun getRemedies(
-        @Path(value = "environment", encoded = true) environment: String,
         @Path(value = "payment_id", encoded = true) paymentId: String,
         @Query("access_token") accessToken: String,
         @Query("one_tap") oneTap: Boolean,
