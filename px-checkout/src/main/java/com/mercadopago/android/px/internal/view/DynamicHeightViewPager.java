@@ -22,6 +22,7 @@ public class DynamicHeightViewPager extends ViewPager {
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         final View firstChild = getChildAt(0);
         int measuredHeight = 0;
         if (firstChild != null) {
