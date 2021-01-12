@@ -66,8 +66,6 @@ public class SavedCardFragment extends PaymentMethodFragment<SavedCardDrawableFr
     @Override
     public void disable() {
         super.disable();
-        model.card.disable();
-        storeModel(model);
-        cardView.show(model.card);
+        cardView.setEnabled(false);
     }
 }

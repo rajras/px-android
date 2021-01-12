@@ -214,6 +214,7 @@
 
     <!-- Colors disabled payment method -->
     <color name="px_disabled_background">#ededed</color>
+    <color name="px_disabled_background_hybrid_card">#aaaaaa</color>
     <color name="px_disabled_font">#11000000</color>
 
     <!-- Colors used by pulse view -->

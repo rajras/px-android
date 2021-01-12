@@ -22,7 +22,7 @@ class SecurityCodeDisplayModelMapperTest {
     @Test
     fun whenBusinessSecurityCodeDisplayDataToSecurityCodeDisplayModel() {
         val businessSecurityCodeDisplayData = mock(BusinessSecurityCodeDisplayData::class.java)
-        val  mapper = SecurityCodeDisplayModelMapper(CardUiMapper())
+        val  mapper = SecurityCodeDisplayModelMapper(CardUiMapper)
 
         `when`(businessSecurityCodeDisplayData.title).thenReturn(LazyString("title"))
         `when`(businessSecurityCodeDisplayData.message).thenReturn(LazyString("message", 3))

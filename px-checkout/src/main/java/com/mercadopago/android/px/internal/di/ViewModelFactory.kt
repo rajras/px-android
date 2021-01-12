@@ -55,7 +55,7 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                     displayDataUseCase,
                     SecurityTrackModelUseCase(),
                     TrackingParamModelMapper(),
-                    SecurityCodeDisplayModelMapper(CardUiMapper()))
+                    SecurityCodeDisplayModelMapper(CardUiMapper))
             }
             modelClass.isAssignableFrom(FragmentCommunicationViewModel::class.java) -> {
                 FragmentCommunicationViewModel()

@@ -16,45 +16,17 @@
         app:cardPreventCornerOverlap="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/payment_method_account_money"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/background"
+            <com.meli.android.carddrawer.model.CardDrawerViewLowres
+                android:id="@+id/card"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:adjustViewBounds="true"
-                android:src="@drawable/px_gradient_account_money"
-                app:layout_constraintDimensionRatio="@string/px_card_aspect_ratio_lowres"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:adjustViewBounds="true"
-                android:src="@drawable/px_account_money_sign"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/px_patern_account_money"
-                app:layout_constraintBottom_toBottomOf="@id/background"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/px_s_margin"
-                android:src="@drawable/px_account_money_logo"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:card_header_behaviour="responsive"
+                app:card_header_internal_padding="0dp" />
 
             <include layout="@layout/px_highlight_text_low_res" />
 

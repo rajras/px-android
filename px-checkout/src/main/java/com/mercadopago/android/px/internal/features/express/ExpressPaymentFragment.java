@@ -370,7 +370,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getAmountConfigurationRepository(),
             session.getConfigurationModule().getChargeRepository(),
             session.getMercadoPagoESC(),
-            MapperProvider.INSTANCE.getPaymentMethodDrawableItemMapper(getContext()),
+            MapperProvider.INSTANCE.getPaymentMethodDrawableItemMapper(),
             session.getExperimentsRepository(),
             configurationModule.getPayerComplianceRepository(),
             configurationModule.getTrackingRepository(),
