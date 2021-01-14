@@ -1,3 +1,9 @@
+## VERSION 4.69.0
+_14_01_2021_
+* FEATURE - Card Drawer for AM
+* FEATURE - Card tap modal behaviour
+* FIX - ViewPager height zero in some extreme cases
+
 ## VERSION 4.68.0
 _07_01_2021_
 * ENHANCEMENT - Added merchantOrderId to congrats api call
