@@ -321,25 +321,6 @@ public final class ViewUtils {
         }
     }
 
-    public static void runWhenViewIsAttachedToWindow(final View view, final Runnable runnable) {
-        if (view.isAttachedToWindow()) {
-            runnable.run();
-        } else {
-            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(final View v) {
-                    runnable.run();
-                    v.removeOnAttachStateChangeListener(this);
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(final View v) {
-
-                }
-            });
-        }
-    }
-
     @ColorInt
     public static int getDarkPrimaryColor(@ColorInt final int primaryColor) {
         final float[] hsv = new float[3];
