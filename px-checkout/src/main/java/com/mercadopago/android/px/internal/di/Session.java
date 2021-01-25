@@ -335,6 +335,7 @@ public final class Session extends ApplicationModule {
 
     @NonNull
     public PrefetchInitService getPrefetchInitService(@NonNull final MercadoPagoCheckout checkout) {
+        configIds(checkout);
         return new PrefetchInitService(checkout, networkModule.getRetrofitClient().create(CheckoutService.class),
             getMercadoPagoESC(), configurationModule.getTrackingRepository());
     }
