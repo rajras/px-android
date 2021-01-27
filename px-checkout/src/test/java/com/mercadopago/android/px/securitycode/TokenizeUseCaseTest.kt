@@ -1,9 +1,11 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
-import com.mercadopago.android.px.*
+import com.mercadopago.android.px.BasicRobolectricTest
+import com.mercadopago.android.px.CallbackTest
+import com.mercadopago.android.px.TestContextProvider
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
 import com.mercadopago.android.px.any
+import com.mercadopago.android.px.argumentCaptor
 import com.mercadopago.android.px.internal.base.use_case.TokenizeParams
 import com.mercadopago.android.px.internal.base.use_case.TokenizeUseCase
 import com.mercadopago.android.px.internal.callbacks.MPCall
@@ -20,10 +22,8 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations.initMocks
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class TokenizeUseCaseTest : BasicRobolectricTest() {
 
     @Mock

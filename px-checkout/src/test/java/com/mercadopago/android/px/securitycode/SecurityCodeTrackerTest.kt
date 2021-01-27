@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import com.mercadopago.android.px.internal.features.security_code.tracking.*
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import org.junit.Before
@@ -9,10 +8,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import org.robolectric.annotation.Config
 
 @RunWith(MockitoJUnitRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class SecurityCodeTrackerTest {
 
     private lateinit var securityCodeTracker: SecurityCodeTracker
@@ -74,5 +71,4 @@ class SecurityCodeTrackerTest {
         verify(apiErrorFrictionMock).track()
         verify(tokenFrictionMock).track()
     }
-
 }

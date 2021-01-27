@@ -1,8 +1,8 @@
 package com.mercadopago.android.px
 
 import android.content.Context
-import org.robolectric.RuntimeEnvironment
+import androidx.test.core.app.ApplicationProvider
 
 open class BasicRobolectricTest {
-    protected fun getContext(): Context = RuntimeEnvironment.application
+    protected fun getContext(): Context = ApplicationProvider.getApplicationContext()
 }

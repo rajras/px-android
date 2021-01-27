@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.SecurityTrackModelUseCase
 import com.mercadopago.android.px.internal.features.security_code.mapper.TrackingParamModelMapper
 import com.mercadopago.android.px.model.Card
@@ -9,16 +8,10 @@ import com.mercadopago.android.px.model.PaymentMethod
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
-import org.mockito.junit.MockitoJUnitRunner
-import org.robolectric.annotation.Config
 
-
-@RunWith(MockitoJUnitRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class TrackingParamModelMapperTest {
 
     @Test

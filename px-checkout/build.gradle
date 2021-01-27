@@ -20,7 +20,7 @@ android {
         }
     }
     testOptions {
-        unitTests.includeAndroidResources true
+        unitTests.includeAndroidResources = true
     }
 }
 
@@ -30,6 +30,9 @@ dependencies {
     testImplementation "org.powermock:powermock-api-mockito2:$powerMock"
     testImplementation "org.powermock:powermock-module-junit4:$powerMock"
     testImplementation "org.robolectric:robolectric:$robolectric"
+    testImplementation "androidx.test:core:$androidTestCore"
+    testImplementation "androidx.arch.core:core-testing:$androidTestArch"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutines"
 
     implementation "androidx.multidex:multidex:$multidex"
     implementation "androidx.cardview:cardview:$cardView"
@@ -66,6 +69,4 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle"
     implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycle"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle"
-    testImplementation "androidx.arch.core:core-testing:$androidTestArch"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutines"
 }

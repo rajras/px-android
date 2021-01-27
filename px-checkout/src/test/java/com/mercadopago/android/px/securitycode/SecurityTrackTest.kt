@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import com.mercadopago.android.px.addons.model.Track
 import com.mercadopago.android.px.internal.features.security_code.tracking.*
 import com.mercadopago.android.px.tracking.internal.TrackFactory
@@ -14,11 +13,9 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import org.robolectric.annotation.Config
 import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class SecurityTrackTest {
     @Mock
     private lateinit var securityCodeData: TrackingMapModel

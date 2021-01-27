@@ -1,16 +1,18 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.CallbackTest
 import com.mercadopago.android.px.TestContextProvider
+import com.mercadopago.android.px.any
 import com.mercadopago.android.px.argumentCaptor
+import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.security_code.data.SecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessSecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.DisplayDataUseCase
 import com.mercadopago.android.px.internal.features.security_code.mapper.BusinessSecurityCodeDisplayDataMapper
 import com.mercadopago.android.px.internal.repository.InitRepository
 import com.mercadopago.android.px.internal.util.JsonUtil
+import com.mercadopago.android.px.internal.viewmodel.LazyString
 import com.mercadopago.android.px.model.CvvInfo
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.InitResponse
@@ -25,13 +27,8 @@ import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations.initMocks
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.mercadopago.android.px.any
-import com.mercadopago.android.px.internal.di.Session
-import com.mercadopago.android.px.internal.viewmodel.LazyString
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class DisplayDataUseCaseTest : BasicRobolectricTest() {
 
     @Mock

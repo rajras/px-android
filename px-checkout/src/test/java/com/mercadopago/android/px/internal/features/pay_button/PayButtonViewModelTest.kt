@@ -48,7 +48,7 @@ import org.robolectric.RobolectricTestRunner
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as PayButtonTexts
 
 @RunWith(RobolectricTestRunner::class)
-internal class PayButtonViewModelTest: BasicRobolectricTest() {
+internal class PayButtonViewModelTest : BasicRobolectricTest() {
 
     private lateinit var payButtonViewModel: PayButtonViewModel
 

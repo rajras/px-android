@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import com.mercadopago.android.px.internal.features.security_code.data.SecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessCardDisplayInfo
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessSecurityCodeDisplayData
@@ -10,16 +9,11 @@ import com.mercadopago.android.px.model.CardDisplayInfo
 import com.mercadopago.android.px.model.SecurityCode
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 import org.powermock.reflect.Whitebox
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class BusinessSecurityCodeDisplayDataMapperTest {
     
     @Test
@@ -37,7 +31,7 @@ class BusinessSecurityCodeDisplayDataMapperTest {
             Whitebox.setInternalState(this, "expiration", "expiration")
             Whitebox.setInternalState(this, "fontColor", "fontColor")
             Whitebox.setInternalState(this, "fontType", "fontType")
-            Whitebox.setInternalState(this, "issuerId", 1234)
+            Whitebox.setInternalState(this, "issuerId", 1234L)
             Whitebox.setInternalState(this, "issuerImage", "issuerImage")
             Whitebox.setInternalState(this, "issuerImageUrl", "issuerImageUrl")
             Whitebox.setInternalState(this, "lastFourDigits", "7890")
