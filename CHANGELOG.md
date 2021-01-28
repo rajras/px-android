@@ -1,3 +1,10 @@
+## VERSION 4.70.0
+_28_01_2021_
+* FEATURE - Generate jacoco coverage report
+* ENHANCEMENT - Migrated to Gradle 6.6
+* FIX - Fix session clear in prefetch service
+* FIX - Avoiding exploding fragment context crash
+
 ## VERSION 4.69.0
 _14_01_2021_
 * FEATURE - Card Drawer for AM
