@@ -6,28 +6,41 @@ jacoco {
 
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
+    // See related issue https://github.com/gradle/gradle/issues/5184#issuecomment-457865951
+    jacoco.excludes = ['jdk.internal.*']
 }
 
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    dependsOn 'createDebugCoverageReport'
 
-task jacocoTestReport(type:JacocoReport, dependsOn:['testDebugUnitTest', 'createDebugCoverageReport']) {
+    // See related issue https://github.com/gradle/gradle/issues/14132
+    dependsOn 'connectedDebugAndroidTest'
+    tasks.findByName('createDebugAndroidTestCoverageReport').mustRunAfter 'connectedDebugAndroidTest'
+
     reports {
         xml.enabled = true
         html.enabled = true
     }
 
-    getExecutionData().setFrom(project.files(executionData))
-    getSourceDirectories().setFrom(project.files(sourceDirectories))
-    getClassDirectories().setFrom(classDirectories)
-}
+    def fileFilter = ['androidx/**/*.*',
+                      '**/view/*.*',
+                      '**/data/*.*',
+                      '**/data/model/*.*',
+                      '**/generated/callback/*.*',
+                      '**/lambda$*.class',
+                      '**/lambda.class',
+                      '**/*lambda.class',
+                      '**/*lambda*.class']
 
-/**
- * When building on travis and running connectedDebugAndroidTest task
- * sometimes trigger Execution failed for task ':sdk:connectedDebugAndroidTest'.
- * When certain test take too long to finish.
- * TODO fix the test that generates the delay checking reports
- */
-project.gradle.taskGraph.whenReady {
-    connectedDebugAndroidTest {
-        ignoreFailures = true
-    }
+    def javaClasses = fileTree(dir: "${buildDir}/intermediates/javac/debug/classes/", excludes: fileFilter)
+    def kotlinClasses = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug/", excludes: fileFilter)
+    def mainSrc = '/src/main/java'
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([
+        javaClasses,
+        kotlinClasses
+    ]))
+    executionData.setFrom(fileTree(dir:project.buildDir, includes:['jacoco/testDebugUnitTest.exec']))
 }

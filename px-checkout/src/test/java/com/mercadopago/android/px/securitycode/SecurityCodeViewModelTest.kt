@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import android.os.Build
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.BasicRobolectricTest
@@ -13,7 +12,7 @@ import com.mercadopago.android.px.internal.features.security_code.SecurityCodeVi
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessSecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.DisplayDataUseCase
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.SecurityTrackModelUseCase
-import com.mercadopago.android.px.internal.features.security_code.domain.use_case.SecurityTrackModelUseCase.*
+import com.mercadopago.android.px.internal.features.security_code.domain.use_case.SecurityTrackModelUseCase.SecurityTrackModelParams
 import com.mercadopago.android.px.internal.features.security_code.mapper.SecurityCodeDisplayModelMapper
 import com.mercadopago.android.px.internal.features.security_code.mapper.TrackingParamModelMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeDisplayModel
@@ -27,16 +26,10 @@ import com.mercadopago.android.px.tracking.internal.model.Reason
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.LOLLIPOP])
 class SecurityCodeViewModelTest : BasicRobolectricTest() {
 
     @Mock
