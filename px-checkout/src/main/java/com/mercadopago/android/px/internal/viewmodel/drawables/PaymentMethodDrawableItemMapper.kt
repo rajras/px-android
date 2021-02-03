@@ -9,6 +9,7 @@ import com.mercadopago.android.px.internal.repository.ChargeRepository
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.InitRepository
 import com.mercadopago.android.px.internal.util.TextUtil
+import com.mercadopago.android.px.internal.viewmodel.mappers.CardDrawerCustomViewModelMapper
 import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
 import com.mercadopago.android.px.internal.viewmodel.mappers.NonNullMapper
 import com.mercadopago.android.px.model.AccountMoneyDisplayInfo
@@ -23,7 +24,8 @@ internal class PaymentMethodDrawableItemMapper(
     private val chargeRepository: ChargeRepository,
     private val initRepository: InitRepository,
     private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository,
-    private val cardUiMapper: CardUiMapper
+    private val cardUiMapper: CardUiMapper,
+    private val cardDrawerCustomViewModelMapper: CardDrawerCustomViewModelMapper
 ) : NonNullMapper<ExpressMetadata, DrawableFragmentItem?>() {
 
     private var initResponse: InitResponse? = null
@@ -65,6 +67,7 @@ internal class PaymentMethodDrawableItemMapper(
         customSearchItems: List<CustomSearchItem>,
         genericDialogItem: GenericDialogItem?
     ): Parameters {
+        val displayInfo = expressMetadata.displayInfo
         val charge = chargeRepository.getChargeRule(expressMetadata.paymentTypeId)
         val customOptionId = expressMetadata.customOptionId
         val (description, issuerName) = customSearchItems.firstOrNull { c -> c.id == customOptionId }?.let {
@@ -72,9 +75,16 @@ internal class PaymentMethodDrawableItemMapper(
         } ?: Pair(TextUtil.EMPTY, TextUtil.EMPTY)
 
         return Parameters(
-            customOptionId, expressMetadata.status, expressMetadata.displayInfo?.bottomDescription, charge?.message,
+            customOptionId,
+            expressMetadata.status,
+            displayInfo?.bottomDescription,
+            charge?.message,
             expressMetadata.benefits?.reimbursement,
             disabledPaymentMethodRepository.getDisabledPaymentMethod(customOptionId),
-            description, issuerName, genericDialogItem)
+            description,
+            issuerName,
+            genericDialogItem,
+            cardDrawerCustomViewModelMapper.mapToSwitchModel(displayInfo?.cardDrawerSwitch)
+        )
     }
 }

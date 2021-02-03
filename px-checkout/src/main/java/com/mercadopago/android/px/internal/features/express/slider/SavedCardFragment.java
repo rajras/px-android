@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.features.express.slider;
 
 import android.os.Bundle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -8,11 +9,14 @@ import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.meli.android.carddrawer.model.CardDrawerSwitchView;
 import com.meli.android.carddrawer.model.CardDrawerView;
+import com.meli.android.carddrawer.model.SwitchModel;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.CardUiConfiguration;
 import com.mercadopago.android.px.internal.viewmodel.drawables.SavedCardDrawableFragmentItem;
+import org.jetbrains.annotations.NotNull;
 
 public class SavedCardFragment extends PaymentMethodFragment<SavedCardDrawableFragmentItem> {
 
@@ -33,11 +37,10 @@ public class SavedCardFragment extends PaymentMethodFragment<SavedCardDrawableFr
     }
 
     @Override
-    public void initializeViews(@NonNull final View view) {
-        super.initializeViews(view);
-        cardView = view.findViewById(R.id.card);
-
+    protected void setUpCardDrawerView(@NonNull final CardDrawerView cardDrawerView) {
+        super.setUpCardDrawerView(cardDrawerView);
         final CardUiConfiguration card = model.card;
+        cardView = cardDrawerView;
 
         cardView.getCard().setName(card.getName());
         cardView.getCard().setExpiration(card.getDate());
