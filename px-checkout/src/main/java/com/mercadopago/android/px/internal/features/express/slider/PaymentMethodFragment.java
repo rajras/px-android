@@ -109,7 +109,6 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
         if ((switchModel = model.getSwitchModel()) != null) {
             final CardDrawerSwitchView cardDrawerSwitch = new CardDrawerSwitchView(getContext());
             cardDrawerSwitch.setSwitchModel(switchModel);
-            cardDrawerSwitch.setSwitchListener(s -> Log.i("JORGE", s));
             cardDrawerView.setCustomView(cardDrawerSwitch);
         }
     }
