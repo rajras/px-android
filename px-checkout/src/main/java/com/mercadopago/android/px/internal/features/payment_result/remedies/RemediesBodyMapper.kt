@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.features.payment_result.remedies
 
 import com.mercadopago.android.px.internal.repository.AmountRepository
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.internal.remedies.RemediesBody
 import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod

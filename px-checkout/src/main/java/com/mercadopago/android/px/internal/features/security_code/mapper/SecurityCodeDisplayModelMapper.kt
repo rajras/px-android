@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.features.security_code.mapper
 
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessSecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeDisplayModel
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
 
 internal class SecurityCodeDisplayModelMapper(private val cardUiMapper: CardUiMapper) {
 

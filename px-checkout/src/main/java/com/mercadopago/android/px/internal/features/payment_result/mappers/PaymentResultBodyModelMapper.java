@@ -9,18 +9,22 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.Congr
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.internal.view.PaymentResultMethod;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentResult;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentResultBodyModelMapper extends Mapper<PaymentModel, PaymentResultBody.Model> {
 
-    private final PaymentResultScreenConfiguration configuration;
+    @NonNull private final PaymentResultScreenConfiguration configuration;
+    @NonNull private final MPTracker tracker;
 
-    public PaymentResultBodyModelMapper(@NonNull final PaymentResultScreenConfiguration configuration) {
+    public PaymentResultBodyModelMapper(@NonNull final PaymentResultScreenConfiguration configuration,
+        @NonNull final MPTracker tracker) {
         this.configuration = configuration;
+        this.tracker = tracker;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class PaymentResultBodyModelMapper extends Mapper<PaymentModel, PaymentRe
 
         return new PaymentResultBody.Model.Builder()
             .setMethodModels(methodModels)
-            .setCongratsViewModel(new CongratsViewModelMapper(new BusinessPaymentResultTracker())
+            .setCongratsViewModel(new CongratsViewModelMapper(new BusinessPaymentResultTracker(tracker))
                 .map(paymentCongratsResponse))
             .setReceiptId(String.valueOf(paymentResult.getPaymentId()))
             .setTopFragment(configuration.getTopFragment())

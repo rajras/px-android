@@ -15,6 +15,7 @@ import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import org.junit.Before;
@@ -144,7 +145,7 @@ public class CheckoutPresenterTest {
     private CheckoutPresenter getBasePresenter(final Checkout.View view) {
 
         presenter = new CheckoutPresenter(paymentSettingRepository, userSelectionRepository,
-            initRepository, paymentRepository, experimentsRepository, postPaymentUrlsMapper);
+            initRepository, paymentRepository, experimentsRepository, postPaymentUrlsMapper, mock(MPTracker.class));
 
         presenter.attachView(view);
         return presenter;

@@ -13,10 +13,12 @@ import com.mercadopago.android.px.internal.view.PaymentResultHeader
 import com.mercadopago.android.px.internal.view.PaymentResultMethod
 import com.mercadopago.android.px.internal.viewmodel.GenericLocalized
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import java.util.*
 
-internal class BusinessPaymentResultMapper : Mapper<PaymentCongratsModel, BusinessPaymentResultViewModel>() {
+internal class BusinessPaymentResultMapper(private val tracker: MPTracker) :
+    Mapper<PaymentCongratsModel, BusinessPaymentResultViewModel>() {
 
     override fun map(model: PaymentCongratsModel): BusinessPaymentResultViewModel {
         return BusinessPaymentResultViewModel(
@@ -39,7 +41,7 @@ internal class BusinessPaymentResultMapper : Mapper<PaymentCongratsModel, Busine
         return PaymentResultBody.Model.Builder()
             .setMethodModels(methodModels)
             .apply { model.paymentCongratsResponse?.let {
-                setCongratsViewModel(CongratsViewModelMapper(BusinessPaymentResultTracker()).map(it))
+                setCongratsViewModel(CongratsViewModelMapper(BusinessPaymentResultTracker(tracker)).map(it))
             }}
             .apply {
                 if (type == CongratsType.APPROVED && model.shouldShowReceipt == true) setReceiptId(model.paymentId.toString())

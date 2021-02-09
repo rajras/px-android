@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsText;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.model.internal.Button;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
 import java.util.ArrayList;

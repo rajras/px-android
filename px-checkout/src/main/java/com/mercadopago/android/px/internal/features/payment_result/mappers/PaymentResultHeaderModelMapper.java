@@ -11,7 +11,7 @@ import com.mercadopago.android.px.internal.view.PaymentResultHeader;
 import com.mercadopago.android.px.internal.viewmodel.GenericLocalized;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultViewModel;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentMethods;
@@ -31,13 +31,16 @@ public class PaymentResultHeaderModelMapper extends Mapper<PaymentModel, Payment
     private static final int CHECK_BADGE_IMAGE = R.drawable.px_badge_check;
     private static final int PENDING_BADGE_GREEN_IMAGE = R.drawable.px_badge_pending;
 
-    private final PaymentResultScreenConfiguration configuration;
-    private final Instruction instruction;
-    private final RemediesModel remediesModel;
+    @NonNull private final PaymentResultScreenConfiguration configuration;
+    @NonNull private final PaymentResultViewModelFactory factory;
+    @Nullable private final Instruction instruction;
+    @NonNull private final RemediesModel remediesModel;
 
     /* default */ PaymentResultHeaderModelMapper(@NonNull final PaymentResultScreenConfiguration configuration,
+        @NonNull final PaymentResultViewModelFactory factory,
         @Nullable final Instruction instruction, @NonNull final RemediesModel remediesModel) {
         this.configuration = configuration;
+        this.factory = factory;
         this.instruction = instruction;
         this.remediesModel = remediesModel;
     }
@@ -45,8 +48,7 @@ public class PaymentResultHeaderModelMapper extends Mapper<PaymentModel, Payment
     @Override
     public PaymentResultHeader.Model map(@NonNull final PaymentModel model) {
         final PaymentResult paymentResult = model.getPaymentResult();
-        final PaymentResultViewModel viewModel =
-            PaymentResultViewModelFactory.createPaymentResultViewModel(paymentResult);
+        final PaymentResultViewModel viewModel = factory.createPaymentResultViewModel(paymentResult);
 
         final boolean hasBodyComponent = viewModel.isApprovedSuccess() || viewModel.hasBodyError();
 

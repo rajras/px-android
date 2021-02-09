@@ -28,6 +28,7 @@ import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
+import com.mercadopago.android.px.internal.base.BaseFragment;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
@@ -93,7 +94,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-public class ExpressPaymentFragment extends Fragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
+public class ExpressPaymentFragment extends BaseFragment implements ExpressPayment.View, ViewPager.OnPageChangeListener,
     SplitPaymentHeaderAdapter.SplitListener, PaymentMethodFragment.DisabledDetailDialogLauncher,
     OtherPaymentMethodFragment.OnOtherPaymentMethodClickListener, TitlePagerAdapter.InstallmentChanged,
     PayButton.Handler, GenericDialog.Listener, BackHandler {
@@ -229,7 +230,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             renderMode = (RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
             navigationState =
                 (ExpressPayment.NavigationState) savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE);
-            presenter.recoverFromBundle(savedInstanceState);
+            presenter.restoreState(savedInstanceState.getParcelable(BUNDLE_STATE));
         } else {
             presenter.onFreshStart();
         }
@@ -376,7 +377,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             configurationModule.getTrackingRepository(),
             MapperProvider.INSTANCE.getPaymentMethodDescriptorMapper(),
             configurationModule.getCustomTextsRepository(),
-            MapperProvider.INSTANCE.getAmountDescriptorMapper());
+            MapperProvider.INSTANCE.getAmountDescriptorMapper(),
+            session.getTracker());
     }
 
     @Override
@@ -384,14 +386,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         outState.putSerializable(EXTRA_RENDER_MODE, renderMode);
         outState.putSerializable(EXTRA_NAVIGATION_STATE, navigationState);
         if (presenter != null) {
-            super.onSaveInstanceState(presenter.storeInBundle(outState));
-        } else {
-            super.onSaveInstanceState(outState);
+            outState.putParcelable(BUNDLE_STATE, presenter.getState());
         }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
-    public void onAttach(final Context context) {
+    public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
         fadeAnimation = new FadeAnimator(context);
         slideDownAndFadeAnimation = AnimationUtils.loadAnimation(context, R.anim.px_slide_down_and_fade);

@@ -1,12 +1,14 @@
 package com.mercadopago.android.px.tracking.internal.events
 
+import com.mercadopago.android.px.addons.model.Track
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.PaymentMethod
+import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.model.AvailableMethod
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.views.CvvAskViewTracker
 
-class CVVRecoveryFrictionTracker private constructor(card: Card, paymentMethod: PaymentMethod, reason: Reason) {
+class CVVRecoveryFrictionTrack private constructor(card: Card, paymentMethod: PaymentMethod, reason: Reason): TrackWrapper() {
 
     private val frictionTracker: FrictionEventTracker
 
@@ -17,14 +19,14 @@ class CVVRecoveryFrictionTracker private constructor(card: Card, paymentMethod: 
             FrictionEventTracker.Style.CUSTOM_COMPONENT, AvailableMethod.from(paymentMethod).toMap())
     }
 
-    fun track() {
-        frictionTracker.track()
+    override fun getTrack(): Track {
+        return frictionTracker.getTrack()
     }
 
     companion object {
-        @JvmStatic fun with(card: Card?, reason: Reason): CVVRecoveryFrictionTracker? {
+        @JvmStatic fun with(card: Card?, reason: Reason): CVVRecoveryFrictionTrack? {
             return card?.paymentMethod?.let {
-                CVVRecoveryFrictionTracker(card, it, reason)
+                CVVRecoveryFrictionTrack(card, it, reason)
             }
         }
     }

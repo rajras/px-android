@@ -24,4 +24,8 @@ abstract class BaseFragment : Fragment() {
             (context as PXActivity<*>).forceBack()
         }
     }
+
+    companion object {
+        const val BUNDLE_STATE = "bundle_state"
+    }
 }

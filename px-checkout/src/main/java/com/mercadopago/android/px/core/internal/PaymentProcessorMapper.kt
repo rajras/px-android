@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.core.PaymentProcessor
 import com.mercadopago.android.px.core.SplitPaymentProcessor
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.preferences.CheckoutPreference
 

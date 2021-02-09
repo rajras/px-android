@@ -14,8 +14,8 @@ android {
 }
 
 dependencies {
-    testImplementation "org.powermock:powermock-module-junit4:$powerMock"
-    testImplementation "org.powermock:powermock-api-mockito2:$powerMock"
+    testImplementation "junit:junit:$junit"
+    testImplementation "org.mockito:mockito-core:$mockito"
 
     implementation "androidx.appcompat:appcompat:$appcompat"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"

@@ -109,7 +109,8 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
         return new PaymentResultPresenter(session.getConfigurationModule().getPaymentSettings(),
             session.getInstructionsRepository(), paymentModel, BehaviourProvider.getFlowBehaviour(), isMP(this),
-            MapperProvider.INSTANCE.getPaymentCongratsMapper());
+            MapperProvider.INSTANCE.getPaymentCongratsMapper(), session.getPaymentResultViewModelFactory(),
+            session.getTracker());
     }
 
     @Override
@@ -135,7 +136,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 footer.setVisibility(View.GONE);
             }
             PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.getLegacyViewModel(),
-                shouldDrawLegacyFooter);
+                shouldDrawLegacyFooter, Session.getInstance().getPaymentResultViewModelFactory());
         }
     }
 

@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.viewmodel.mappers
+package com.mercadopago.android.px.internal.mappers
 
 import com.mercadopago.android.px.internal.extensions.orIfEmpty
 import com.mercadopago.android.px.model.internal.AdditionalInfo

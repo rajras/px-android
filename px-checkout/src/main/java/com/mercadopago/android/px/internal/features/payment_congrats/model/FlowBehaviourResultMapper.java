@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.features.payment_congrats.model;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.addons.FlowBehaviour;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 
 public class FlowBehaviourResultMapper extends Mapper<PaymentCongratsModel.CongratsType, FlowBehaviour.Result> {
     @Override

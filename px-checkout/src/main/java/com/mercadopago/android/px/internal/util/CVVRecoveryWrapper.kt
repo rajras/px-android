@@ -7,11 +7,14 @@ import com.mercadopago.android.px.internal.callbacks.Response
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.Token
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
-import com.mercadopago.android.px.tracking.internal.events.CVVRecoveryFrictionTracker
+import com.mercadopago.android.px.tracking.internal.MPTracker
+import com.mercadopago.android.px.tracking.internal.events.CVVRecoveryFrictionTrack
 import com.mercadopago.android.px.tracking.internal.model.Reason
 
 internal class CVVRecoveryWrapper(cardTokenRepository: CardTokenRepository,
-    private val escManagerBehaviour: ESCManagerBehaviour, private val paymentRecovery: PaymentRecovery) {
+    private val escManagerBehaviour: ESCManagerBehaviour,
+    private val paymentRecovery: PaymentRecovery,
+    private val tracker: MPTracker) {
 
     private val tokenCreationWrapper: TokenCreationWrapper =
         TokenCreationWrapper.Builder(cardTokenRepository, escManagerBehaviour).with(paymentRecovery).build()
@@ -29,7 +32,9 @@ internal class CVVRecoveryWrapper(cardTokenRepository: CardTokenRepository,
             response = tokenCreationWrapper.createTokenWithoutEsc(cvv)
         }
 
-        response.resolve(error = { CVVRecoveryFrictionTracker.with(card, Reason.from(paymentRecovery))?.track() })
+        response.resolve(error = { CVVRecoveryFrictionTrack.with(card, Reason.from(paymentRecovery))?.let {
+            tracker.track(it)
+        } })
 
         return response
     }

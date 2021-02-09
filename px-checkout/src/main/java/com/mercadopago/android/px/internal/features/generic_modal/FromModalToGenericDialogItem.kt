@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.generic_modal
 
 import com.mercadopago.android.px.internal.viewmodel.TextLocalized
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.internal.Modal
 
 internal class FromModalToGenericDialogItem(

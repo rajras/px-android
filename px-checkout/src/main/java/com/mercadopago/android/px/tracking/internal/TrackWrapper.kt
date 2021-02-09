@@ -4,10 +4,6 @@ import com.mercadopago.android.px.addons.model.Track
 
 abstract class TrackWrapper {
 
-    open fun track() {
-        getTrack()?.let { MPTracker.getInstance().track(it) }
-    }
-
     abstract fun getTrack(): Track?
 
     companion object {

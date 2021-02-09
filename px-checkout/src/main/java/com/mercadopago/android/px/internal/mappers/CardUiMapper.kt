@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.viewmodel.mappers
+package com.mercadopago.android.px.internal.mappers
 
 import com.meli.android.carddrawer.configuration.CardDrawerStyle
 import com.meli.android.carddrawer.configuration.FontType

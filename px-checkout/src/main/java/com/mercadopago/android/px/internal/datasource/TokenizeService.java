@@ -15,6 +15,7 @@ import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.services.Callback;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.EscFrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.events.TokenFrictionEventTracker;
 import java.util.Objects;
@@ -22,18 +23,21 @@ import java.util.Objects;
 public class TokenizeService implements TokenRepository {
 
     @NonNull private final GatewayService gatewayService;
-    @NonNull private final PaymentSettingRepository paymentSettingRepository;
-    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
+    @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
+    @NonNull /* default */ final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final Device device;
+    @NonNull /* default */ final MPTracker tracker;
 
     public TokenizeService(@NonNull final GatewayService gatewayService,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour,
-        @NonNull final Device device) {
+        @NonNull final Device device,
+        @NonNull final MPTracker tracker) {
         this.gatewayService = gatewayService;
         this.paymentSettingRepository = paymentSettingRepository;
         this.escManagerBehaviour = escManagerBehaviour;
         this.device = device;
+        this.tracker = tracker;
     }
 
     @Override
@@ -85,9 +89,9 @@ public class TokenizeService implements TokenRepository {
                 escManagerBehaviour.deleteESCWith(cardId, tokenError.toEscDeleteReason(), tokenError.getValue());
                 if (tokenError.isKnownTokenError()) {
                     // Just limit the tracking to esc api exception
-                    EscFrictionEventTracker.create(cardId, esc, apiException).track();
+                    tracker.track(EscFrictionEventTracker.create(cardId, esc, apiException));
                 } else {
-                    TokenFrictionEventTracker.create(tokenError.getValue()).track();
+                    tracker.track(TokenFrictionEventTracker.create(tokenError.getValue()));
                 }
 
                 callback.failure(apiException);
@@ -108,7 +112,7 @@ public class TokenizeService implements TokenRepository {
             public void failure(final ApiException apiException) {
                 final TokenErrorWrapper tokenError = new TokenErrorWrapper(apiException);
                 paymentSettingRepository.configure((Token) null);
-                TokenFrictionEventTracker.create(tokenError.getValue()).track();
+                tracker.track(TokenFrictionEventTracker.create(tokenError.getValue()));
                 callback.failure(apiException);
             }
         };

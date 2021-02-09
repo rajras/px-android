@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.securitycode
 
 import com.mercadopago.android.px.internal.features.security_code.tracking.*
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import org.junit.Before
 import org.junit.Test
@@ -26,9 +27,13 @@ class SecurityCodeTrackerTest {
     @Mock
     private lateinit var securityCodeFrictionsMock: SecurityCodeFrictions
 
+    @Mock
+    private lateinit var tracker: MPTracker
+
     @Before
     fun setUp() {
         securityCodeTracker = SecurityCodeTracker(
+            tracker,
             securityCodeViewTrackMock,
             confirmSecurityCodeTrackMock,
             abortSecurityCodeTrackMock,
@@ -39,21 +44,21 @@ class SecurityCodeTrackerTest {
     fun whenSecurityCodeViewTrack() {
         securityCodeTracker.trackSecurityCode()
 
-        verify(securityCodeViewTrackMock).track()
+        verify(tracker).track(securityCodeViewTrackMock)
     }
 
     @Test
     fun whenConfirmSecurityCodeTrack() {
         securityCodeTracker.trackConfirmSecurityCode()
 
-        verify(confirmSecurityCodeTrackMock).track()
+        verify(tracker).track(confirmSecurityCodeTrackMock)
     }
 
     @Test
     fun whenAbortSecurityCodeTrack() {
         securityCodeTracker.trackAbortSecurityCode()
 
-        verify(abortSecurityCodeTrackMock).track()
+        verify(tracker).track(abortSecurityCodeTrackMock)
     }
 
     @Test
@@ -68,7 +73,7 @@ class SecurityCodeTrackerTest {
 
         verify(securityCodeFrictionsMock).paymentApiErrorFriction()
         verify(securityCodeFrictionsMock).tokenApiErrorFriction()
-        verify(apiErrorFrictionMock).track()
-        verify(tokenFrictionMock).track()
+        verify(tracker).track(apiErrorFrictionMock)
+        verify(tracker).track(tokenFrictionMock)
     }
 }

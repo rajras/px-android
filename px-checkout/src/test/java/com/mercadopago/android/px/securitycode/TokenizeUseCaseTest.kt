@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.securitycode
 
-import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.CallbackTest
 import com.mercadopago.android.px.TestContextProvider
 import com.mercadopago.android.px.addons.ESCManagerBehaviour
@@ -10,21 +9,20 @@ import com.mercadopago.android.px.internal.base.use_case.TokenizeParams
 import com.mercadopago.android.px.internal.base.use_case.TokenizeUseCase
 import com.mercadopago.android.px.internal.callbacks.MPCall
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback
-import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.repository.CardTokenRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations.initMocks
-import org.robolectric.RobolectricTestRunner
+import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(RobolectricTestRunner::class)
-class TokenizeUseCaseTest : BasicRobolectricTest() {
+@RunWith(MockitoJUnitRunner::class)
+class TokenizeUseCaseTest {
 
     @Mock
     private lateinit var cardTokenRepository: CardTokenRepository
@@ -48,13 +46,12 @@ class TokenizeUseCaseTest : BasicRobolectricTest() {
 
     @Before
     fun setUp() {
-        initMocks(this)
-        Session.initialize(getContext())
         contextProvider = TestContextProvider()
         tokenizeUseCase = TokenizeUseCase(
             cardTokenRepository,
             escManagerBehaviour,
             settingRepository,
+            mock(MPTracker::class.java),
             contextProvider)
     }
 

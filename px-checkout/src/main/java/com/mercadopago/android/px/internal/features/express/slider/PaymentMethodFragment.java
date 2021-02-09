@@ -44,7 +44,7 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
         return new PaymentMethodPresenter(
             Session.getInstance().getConfigurationModule().getPayerCostSelectionRepository(),
             Session.getInstance().getAmountConfigurationRepository(),
-            model);
+            model, Session.getInstance().getTracker());
     }
 
     @Override

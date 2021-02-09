@@ -16,7 +16,7 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.services.CheckoutService;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.JsonUtil;
-import com.mercadopago.android.px.internal.viewmodel.mappers.ExpressMetadataToDisabledIdMapper;
+import com.mercadopago.android.px.internal.mappers.ExpressMetadataToDisabledIdMapper;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.internal.CheckoutFeatures;
@@ -41,6 +41,7 @@ public abstract class InitService implements InitRepository {
     @NonNull /* default */ final ExperimentsRepository experimentsRepository;
     @NonNull /* default */ DisabledPaymentMethodRepository disabledPaymentMethodRepository;
     @NonNull /* default */ final Cache<InitResponse> initCache;
+    @NonNull private final MPTracker tracker;
     @NonNull /* default */ final List<OnChangedListener> listeners = new ArrayList<>();
     @NonNull private final TrackingRepository trackingRepository;
     /* default */ int refreshRetriesAvailable = MAX_REFRESH_RETRIES;
@@ -50,7 +51,8 @@ public abstract class InitService implements InitRepository {
         @NonNull final ExperimentsRepository experimentsRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final ESCManagerBehaviour escManagerBehaviour, @NonNull final CheckoutService checkoutService,
-        @NonNull final TrackingRepository trackingRepository, @NonNull final Cache<InitResponse> initCache) {
+        @NonNull final TrackingRepository trackingRepository, @NonNull final Cache<InitResponse> initCache,
+        @NonNull final MPTracker tracker) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.experimentsRepository = experimentsRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
@@ -58,6 +60,7 @@ public abstract class InitService implements InitRepository {
         this.checkoutService = checkoutService;
         this.trackingRepository = trackingRepository;
         this.initCache = initCache;
+        this.tracker = tracker;
     }
 
     @NonNull
@@ -71,7 +74,6 @@ public abstract class InitService implements InitRepository {
     }
 
     private void configure(@NonNull final InitResponse initResponse) {
-        MPTracker.getInstance().hasExpressCheckout(initResponse.hasExpressCheckoutMetadata());
         if (initResponse.getCheckoutPreference() != null) {
             paymentSettingRepository.configure(initResponse.getCheckoutPreference());
         }
@@ -83,7 +85,7 @@ public abstract class InitService implements InitRepository {
         disabledPaymentMethodRepository.storeDisabledPaymentMethodsIds(
             new ExpressMetadataToDisabledIdMapper().map(initResponse.getExpress()));
 
-        MPTracker.getInstance().setExperiments(experimentsRepository.getExperiments());
+        tracker.setExperiments(experimentsRepository.getExperiments());
     }
 
     @Override

@@ -18,7 +18,7 @@ import com.mercadopago.android.px.internal.features.business_result.CongratsView
 import com.mercadopago.android.px.internal.features.business_result.MLBusinessMapper;
 import com.mercadopago.android.px.internal.features.business_result.PXDiscountBoxData;
 import com.mercadopago.android.px.internal.util.JsonUtil;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;

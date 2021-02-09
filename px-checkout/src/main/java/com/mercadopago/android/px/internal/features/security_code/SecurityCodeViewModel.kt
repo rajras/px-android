@@ -16,6 +16,7 @@ import com.mercadopago.android.px.internal.features.security_code.tracking.Secur
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.model.Reason
 
 internal class SecurityCodeViewModel(
@@ -23,7 +24,8 @@ internal class SecurityCodeViewModel(
     private val displayDataUseCase: DisplayDataUseCase,
     private val trackModelUseCase: SecurityTrackModelUseCase,
     private val trackParamsMapper: TrackingParamModelMapper,
-    private val securityCodeDisplayModelMapper: SecurityCodeDisplayModelMapper) : BaseViewModel() {
+    private val securityCodeDisplayModelMapper: SecurityCodeDisplayModelMapper,
+    tracker: MPTracker) : BaseViewModel(tracker) {
 
     private val displayModelMutableLiveData = MutableLiveData<SecurityCodeDisplayModel>()
     val displayModelLiveData: LiveData<SecurityCodeDisplayModel>

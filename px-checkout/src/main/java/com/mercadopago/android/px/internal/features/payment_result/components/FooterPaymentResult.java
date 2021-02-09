@@ -15,8 +15,12 @@ import com.mercadopago.android.px.model.PaymentResult;
 
 public class FooterPaymentResult extends CompactComponent<PaymentResult, ActionDispatcher> {
 
-    /* default */ FooterPaymentResult(@NonNull final PaymentResult props, @NonNull final ActionDispatcher dispatcher) {
+    @NonNull private final PaymentResultViewModelFactory factory;
+
+    /* default */ FooterPaymentResult(@NonNull final PaymentResultViewModelFactory factory,
+        @NonNull final PaymentResult props, @NonNull final ActionDispatcher dispatcher) {
         super(props, dispatcher);
+        this.factory = factory;
     }
 
     @Override
@@ -29,8 +33,7 @@ public class FooterPaymentResult extends CompactComponent<PaymentResult, ActionD
         Button.Props buttonAction = null;
         Button.Props linkAction = null;
 
-        final PaymentResultViewModel paymentResultViewModel = PaymentResultViewModelFactory
-            .createPaymentResultViewModel(props);
+        final PaymentResultViewModel paymentResultViewModel = factory.createPaymentResultViewModel(props);
 
         if (paymentResultViewModel.getLinkAction() != null) {
             linkAction = new Button.Props(paymentResultViewModel.getLinkActionTitle(context),

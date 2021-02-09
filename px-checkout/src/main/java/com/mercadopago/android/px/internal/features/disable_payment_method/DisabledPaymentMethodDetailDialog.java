@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 import com.mercadolibre.android.ui.widgets.MeliDialog;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.StatusMetadata;
@@ -46,7 +47,7 @@ public class DisabledPaymentMethodDetailDialog extends MeliDialog {
     }
 
     @Override
-    public void onAttach(final Context context) {
+    public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
         final Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(ARG_DISABLED_PAYMENT_METHOD) &&
@@ -66,7 +67,7 @@ public class DisabledPaymentMethodDetailDialog extends MeliDialog {
         closeButton.setOnClickListener(v -> dismiss());
         final TextView content = view.findViewById(R.id.px_dialog_detail_payment_method_disable_content);
 
-        new DisabledPaymentMethodDetailViewTracker().track();
+        Session.getInstance().getTracker().track(new DisabledPaymentMethodDetailViewTracker());
 
         content.setText(status != null && !status.isEnabled() ?
             status.getSecondaryMessage().getMessage() : getContent(statusDetail));

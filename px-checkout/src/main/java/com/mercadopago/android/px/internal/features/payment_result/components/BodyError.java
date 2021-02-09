@@ -18,13 +18,16 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentResultViewModel;
 
 public class BodyError extends CompactComponent<BodyErrorProps, ActionDispatcher> {
 
-    public BodyError(@NonNull final BodyErrorProps props, @NonNull final ActionDispatcher dispatcher) {
+    @NonNull private final PaymentResultViewModelFactory factory;
+
+    public BodyError(@NonNull final PaymentResultViewModelFactory factory,
+        @NonNull final BodyErrorProps props, @NonNull final ActionDispatcher dispatcher) {
         super(props, dispatcher);
+        this.factory = factory;
     }
 
     public String getTitle(final Context context) {
-        final PaymentResultViewModel viewModel = PaymentResultViewModelFactory
-            .createPaymentResultViewModel(props.status, props.statusDetail);
+        final PaymentResultViewModel viewModel = factory.createPaymentResultViewModel(props.status, props.statusDetail);
         if (viewModel.hasBodyTitle()) {
             return viewModel.getBodyTitle(context);
         }
@@ -32,14 +35,14 @@ public class BodyError extends CompactComponent<BodyErrorProps, ActionDispatcher
     }
 
     public String getDescription(final Context context) {
-        final PaymentResultViewModel viewModel = PaymentResultViewModelFactory
-            .createPaymentStatusWithProps(props.status, props.statusDetail, props);
+        final PaymentResultViewModel viewModel =
+            factory.createPaymentStatusWithProps(props.status, props.statusDetail, props);
         return viewModel.getDescription(context);
     }
 
     private String getTitleDescription(final Context context) {
-        final PaymentResultViewModel viewModel = PaymentResultViewModelFactory
-            .createPaymentStatusWithProps(props.status, props.statusDetail, props);
+        final PaymentResultViewModel viewModel =
+            factory.createPaymentStatusWithProps(props.status, props.statusDetail, props);
         return viewModel.getTitleDescription(context);
     }
 

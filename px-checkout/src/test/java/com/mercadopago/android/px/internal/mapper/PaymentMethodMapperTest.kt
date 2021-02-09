@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.mapper
 
-import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodMapper
+import com.mercadopago.android.px.internal.mappers.PaymentMethodMapper
 import com.mercadopago.android.px.mocks.InitResponseStub
 import com.mercadopago.android.px.mocks.PaymentMethodStub
 import com.mercadopago.android.px.model.internal.InitResponse

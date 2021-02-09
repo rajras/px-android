@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.viewmodel.mappers;
+package com.mercadopago.android.px.internal.mappers;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;

@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.viewmodel.mappers
+package com.mercadopago.android.px.internal.mappers
 
 import com.mercadopago.android.px.internal.viewmodel.DiscountBody
 import com.mercadopago.android.px.internal.viewmodel.DiscountDetailModel

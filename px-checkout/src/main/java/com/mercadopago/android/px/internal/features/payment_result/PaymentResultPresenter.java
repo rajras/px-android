@@ -12,6 +12,7 @@ import com.mercadopago.android.px.internal.actions.NextAction;
 import com.mercadopago.android.px.internal.actions.RecoverPaymentAction;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
+import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton;
@@ -23,13 +24,14 @@ import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
-import com.mercadopago.android.px.internal.viewmodel.mappers.FlowBehaviourResultMapper;
+import com.mercadopago.android.px.internal.mappers.FlowBehaviourResultMapper;
 import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
 import com.mercadopago.android.px.services.Callback;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.AbortEvent;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
 import com.mercadopago.android.px.tracking.internal.events.CongratsSuccessDeepLink;
@@ -52,6 +54,7 @@ import java.util.List;
     private final InstructionsRepository instructionsRepository;
     private final ResultViewTrack resultViewTrack;
     private final PaymentResultScreenConfiguration screenConfiguration;
+    @NonNull private final PaymentResultViewModelFactory factory;
     @NonNull /* default */ final PaymentCongratsModelMapper paymentCongratsMapper;
     private final FlowBehaviour flowBehaviour;
 
@@ -61,7 +64,10 @@ import java.util.List;
     /* default */ PaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final InstructionsRepository instructionsRepository, @NonNull final PaymentModel paymentModel,
         @NonNull final FlowBehaviour flowBehaviour, final boolean isMP,
-        @NonNull final PaymentCongratsModelMapper paymentCongratsMapper) {
+        @NonNull final PaymentCongratsModelMapper paymentCongratsMapper,
+        @NonNull final PaymentResultViewModelFactory factory,
+        @NonNull final MPTracker tracker) {
+        super(tracker);
         this.paymentSettings = paymentSettings;
         this.paymentModel = paymentModel;
         this.instructionsRepository = instructionsRepository;
@@ -69,6 +75,7 @@ import java.util.List;
         this.paymentCongratsMapper = paymentCongratsMapper;
 
         screenConfiguration = paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
+        this.factory = factory;
         resultViewTrack = new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP);
     }
 
@@ -110,7 +117,7 @@ import java.util.List;
 
     @Override
     public void onAbort() {
-        new AbortEvent(resultViewTrack).track();
+        track(new AbortEvent(resultViewTrack));
         finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
     }
 
@@ -173,8 +180,8 @@ import java.util.List;
 
     private void configureView(@Nullable final Instruction instruction) {
         if (isViewAttached()) {
-            final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, instruction,
-                paymentSettings.getCheckoutPreference().getAutoReturn()).map(paymentModel);
+            final PaymentResultViewModel viewModel = new PaymentResultViewModelMapper(screenConfiguration, factory,
+                getTracker(), instruction, paymentSettings.getCheckoutPreference().getAutoReturn()).map(paymentModel);
             getView().configureViews(viewModel, paymentModel, this, new PaymentResultFooter.Listener() {
                 @Override
                 public void onClick(@NonNull final PaymentResultButton.Action action) {
@@ -215,10 +222,10 @@ import java.util.List;
         }
 
         if (action instanceof NextAction) {
-            new ContinueEvent(resultViewTrack).track();
+            track(new ContinueEvent(resultViewTrack));
             finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
         } else if (action instanceof ChangePaymentMethodAction) {
-            new ChangePaymentMethodEvent(resultViewTrack).track();
+            track(new ChangePaymentMethodEvent(resultViewTrack));
             getView().changePaymentMethod();
         } else if (action instanceof RecoverPaymentAction) {
             getView().recoverPayment();
@@ -231,37 +238,37 @@ import java.util.List;
 
     @Override
     public void OnClickDownloadAppButton(@NonNull final String deepLink) {
-        new DownloadAppEvent(resultViewTrack).track();
+        track(new DownloadAppEvent(resultViewTrack));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void OnClickCrossSellingButton(@NonNull final String deepLink) {
-        new CrossSellingEvent(resultViewTrack).track();
+        track(new CrossSellingEvent(resultViewTrack));
         getView().processCrossSellingBusinessAction(deepLink);
     }
 
     @Override
     public void onClickLoyaltyButton(@NonNull final String deepLink) {
-        new ScoreEvent(resultViewTrack).track();
+        track(new ScoreEvent(resultViewTrack));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void onClickShowAllDiscounts(@NonNull final String deepLink) {
-        new SeeAllDiscountsEvent(resultViewTrack).track();
+        track(new SeeAllDiscountsEvent(resultViewTrack));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void onClickViewReceipt(@NonNull final String deeLink) {
-        new ViewReceiptEvent(resultViewTrack).track();
+        track(new ViewReceiptEvent(resultViewTrack));
         getView().launchDeepLink(deeLink);
     }
 
     @Override
     public void onClickTouchPoint(@Nullable final String deepLink) {
-        new DiscountItemEvent(resultViewTrack, 0, TextUtil.EMPTY).track();
+        track(new DiscountItemEvent(resultViewTrack, 0, TextUtil.EMPTY));
         if (deepLink != null) {
             getView().launchDeepLink(deepLink);
         }
@@ -269,7 +276,7 @@ import java.util.List;
 
     @Override
     public void onClickDiscountItem(final int index, @Nullable final String deepLink, @Nullable final String trackId) {
-        new DiscountItemEvent(resultViewTrack, index, trackId).track();
+        track(new DiscountItemEvent(resultViewTrack, index, trackId));
         if (deepLink != null) {
             getView().launchDeepLink(deepLink);
         }
@@ -280,7 +287,7 @@ import java.util.List;
         final CongratsResponse.MoneySplit moneySplit = paymentModel.getCongratsResponse().getMoneySplit();
         final String deepLink;
         if (moneySplit != null && (deepLink = moneySplit.getAction().getTarget()) != null) {
-            new CongratsSuccessDeepLink(DeepLinkType.MONEY_SPLIT_TYPE, deepLink).track();
+            track(new CongratsSuccessDeepLink(DeepLinkType.MONEY_SPLIT_TYPE, deepLink));
             getView().launchDeepLink(deepLink);
         }
     }

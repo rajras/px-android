@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.HandlerThread
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import androidx.core.provider.FontRequest
-import androidx.core.provider.FontsContractCompat
 import android.util.SparseArray
 import android.widget.TextView
+import androidx.core.provider.FontRequest
+import androidx.core.provider.FontsContractCompat
 import com.mercadopago.android.px.R
+import com.mercadopago.android.px.internal.extensions.isNotNull
 
 object FontHelper {
     private const val FONT_ROBOTO_MONO = "Roboto Mono"
@@ -17,7 +17,7 @@ object FontHelper {
     private const val PROVIDER_PACKAGE = "com.google.android.gms"
 
     private val CACHE = SparseArray<Typeface>()
-    private var HANDLER = Handler(HandlerThread("fonts").run {
+    private val HANDLER = Handler(HandlerThread("fonts").run {
         start()
         looper
     })
@@ -25,28 +25,18 @@ object FontHelper {
 
     @JvmStatic
     fun init(context: Context) {
-        if (initialized) {
-            return
-        }
-        initialized = true
-        fetchFont(context, PxFont.MONOSPACE.id, FONT_ROBOTO_MONO, Typeface.MONOSPACE)
-    }
-
-    @JvmStatic
-    fun setFont(toolbar: CollapsingToolbarLayout, font: PxFont) {
-        getFont(toolbar.context, font)?.let {
-            toolbar.setCollapsedTitleTypeface(it)
-            toolbar.setExpandedTitleTypeface(it)
+        if (!initialized) {
+            initialized = true
+            fetchFont(context, PxFont.MONOSPACE.id, FONT_ROBOTO_MONO, Typeface.MONOSPACE)
         }
     }
 
     @JvmStatic
     fun setFont(view: TextView, font: PxFont) {
         val typeface = CACHE[font.id]
-        if (typeface != null) {
-            view.typeface = typeface
-        } else if (font.font != null) {
-            TypefaceHelperWrapper.setTypeface(view, font.font)
+        when {
+            typeface.isNotNull() -> view.typeface = typeface
+            font.font.isNotNull() -> TypefaceHelperWrapper.setTypeface(view, font.font)
         }
     }
 

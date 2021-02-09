@@ -15,6 +15,7 @@ import com.mercadopago.android.px.internal.viewmodel.AmountLocalized
 import com.mercadopago.android.px.model.OfflineMethodsCompliance
 import com.mercadopago.android.px.model.SensitiveInformation
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.BackEvent
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent
 import com.mercadopago.android.px.tracking.internal.events.KnowYourCustomerFlowEvent
@@ -27,7 +28,9 @@ import kotlinx.coroutines.launch
 internal class OfflineMethodsViewModel(private val initRepository: InitRepository,
     private val paymentSettingRepository: PaymentSettingRepository,
     private val amountRepository: AmountRepository,
-    private val discountRepository: DiscountRepository) : BaseViewModel(), OfflineMethods.ViewModel {
+    private val discountRepository: DiscountRepository,
+    tracker: MPTracker
+) : BaseViewModel(tracker), OfflineMethods.ViewModel {
 
     private lateinit var viewTracker: OfflineMethodsViewTracker
     private var payerCompliance: OfflineMethodsCompliance? = null
@@ -56,7 +59,7 @@ internal class OfflineMethodsViewModel(private val initRepository: InitRepositor
     }
 
     override fun onSheetShowed() {
-        viewTracker.track()
+        track(viewTracker)
     }
 
     override fun onMethodSelected(selectedItem: OfflineMethodItem) {
@@ -69,7 +72,7 @@ internal class OfflineMethodsViewModel(private val initRepository: InitRepositor
                 if (item.isAdditionalInfoNeeded && it.isCompliant) {
                     completePayerInformation(it.sensitiveInformation)
                 } else if (item.isAdditionalInfoNeeded) {
-                    KnowYourCustomerFlowEvent(viewTracker).track()
+                    track(KnowYourCustomerFlowEvent(viewTracker))
                     observableDeepLink.value = it.turnComplianceDeepLink
                     return
                 }
@@ -88,7 +91,7 @@ internal class OfflineMethodsViewModel(private val initRepository: InitRepositor
     override fun onPaymentExecuted(configuration: PaymentConfiguration) {
         val confirmData = ConfirmData.from(configuration.paymentTypeId, configuration.paymentMethodId,
             payerCompliance?.isCompliant == true, selectedItem?.isAdditionalInfoNeeded == true)
-        ConfirmEvent(confirmData).track()
+        track(ConfirmEvent(confirmData))
     }
 
     private fun completePayerInformation(sensitiveInformation: SensitiveInformation) {
@@ -101,6 +104,6 @@ internal class OfflineMethodsViewModel(private val initRepository: InitRepositor
     }
 
     override fun onBack() {
-        BackEvent(viewTracker).track()
+        track(BackEvent(viewTracker))
     }
 }

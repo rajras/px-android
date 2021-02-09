@@ -10,6 +10,7 @@ import com.mercadopago.android.px.internal.callbacks.Response
 import com.mercadopago.android.px.internal.callbacks.awaitCallback
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.model.internal.InitResponse
+import com.mercadopago.android.px.tracking.internal.MPTracker
 
 class CheckoutRepositoryImpl(
     paymentSettingRepository: PaymentSettingRepository,
@@ -18,8 +19,9 @@ class CheckoutRepositoryImpl(
     escManagerBehaviour: ESCManagerBehaviour,
     checkoutService: CheckoutService,
     trackingRepository: TrackingRepository,
-    initCache: Cache<InitResponse>) : InitService(paymentSettingRepository, experimentsRepository,
-        disabledPaymentMethodRepository, escManagerBehaviour, checkoutService, trackingRepository, initCache) {
+    initCache: Cache<InitResponse>,
+    tracker: MPTracker) : InitService(paymentSettingRepository, experimentsRepository,
+        disabledPaymentMethodRepository, escManagerBehaviour, checkoutService, trackingRepository, initCache, tracker) {
 
     override suspend fun loadInitResponse(): InitResponse? =
         when (val callbackResult = init().awaitCallback()) {

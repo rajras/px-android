@@ -2,7 +2,6 @@ package com.mercadopago.android.px.securitycode
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.any
 import com.mercadopago.android.px.argumentCaptor
 import com.mercadopago.android.px.internal.base.use_case.CallBack
@@ -22,15 +21,18 @@ import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.Token
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
-class SecurityCodeViewModelTest : BasicRobolectricTest() {
+@RunWith(MockitoJUnitRunner::class)
+class SecurityCodeViewModelTest {
 
     @Mock
     private lateinit var tokenizeUseCaseTest: TokenizeUseCase
@@ -68,13 +70,13 @@ class SecurityCodeViewModelTest : BasicRobolectricTest() {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         securityCodeViewModel = SecurityCodeViewModel(
             tokenizeUseCaseTest,
             displayDataUseCaseTest,
             trackModelUseCase,
             trackingParamModelMapper,
-            securityCodeDisplayModelMapper
+            securityCodeDisplayModelMapper,
+            mock(MPTracker::class.java)
         )
 
         securityCodeViewModel.displayModelLiveData.observeForever(displayModelObserver)

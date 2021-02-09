@@ -9,8 +9,8 @@ import com.mercadopago.android.px.internal.repository.ChargeRepository
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.InitRepository
 import com.mercadopago.android.px.internal.util.TextUtil
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.NonNullMapper
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.mappers.NonNullMapper
 import com.mercadopago.android.px.model.AccountMoneyDisplayInfo
 import com.mercadopago.android.px.model.CustomSearchItem
 import com.mercadopago.android.px.model.ExpressMetadata

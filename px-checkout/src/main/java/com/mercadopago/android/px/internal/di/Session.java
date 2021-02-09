@@ -26,6 +26,7 @@ import com.mercadopago.android.px.internal.datasource.cache.Cache;
 import com.mercadopago.android.px.internal.datasource.cache.InitCacheCoordinator;
 import com.mercadopago.android.px.internal.datasource.cache.InitDiskCache;
 import com.mercadopago.android.px.internal.datasource.cache.InitMemCache;
+import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PXPaymentCongratsTracking;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
@@ -75,6 +76,8 @@ public final class Session extends ApplicationModule {
     private CongratsRepository congratsRepository;
     private ExperimentsRepository experimentsRepository;
     private EscPaymentManagerImp escPaymentManager;
+    private MPTracker tracker;
+    private PaymentResultViewModelFactory paymentResultViewModelFactory;
     private ViewModelModule viewModelModule;
     private final NetworkModule networkModule;
 
@@ -181,7 +184,7 @@ public final class Session extends ApplicationModule {
             initRepository = new CheckoutRepositoryImpl(paymentSettings, getExperimentsRepository(),
                 configurationModule.getDisabledPaymentMethodRepository(), getMercadoPagoESC(),
                 networkModule.getRetrofitClient().create(CheckoutService.class),
-                configurationModule.getTrackingRepository(), getInitCache());
+                configurationModule.getTrackingRepository(), getInitCache(), getTracker());
         }
         return initRepository;
     }
@@ -287,7 +290,7 @@ public final class Session extends ApplicationModule {
     @NonNull
     private TokenRepository getTokenRepository() {
         return new TokenizeService(networkModule.getRetrofitClient().create(GatewayService.class),
-            getConfigurationModule().getPaymentSettings(), getMercadoPagoESC(), getDevice());
+            getConfigurationModule().getPaymentSettings(), getMercadoPagoESC(), getDevice(), getTracker());
     }
 
     @NonNull
@@ -340,6 +343,22 @@ public final class Session extends ApplicationModule {
             getMercadoPagoESC(), configurationModule.getTrackingRepository());
     }
 
+    @NonNull
+    public MPTracker getTracker() {
+        if (tracker == null) {
+            tracker = new MPTracker(configurationModule.getTrackingRepository());
+        }
+        return tracker;
+    }
+
+    @NonNull
+    public PaymentResultViewModelFactory getPaymentResultViewModelFactory() {
+        if (paymentResultViewModelFactory == null) {
+            paymentResultViewModelFactory = new PaymentResultViewModelFactory(getTracker());
+        }
+        return paymentResultViewModelFactory;
+    }
+
     private void configIds(@NonNull final MercadoPagoCheckout checkout) {
         //Favoring product id in discount params because that one is surely custom if exists
         final String deprecatedProductId =
@@ -350,7 +369,7 @@ public final class Session extends ApplicationModule {
             TrackingRepositoryModelMapper.INSTANCE.map(checkout.getTrackingConfiguration()));
         final boolean securityEnabled = BehaviourProvider.getSecurityBehaviour()
             .isSecurityEnabled(new SecurityValidationData.Builder(productId).build());
-        MPTracker.getInstance().setSecurityEnabled(securityEnabled);
+        getTracker().setSecurityEnabled(securityEnabled);
         configurationModule.getProductIdProvider().configure(productId);
     }
 

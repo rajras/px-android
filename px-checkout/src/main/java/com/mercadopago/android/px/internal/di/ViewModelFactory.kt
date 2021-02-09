@@ -13,8 +13,8 @@ import com.mercadopago.android.px.internal.features.security_code.domain.use_cas
 import com.mercadopago.android.px.internal.features.security_code.mapper.BusinessSecurityCodeDisplayDataMapper
 import com.mercadopago.android.px.internal.features.security_code.mapper.SecurityCodeDisplayModelMapper
 import com.mercadopago.android.px.internal.features.security_code.mapper.TrackingParamModelMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.PayButtonViewModelMapper
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.mappers.PayButtonViewModelMapper
 
 internal class ViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -32,33 +32,44 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                     configurationModule.customTextsRepository,
                     PayButtonViewModelMapper(),
                     MapperProvider.getPaymentCongratsMapper(),
-                    MapperProvider.getPostPaymentUrlsMapper())
+                    MapperProvider.getPostPaymentUrlsMapper(),
+                    session.paymentResultViewModelFactory,
+                    session.tracker
+                )
             }
             modelClass.isAssignableFrom(OfflineMethodsViewModel::class.java) -> {
                 OfflineMethodsViewModel(session.initRepository,
                     paymentSetting,
                     session.amountRepository,
-                    session.discountRepository)
+                    session.discountRepository,
+                    session.tracker
+                )
             }
             modelClass.isAssignableFrom(SecurityCodeViewModel::class.java) -> {
                 val tokenizeUseCase = TokenizeUseCase(
                     session.cardTokenRepository,
                     session.mercadoPagoESC,
-                    paymentSetting)
+                    paymentSetting,
+                    session.tracker
+                )
 
                 val displayDataUseCase = DisplayDataUseCase(
                     session.initRepository,
-                    BusinessSecurityCodeDisplayDataMapper())
+                    BusinessSecurityCodeDisplayDataMapper(),
+                    session.tracker
+                )
 
                 SecurityCodeViewModel(
                     tokenizeUseCase,
                     displayDataUseCase,
-                    SecurityTrackModelUseCase(),
+                    SecurityTrackModelUseCase(session.tracker),
                     TrackingParamModelMapper(),
-                    SecurityCodeDisplayModelMapper(CardUiMapper))
+                    SecurityCodeDisplayModelMapper(CardUiMapper),
+                    session.tracker
+                )
             }
             modelClass.isAssignableFrom(FragmentCommunicationViewModel::class.java) -> {
-                FragmentCommunicationViewModel()
+                FragmentCommunicationViewModel(session.tracker)
             }
             else -> {
                 throw IllegalArgumentException("Unknown ViewModel class")

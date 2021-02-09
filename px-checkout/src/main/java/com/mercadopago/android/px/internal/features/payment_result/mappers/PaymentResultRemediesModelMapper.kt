@@ -4,7 +4,7 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.Reme
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.CvvRemedy
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.HighRiskRemedy
 import com.mercadopago.android.px.internal.features.payment_result.remedies.view.RetryPaymentFragment
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.internal.remedies.CvvRemedyResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
 

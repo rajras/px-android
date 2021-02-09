@@ -4,7 +4,7 @@ import com.mercadopago.android.px.internal.features.security_code.domain.model.B
 import com.mercadopago.android.px.internal.features.security_code.mapper.SecurityCodeDisplayModelMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeDisplayModel
 import com.mercadopago.android.px.internal.viewmodel.LazyString
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.Mockito.`when`

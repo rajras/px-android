@@ -8,9 +8,11 @@ import com.mercadopago.android.px.model.exceptions.CardTokenException
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class TokenCreationWrapperTest {
 
     private lateinit var tokenCreationWrapper: TokenCreationWrapper
@@ -22,7 +24,6 @@ class TokenCreationWrapperTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         tokenCreationWrapper = TokenCreationWrapper.Builder(cardTokenRepository, escManagerBehaviour)
             .with(card)
             .with(paymentMethod).build()

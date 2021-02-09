@@ -8,6 +8,7 @@ import android.widget.Button
 import com.mercadolibre.android.picassodiskcache.loadImage
 import com.mercadolibre.android.ui.widgets.MeliDialog
 import com.mercadopago.android.px.R
+import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.runIfNull
 import com.mercadopago.android.px.internal.extensions.visible
@@ -49,7 +50,7 @@ class GenericDialog : MeliDialog() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            viewModel = GenericDialogViewModel(it.getParcelable(ARG_GENERIC_DIALOG_ITEM)!!)
+            viewModel = GenericDialogViewModel(it.getParcelable(ARG_GENERIC_DIALOG_ITEM)!!, Session.getInstance().tracker)
         }
         savedInstanceState.runIfNull { viewModel.trackLoadDialog() }
     }

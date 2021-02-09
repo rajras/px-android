@@ -3,16 +3,19 @@ package com.mercadopago.android.px.internal.features.security_code.domain.use_ca
 import com.mercadopago.android.px.internal.base.use_case.UseCase
 import com.mercadopago.android.px.internal.callbacks.Response
 import com.mercadopago.android.px.internal.features.security_code.tracking.*
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.model.TrackingMapModel
 
 class SecurityTrackModelUseCase(
+    tracker: MPTracker,
     override val contextProvider: CoroutineContextProvider = CoroutineContextProvider()
-) : UseCase<SecurityTrackModelUseCase.SecurityTrackModelParams, SecurityCodeTracker>() {
+) : UseCase<SecurityTrackModelUseCase.SecurityTrackModelParams, SecurityCodeTracker>(tracker) {
 
     override suspend fun doExecute(param: SecurityTrackModelParams) = param.card.let { card ->
         val model = SecurityTrackModel(card)
         val securityCodeTracker = SecurityCodeTracker(
+            tracker,
             SecurityCodeViewTrack(model, param.reason),
             ConfirmSecurityCodeTrack(model, param.reason),
             AbortSecurityCodeTrack(model, param.reason),

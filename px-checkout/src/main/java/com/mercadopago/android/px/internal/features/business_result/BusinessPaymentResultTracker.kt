@@ -4,9 +4,11 @@ import com.mercadolibre.android.mlbusinesscomponents.components.discount.MLBusin
 import com.mercadolibre.android.mlbusinesscomponents.components.touchpoint.tracking.MLBusinessTouchpointTracker
 import com.mercadopago.android.px.addons.model.Track
 import com.mercadopago.android.px.tracking.internal.DiscountCenterTrackFactory
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 
-class BusinessPaymentResultTracker : TrackWrapper(), MLBusinessTouchpointTracker, MLBusinessDiscountTracker {
+class BusinessPaymentResultTracker(private val tracker: MPTracker) :
+    TrackWrapper(), MLBusinessTouchpointTracker, MLBusinessDiscountTracker {
 
     private var id: String? = "px_congrats"
     private var track: Track? = null
@@ -14,7 +16,7 @@ class BusinessPaymentResultTracker : TrackWrapper(), MLBusinessTouchpointTracker
     override fun track(action: String?, eventData: Map<String, Any>?) {
         if (shouldTrack(action, eventData)) {
             track = DiscountCenterTrackFactory.withEvent(getPath(action)).addData(eventData!!).build()
-            track()
+            tracker.track(this)
         }
     }
 

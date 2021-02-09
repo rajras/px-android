@@ -11,7 +11,7 @@ import com.mercadopago.android.px.internal.viewmodel.IDetailColor;
 import com.mercadopago.android.px.internal.viewmodel.ItemLocalized;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDefaultColor;
 import com.mercadopago.android.px.internal.viewmodel.SummaryViewDetailDrawable;
-import com.mercadopago.android.px.internal.viewmodel.mappers.AmountDescriptorMapper;
+import com.mercadopago.android.px.internal.mappers.AmountDescriptorMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Currency;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;

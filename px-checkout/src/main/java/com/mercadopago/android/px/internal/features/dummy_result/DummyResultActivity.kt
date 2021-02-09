@@ -14,15 +14,17 @@ import com.mercadopago.android.px.internal.util.MercadoPagoUtil
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 
-class DummyResultActivity : PXActivity<DummyResultPresenter>(), MvpView {
+internal class DummyResultActivity : PXActivity<DummyResultPresenter>(), MvpView {
 
     override fun onCreated(savedInstanceState: Bundle?) {
-        val configuration = Session.getInstance().configurationModule
+        val session = Session.getInstance()
+        val configuration = session.configurationModule
         val paymentModel: PaymentModel = intent.getParcelableExtra(PaymentResultActivity.EXTRA_PAYMENT_MODEL)
         val presenter = DummyResultPresenter(
             paymentModel,
             configuration.paymentSettings.advancedConfiguration.paymentResultScreenConfiguration,
-            configuration.paymentSettings, MercadoPagoUtil.isMP(this)
+            configuration.paymentSettings, MercadoPagoUtil.isMP(this),
+            session.tracker
         )
         presenter.attachView(this)
         Intent().let {

@@ -10,9 +10,9 @@ import com.mercadopago.android.px.internal.features.payment_result.PaymentResult
 import com.mercadopago.android.px.internal.features.payment_result.props.BodyErrorProps;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultViewModel;
-import com.mercadopago.android.px.model.IPayment;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentResult;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,28 +45,24 @@ public final class PaymentResultViewModelFactory {
 
     private static final int EMPTY_LABEL = 0;
 
-    private PaymentResultViewModelFactory() {
-        // default empty constructor
+    @NonNull private final MPTracker tracker;
+
+    public PaymentResultViewModelFactory(@NonNull final MPTracker tracker) {
+        this.tracker = tracker;
     }
 
-    public static PaymentResultDecorator createPaymentResultDecorator(@NonNull final IPayment payment) {
-        final PaymentResultViewModel vm =
-            createPaymentResultViewModel(payment.getPaymentStatus(), payment.getPaymentStatusDetail());
-        return PaymentResultDecorator.from(vm);
-    }
-
-    public static PaymentResultDecorator createPaymentResultDecorator(@NonNull final PaymentResult paymentResult) {
+    public PaymentResultDecorator createPaymentResultDecorator(@NonNull final PaymentResult paymentResult) {
         final PaymentResultViewModel vm =
             createPaymentResultViewModel(paymentResult.getPaymentStatus(), paymentResult.getPaymentStatusDetail());
         return PaymentResultDecorator.from(vm);
     }
 
-    public static PaymentResultViewModel createPaymentResultViewModel(@NonNull final String statusCode,
+    public PaymentResultViewModel createPaymentResultViewModel(@NonNull final String statusCode,
         @NonNull final String statusDetail) {
         return createPaymentResultViewModel(generatePaymentResult(statusCode, statusDetail));
     }
 
-    private static PaymentResult generatePaymentResult(@NonNull final String statusCode,
+    private PaymentResult generatePaymentResult(@NonNull final String statusCode,
         @NonNull final String statusDetail) {
         return new PaymentResult.Builder()
             .setPaymentStatus(statusCode)
@@ -74,7 +70,7 @@ public final class PaymentResultViewModelFactory {
             .build();
     }
 
-    public static PaymentResultViewModel createPaymentResultViewModel(@NonNull final PaymentResult paymentResult) {
+    public PaymentResultViewModel createPaymentResultViewModel(@NonNull final PaymentResult paymentResult) {
         return createViewModelBuilder(paymentResult, null).build();
     }
 
@@ -83,13 +79,13 @@ public final class PaymentResultViewModelFactory {
      *
      * @param props body information
      */
-    public static PaymentResultViewModel createPaymentStatusWithProps(@NonNull final String status,
+    public PaymentResultViewModel createPaymentStatusWithProps(@NonNull final String status,
         @NonNull final String detail, @Nullable final BodyErrorProps props) {
         return createViewModelBuilder(generatePaymentResult(status, detail), props).build();
     }
 
     @SuppressWarnings("fallthrough")
-    private static PaymentResultViewModel.Builder createViewModelBuilder(@NonNull final PaymentResult paymentResult,
+    private PaymentResultViewModel.Builder createViewModelBuilder(@NonNull final PaymentResult paymentResult,
         @Nullable final BodyErrorProps props) {
 
         final String status = paymentResult.getPaymentStatus();
@@ -137,7 +133,7 @@ public final class PaymentResultViewModelFactory {
         }
     }
 
-    private static boolean pendingStatusIsSuccess(final String detail) {
+    private boolean pendingStatusIsSuccess(final String detail) {
         return STATUS_DETAIL_PENDING_WAITING_PAYMENT.equalsIgnoreCase(detail);
     }
 
@@ -145,21 +141,21 @@ public final class PaymentResultViewModelFactory {
      * Generate friction event when we receive an unknown status detail Payment information might be useful ToDo Add
      * payment information that might be useful
      */
-    private static void generateFrictionEvent(final String statusCode, final String statusDetail) {
+    private void generateFrictionEvent(final String statusCode, final String statusDetail) {
 
         final Map<String, String> metadata = new HashMap<>();
         // Add metadata values
         metadata.put("status_received", statusCode);
         metadata.put("status_detail", statusDetail);
 
-        FrictionEventTracker.with(
+        tracker.track(FrictionEventTracker.with(
             "/px_checkout/result",
             FrictionEventTracker.Id.INVALID_STATUS_DETAIL,
             FrictionEventTracker.Style.NON_SCREEN,
-            metadata).track();
+            metadata));
     }
 
-    private static int checkPaymentMethodsOff(final String status, final String detail) {
+    private int checkPaymentMethodsOff(final String status, final String detail) {
         if (status.equalsIgnoreCase(STATUS_PENDING) && detail.equalsIgnoreCase(STATUS_DETAIL_PENDING_WAITING_PAYMENT)) {
             return EMPTY_LABEL;
         } else {
@@ -167,7 +163,7 @@ public final class PaymentResultViewModelFactory {
         }
     }
 
-    private static int getPendingDescription(final String detail) {
+    private int getPendingDescription(final String detail) {
         switch (detail) {
         case Payment.StatusDetail.STATUS_DETAIL_PENDING_CONTINGENCY:
             return R.string.px_error_description_contingency;
@@ -178,7 +174,7 @@ public final class PaymentResultViewModelFactory {
         }
     }
 
-    private static PaymentResultViewModel.Builder rejectedStatusBuilder(final String detail,
+    private PaymentResultViewModel.Builder rejectedStatusBuilder(final String detail,
         final PaymentResultViewModel.Builder builder, final String paymentMethodName,
         final String paymentAmount) {
 
@@ -296,7 +292,7 @@ public final class PaymentResultViewModelFactory {
         }
     }
 
-    private static PaymentResultViewModel.Builder getHighRiskBuilder(final PaymentResultViewModel.Builder builder,
+    private PaymentResultViewModel.Builder getHighRiskBuilder(final PaymentResultViewModel.Builder builder,
         final int resId) {
         setNonRecoverableErrorResources(builder);
         return builder
@@ -309,27 +305,27 @@ public final class PaymentResultViewModelFactory {
             .setHasDetail(true);
     }
 
-    private static void setApprovedResources(final PaymentResultViewModel.Builder builder) {
+    private void setApprovedResources(final PaymentResultViewModel.Builder builder) {
         builder
             .setBackgroundColor(R.color.ui_components_success_color)
             .setBadgeResId(R.drawable.px_badge_check);
     }
 
-    private static void setNonRecoverableErrorResources(@NonNull final PaymentResultViewModel.Builder builder) {
+    private void setNonRecoverableErrorResources(@NonNull final PaymentResultViewModel.Builder builder) {
         builder
             .setIsErrorRecoverable(false)
             .setBadgeResId(R.drawable.px_badge_error)
             .setBackgroundColor(R.color.ui_components_error_color);
     }
 
-    private static void setRecoverableErrorResources(@NonNull final PaymentResultViewModel.Builder builder) {
+    private void setRecoverableErrorResources(@NonNull final PaymentResultViewModel.Builder builder) {
         builder
             .setIsErrorRecoverable(true)
             .setBadgeResId(R.drawable.px_badge_pending_orange)
             .setBackgroundColor(R.color.ui_components_warning_color);
     }
 
-    private static void setPendingResources(@NonNull final PaymentResultViewModel.Builder builder,
+    private void setPendingResources(@NonNull final PaymentResultViewModel.Builder builder,
         @NonNull final String statusDetail) {
         if (pendingStatusIsSuccess(statusDetail)) {
             builder
@@ -342,7 +338,7 @@ public final class PaymentResultViewModelFactory {
         }
     }
 
-    private static PaymentResultViewModel.Builder unknownStatusFallback(final PaymentResultViewModel.Builder builder,
+    private PaymentResultViewModel.Builder unknownStatusFallback(final PaymentResultViewModel.Builder builder,
         final String status, final String detail) {
 
         // Generate a friction event with status info

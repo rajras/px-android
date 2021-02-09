@@ -13,6 +13,8 @@ import com.mercadopago.android.px.internal.font.FontHelper;
 
 public abstract class PXActivity<P extends BasePresenter> extends AppCompatActivity implements MvpView {
 
+    protected static final String BUNDLE_STATE = "bundle_state";
+
     protected P presenter;
 
     @Override
@@ -65,7 +67,7 @@ public abstract class PXActivity<P extends BasePresenter> extends AppCompatActiv
 
     private void doBack() {
         if (presenter != null) {
-            presenter.tracker.trackBack();
+            presenter.trackBack();
         }
         super.onBackPressed();
     }

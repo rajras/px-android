@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.mercadopago.android.px.BuildConfig;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.tracking.internal.views.TermsAndConditionsViewTracker;
 
 public class TermsAndConditionsActivity extends PXActivity {
@@ -38,7 +39,7 @@ public class TermsAndConditionsActivity extends PXActivity {
         data = getIntent().getStringExtra(EXTRA_DATA);
 
         if (savedInstanceState == null) {
-            new TermsAndConditionsViewTracker(data).track();
+            Session.getInstance().getTracker().track(new TermsAndConditionsViewTracker(data));
         }
 
         mProgressLayout = findViewById(R.id.mpsdkProgressLayout);

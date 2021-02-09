@@ -18,6 +18,8 @@ import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
+import com.mercadopago.android.px.tracking.internal.events.SessionFrictionEventTracker;
 
 public class CheckoutPresenter extends BasePresenter<Checkout.View> implements Checkout.Actions {
 
@@ -33,8 +35,9 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
         @NonNull final InitRepository initRepository,
         @NonNull final PaymentRepository paymentRepository,
         @NonNull final ExperimentsRepository experimentsRepository,
-        @NonNull final PostPaymentUrlsMapper postPaymentUrlsMapper) {
-
+        @NonNull final PostPaymentUrlsMapper postPaymentUrlsMapper,
+        @NonNull final MPTracker tracker) {
+        super(tracker);
         this.paymentSettingRepository = paymentSettingRepository;
         this.userSelectionRepository = userSelectionRepository;
         this.initRepository = initRepository;
@@ -76,6 +79,11 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements C
     @Override
     public void recoverFromFailure() {
         initialize();
+    }
+
+    @Override
+    public void onHalted() {
+        track(SessionFrictionEventTracker.INSTANCE);
     }
 
     @Override

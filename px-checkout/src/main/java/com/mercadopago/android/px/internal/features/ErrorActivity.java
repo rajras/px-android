@@ -8,9 +8,11 @@ import android.view.View;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.model.Cause;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.views.ErrorViewTracker;
 
@@ -43,14 +45,17 @@ public class ErrorActivity extends PXActivity {
     }
 
     private void track() {
+        final MPTracker tracker = Session.getInstance().getTracker();
         final String errorMessage = titleMessageTextView.getText() + " " + message;
         final ErrorViewTracker errorViewTracker = new ErrorViewTracker(errorMessage, error);
-        errorViewTracker.track();
+        tracker.track(errorViewTracker);
 
-        FrictionEventTracker.with(FrictionEventTracker.Id.GENERIC, errorViewTracker,
+        tracker.track(FrictionEventTracker.with(
+            FrictionEventTracker.Id.GENERIC,
+            errorViewTracker,
             FrictionEventTracker.Style.SCREEN,
-            error)
-            .track();
+            error
+        ));
     }
 
     private void animateErrorScreenLaunch() {

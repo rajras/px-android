@@ -3,7 +3,7 @@ package com.mercadopago.android.px.core.internal;
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.core.PaymentProcessor;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 
 public class CheckoutDataMapper extends Mapper<SplitPaymentProcessor.CheckoutData, PaymentProcessor.CheckoutData> {
     @Override

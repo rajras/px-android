@@ -53,7 +53,7 @@ public class OtherPaymentMethodFragment
         return new OtherPaymentMethodPresenter(new CardFormWrapper(
             configurationModule.getPaymentSettings(),
             configurationModule.getTrackingRepository()
-        ));
+        ), Session.getInstance().getTracker());
     }
 
     @Nullable

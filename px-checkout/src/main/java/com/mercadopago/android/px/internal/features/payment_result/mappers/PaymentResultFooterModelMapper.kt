@@ -6,8 +6,8 @@ import com.mercadopago.android.px.internal.features.payment_result.presentation.
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter
 import com.mercadopago.android.px.internal.viewmodel.LazyString
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentResultButtonMapper
+import com.mercadopago.android.px.internal.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.PaymentResultButtonMapper
 import com.mercadopago.android.px.model.internal.CongratsResponse
 
 internal object PaymentResultFooterModelMapper : Mapper<PaymentModel, PaymentResultFooter.Model?>() {

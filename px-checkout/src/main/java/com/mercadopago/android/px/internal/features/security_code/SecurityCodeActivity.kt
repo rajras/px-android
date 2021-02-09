@@ -13,7 +13,7 @@ import com.mercadopago.android.px.internal.features.security_code.model.Security
 
 private const val EXTRA_PARAMS = "bundle_params"
 
-class SecurityCodeActivity : PXActivity<BasePresenter<MvpView>>() {
+internal class SecurityCodeActivity : PXActivity<BasePresenter<MvpView>>() {
 
     override fun onCreated(savedInstanceState: Bundle?) {
         setContentView(R.layout.px_activity_security_code_new)

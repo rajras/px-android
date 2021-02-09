@@ -1,4 +1,4 @@
-package com.mercadopago.android.px.internal.viewmodel.mappers
+package com.mercadopago.android.px.internal.mappers
 
 import com.mercadopago.android.px.internal.experiments.ScrolledVariant
 import com.mercadopago.android.px.internal.experiments.Variant

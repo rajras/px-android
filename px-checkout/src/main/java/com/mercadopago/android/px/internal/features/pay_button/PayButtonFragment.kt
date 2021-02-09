@@ -82,7 +82,7 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
         savedInstanceState?.let {
             buttonStatus = it.getInt(EXTRA_STATE, MeliButton.State.NORMAL)
             button.visibility = it.getInt(EXTRA_VISIBILITY, VISIBLE)
-            viewModel.recoverFromBundle(it)
+            viewModel.restoreState(it.getParcelable(BUNDLE_STATE)!!)
             observingPostPaymentAction = it.getBoolean(EXTRA_OBSERVING)
         }
 
@@ -106,7 +106,7 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
         outState.putInt(EXTRA_STATE, buttonStatus)
         outState.putInt(EXTRA_VISIBILITY, button.visibility)
         outState.putBoolean(EXTRA_OBSERVING, observingPostPaymentAction)
-        viewModel.storeInBundle(outState)
+        outState.putParcelable(BUNDLE_STATE, viewModel.state)
     }
 
     private fun onStateUIChanged(stateUI: PayButtonUiState) {

@@ -15,8 +15,12 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentResultViewModel;
 
 public class Body extends CompactComponent<PaymentResultBodyProps, ActionDispatcher> {
 
-    /* default */ Body(@NonNull final PaymentResultBodyProps props, @NonNull final ActionDispatcher dispatcher) {
+    @NonNull private final PaymentResultViewModelFactory factory;
+
+    /* default */ Body(@NonNull final PaymentResultViewModelFactory factory,
+        @NonNull final PaymentResultBodyProps props, @NonNull final ActionDispatcher dispatcher) {
         super(props, dispatcher);
+        this.factory = factory;
     }
 
     /* default */ boolean hasSomethingToDraw() {
@@ -35,8 +39,7 @@ public class Body extends CompactComponent<PaymentResultBodyProps, ActionDispatc
     }
 
     private boolean hasBodyError() {
-        final PaymentResultViewModel paymentResultViewModel =
-            PaymentResultViewModelFactory.createPaymentResultViewModel(props.paymentResult);
+        final PaymentResultViewModel paymentResultViewModel = factory.createPaymentResultViewModel(props.paymentResult);
         return paymentResultViewModel.hasBodyError();
     }
 
@@ -48,7 +51,7 @@ public class Body extends CompactComponent<PaymentResultBodyProps, ActionDispatc
             .setPaymentAmount(CurrenciesUtil.getLocalizedAmountWithoutZeroDecimals(props.currency,
                 PaymentDataHelper.getPrettyAmountToPay(props.paymentResult.getPaymentData())))
             .build();
-        return new BodyError(bodyErrorProps, getActions());
+        return new BodyError(factory, bodyErrorProps, getActions());
     }
 
     @Override

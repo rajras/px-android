@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.payment_result.remedies
 
 import com.mercadopago.android.px.internal.model.EscStatus
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.CustomSearchItem
 import com.mercadopago.android.px.model.SecurityCode
 import com.mercadopago.android.px.model.internal.remedies.Installment

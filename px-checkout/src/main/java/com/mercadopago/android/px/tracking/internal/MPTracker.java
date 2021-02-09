@@ -1,11 +1,9 @@
 package com.mercadopago.android.px.tracking.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.BehaviourProvider;
 import com.mercadopago.android.px.addons.model.Track;
 import com.mercadopago.android.px.addons.model.internal.Experiment;
-import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.Logger;
 import com.mercadopago.android.px.model.CheckoutType;
@@ -30,10 +28,6 @@ public final class MPTracker {
     private static final String ATTR_SECURITY_ENABLED = "security_enabled";
     private static final String ATTR_EXPERIMENTS = "experiments";
 
-    private static MPTracker trackerInstance;
-
-    @CheckoutType @Nullable private String checkoutType;
-
     private long initSessionTimestamp;
 
     private boolean securityEnabled;
@@ -42,15 +36,8 @@ public final class MPTracker {
 
     @NonNull private final TrackingRepository trackingRepository;
 
-    private MPTracker(@NonNull final TrackingRepository trackingRepository) {
+    public MPTracker(@NonNull final TrackingRepository trackingRepository) {
         this.trackingRepository = trackingRepository;
-    }
-
-    public static synchronized MPTracker getInstance() {
-        if (trackerInstance == null) {
-            trackerInstance = new MPTracker(Session.getInstance().getConfigurationModule().getTrackingRepository());
-        }
-        return trackerInstance;
     }
 
     /**
@@ -71,7 +58,8 @@ public final class MPTracker {
         this.experiments = experiments;
     }
 
-    public void track(@NonNull final Track track) {
+    public void track(@NonNull final TrackWrapper trackWrapper) {
+        final Track track = trackWrapper.getTrack();
         // Event friction case needs to add flow detail in a different way. We ignore this case for now.
         if (!FrictionEventTracker.PATH.equals(track.getPath())) {
             addAdditionalFlowInfo(track.getData());
@@ -91,7 +79,7 @@ public final class MPTracker {
                 value.put(ATTR_FLOW_NAME, trackingRepository.getFlowId());
                 value.put(ATTR_SESSION_ID, trackingRepository.getSessionId());
                 value.put(ATTR_SESSION_TIME, getSecondsAfterInit());
-                value.put(ATTR_CHECKOUT_TYPE, checkoutType);
+                value.put(ATTR_CHECKOUT_TYPE, CheckoutType.ONE_TAP);
                 value.put(ATTR_SECURITY_ENABLED, securityEnabled);
                 value.put(ATTR_EXPERIMENTS, getExperimentsLabel());
             } catch (final ClassCastException e) {
@@ -105,7 +93,7 @@ public final class MPTracker {
         data.put(ATTR_FLOW_NAME, trackingRepository.getFlowId());
         data.put(ATTR_SESSION_ID, trackingRepository.getSessionId());
         data.put(ATTR_SESSION_TIME, getSecondsAfterInit());
-        data.put(ATTR_CHECKOUT_TYPE, checkoutType);
+        data.put(ATTR_CHECKOUT_TYPE, CheckoutType.ONE_TAP);
         data.put(ATTR_SECURITY_ENABLED, securityEnabled);
         data.put(ATTR_EXPERIMENTS, getExperimentsLabel());
     }
@@ -136,13 +124,5 @@ public final class MPTracker {
 
     public void initializeSessionTime() {
         initSessionTimestamp = Calendar.getInstance().getTime().getTime();
-    }
-
-    public void hasExpressCheckout(final boolean hasExpressCheckout) {
-        if (hasExpressCheckout) {
-            checkoutType = CheckoutType.ONE_TAP;
-        } else {
-            checkoutType = CheckoutType.TRADITIONAL;
-        }
     }
 }

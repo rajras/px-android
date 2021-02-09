@@ -23,7 +23,7 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TokenErrorWrapper;
-import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodMapper;
+import com.mercadopago.android.px.internal.mappers.PaymentMethodMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CardInformation;

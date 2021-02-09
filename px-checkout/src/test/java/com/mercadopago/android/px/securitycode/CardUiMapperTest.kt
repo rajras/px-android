@@ -1,16 +1,15 @@
 package com.mercadopago.android.px.securitycode
 
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessCardDisplayInfo
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.util.JsonUtil
 import com.mercadopago.android.px.internal.viewmodel.CardUiConfiguration
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
 import com.mercadopago.android.px.model.CardDisplayInfo
-import com.mercadopago.android.px.model.SecurityCode
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
-import org.powermock.reflect.Whitebox
 
 class CardUiMapperTest {
 
@@ -55,29 +54,24 @@ class CardUiMapperTest {
 
     @Test
     fun whenMapCardDisplayInfoToCardUiConfiguration() {
-        val cardDisplayInfo = mock(CardDisplayInfo::class.java)
-        val securityCode = mock(SecurityCode::class.java)
-
-        with(cardDisplayInfo) {
-            Whitebox.setInternalState(this, "paymentMethodImage", "paymentMethodImage")
-            Whitebox.setInternalState(this, "paymentMethodImageUrl", "paymentMethodImageUrl")
-            Whitebox.setInternalState(this, "cardPattern", intArrayOf(1,2,3,4))
-            Whitebox.setInternalState(this, "cardholderName", "cardholderName")
-            Whitebox.setInternalState(this, "color", "color")
-            Whitebox.setInternalState(this, "expiration", "expiration")
-            Whitebox.setInternalState(this, "fontColor", "fontColor")
-            Whitebox.setInternalState(this, "fontType", "fontType")
-            Whitebox.setInternalState(this, "issuerId", 1234L)
-            Whitebox.setInternalState(this, "issuerImage", "issuerImage")
-            Whitebox.setInternalState(this, "issuerImageUrl", "issuerImageUrl")
-            Whitebox.setInternalState(this, "paymentMethodImage", "paymentMethodImage")
-            Whitebox.setInternalState(this, "lastFourDigits", "7890")
-            Whitebox.setInternalState(this, "securityCode", securityCode)
-        }
-
-        `when`(cardDisplayInfo.getCardPattern()).thenReturn("*****")
-        `when`(securityCode.cardLocation).thenReturn("back")
-        `when`(securityCode.length).thenReturn(3)
+        val cardDisplayInfo = JsonUtil.fromJson("""{
+            "payment_method_image": "paymentMethodImage",
+            "payment_method_image_url": "paymentMethodImageUrl",
+            "card_pattern": [1, 2, 3, 4],
+            "cardholder_name": "cardholderName",
+            "color": "color",
+            "expiration": "expiration",
+            "font_color": "fontColor",
+            "font_type": "fontType",
+            "issuer_id": 1234,
+            "issuer_image": "issuerImage",
+            "issuer_image_url": "issuerImageUrl",
+            "last_four_digits": "7890",
+            "security_code": {
+                "card_location": "back",
+                "length": "3"
+            }
+        }""".trimIndent(), CardDisplayInfo::class.java)
 
         val expectedResult = CardUiConfiguration(
             cardDisplayInfo.cardholderName,

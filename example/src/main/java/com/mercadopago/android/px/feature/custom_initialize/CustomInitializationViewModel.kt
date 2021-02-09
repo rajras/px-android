@@ -1,26 +1,25 @@
 package com.mercadopago.android.px.feature.custom_initialize
 
-import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.mercadopago.SamplePaymentProcessor
 import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
 import com.mercadopago.android.px.configuration.PaymentConfiguration
 import com.mercadopago.android.px.core.MercadoPagoCheckout
 import com.mercadopago.android.px.di.preference.InitializationDataPreferences
-import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfiguration
 import com.mercadopago.android.px.internal.util.TextUtil
 import com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentApproved
 
-internal class CustomInitializationViewModel(private val preferences: InitializationDataPreferences) : BaseViewModel() {
+internal class CustomInitializationViewModel(private val preferences: InitializationDataPreferences) : ViewModel() {
 
     private val initializationData = preferences.getInitializationData()
 
     val stateUILiveData = MutableLiveData<CustomInitializeState>()
 
-    override fun recoverFromBundle(bundle: Bundle) {
-        super.recoverFromBundle(bundle)
+    fun recoverFromBundle(bundle: Bundle) {
         initializationData.updateModel(
             bundle.getString(EXTRA_LOCALE)!!,
             bundle.getString(EXTRA_PUBLIC_KEY)!!,
@@ -31,8 +30,7 @@ internal class CustomInitializationViewModel(private val preferences: Initializa
         )
     }
 
-    override fun storeInBundle(bundle: Bundle) {
-        super.storeInBundle(bundle)
+    fun storeInBundle(bundle: Bundle) {
         bundle.putString(EXTRA_LOCALE, initializationData.locale.value)
         bundle.putString(EXTRA_PUBLIC_KEY, initializationData.publicKey.value)
         bundle.putString(EXTRA_PREFERENCE_ID, initializationData.preferenceId.value)

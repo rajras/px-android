@@ -12,12 +12,14 @@ import com.mercadopago.android.px.internal.features.security_code.mapper.Busines
 import com.mercadopago.android.px.internal.repository.InitRepository
 import com.mercadopago.android.px.internal.viewmodel.LazyString
 import com.mercadopago.android.px.model.CvvInfo
+import com.mercadopago.android.px.tracking.internal.MPTracker
 
 internal class DisplayDataUseCase(
     private val initRepository: InitRepository,
     private val securityCodeDisplayDataMapper: BusinessSecurityCodeDisplayDataMapper,
+    tracker: MPTracker,
     override val contextProvider: CoroutineContextProvider = CoroutineContextProvider()
-) : UseCase<DisplayDataUseCase.CardParams, BusinessSecurityCodeDisplayData>() {
+) : UseCase<DisplayDataUseCase.CardParams, BusinessSecurityCodeDisplayData>(tracker) {
 
     override suspend fun doExecute(param: CardParams) = run {
         val securityCodeLength = param.securityCodeLength ?: 0

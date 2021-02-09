@@ -12,7 +12,6 @@ import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfigur
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity
 import com.mercadopago.android.px.preferences.CheckoutPreference
-import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.InitEvent
 
 /**
@@ -60,8 +59,10 @@ class MercadoPagoCheckout internal constructor(builder: Builder) {
             session.initRepository.lazyConfigure(it)
         }
         onCheckoutStarted()
-        MPTracker.getInstance().initializeSessionTime()
-        InitEvent(session.configurationModule.paymentSettings).track()
+        with(session.tracker) {
+            initializeSessionTime()
+            track(InitEvent(session.configurationModule.paymentSettings))
+        }
         if (context is Activity) {
             context.startActivityForResult(checkoutIntent, requestCode)
         } else {

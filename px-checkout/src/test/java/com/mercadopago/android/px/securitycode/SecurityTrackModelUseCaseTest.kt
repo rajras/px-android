@@ -6,13 +6,16 @@ import com.mercadopago.android.px.any
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.SecurityTrackModelUseCase
 import com.mercadopago.android.px.internal.features.security_code.tracking.SecurityCodeTracker
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations.initMocks
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class SecurityTrackModelUseCaseTest {
 
     @Mock
@@ -24,10 +27,9 @@ class SecurityTrackModelUseCaseTest {
 
     @Before
     fun setUp() {
-        initMocks(this)
         val contextProvider = TestContextProvider()
 
-        securityTrackModelUseCase = SecurityTrackModelUseCase(contextProvider)
+        securityTrackModelUseCase = SecurityTrackModelUseCase(mock(MPTracker::class.java), contextProvider)
     }
 
     @Test

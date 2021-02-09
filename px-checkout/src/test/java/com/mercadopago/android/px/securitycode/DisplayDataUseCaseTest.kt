@@ -1,11 +1,9 @@
 package com.mercadopago.android.px.securitycode
 
-import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.CallbackTest
 import com.mercadopago.android.px.TestContextProvider
 import com.mercadopago.android.px.any
 import com.mercadopago.android.px.argumentCaptor
-import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.security_code.data.SecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.model.BusinessSecurityCodeDisplayData
 import com.mercadopago.android.px.internal.features.security_code.domain.use_case.DisplayDataUseCase
@@ -16,6 +14,7 @@ import com.mercadopago.android.px.internal.viewmodel.LazyString
 import com.mercadopago.android.px.model.CvvInfo
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.InitResponse
+import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.utils.ResourcesUtil
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
@@ -24,12 +23,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations.initMocks
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
-import org.robolectric.RobolectricTestRunner
+import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(RobolectricTestRunner::class)
-class DisplayDataUseCaseTest : BasicRobolectricTest() {
+@RunWith(MockitoJUnitRunner::class)
+class DisplayDataUseCaseTest {
 
     @Mock
     private lateinit var initRepository: InitRepository
@@ -45,13 +43,12 @@ class DisplayDataUseCaseTest : BasicRobolectricTest() {
 
     @Before
     fun setUp() {
-        initMocks(this)
-        Session.initialize(getContext())
         val contextProvider = TestContextProvider()
 
         displayDataUseCase = DisplayDataUseCase(
             initRepository,
             securityCodeDisplayDataMapper,
+            mock(MPTracker::class.java),
             contextProvider
         )
     }
@@ -64,9 +61,7 @@ class DisplayDataUseCaseTest : BasicRobolectricTest() {
         `when`(cvvInfo.title).thenReturn("title")
         `when`(cvvInfo.message).thenReturn("message")
         `when`(cardParams.cvvInfo).thenReturn(cvvInfo)
-        `when`(cardParams.id).thenReturn("123")
         `when`(cardParams.securityCodeLength).thenReturn(3)
-        `when`(cardParams.securityCodeLocation).thenReturn("front")
         val expectedResult = BusinessSecurityCodeDisplayData(
             LazyString(cvvInfo.title),
             LazyString(cvvInfo.message),
@@ -129,9 +124,7 @@ class DisplayDataUseCaseTest : BasicRobolectricTest() {
     fun whenIsCardWithGroups() = runBlocking {
         val cardParams = mock(DisplayDataUseCase.CardParams::class.java)
         val resultBusinessCaptor = argumentCaptor<BusinessSecurityCodeDisplayData>()
-        val cardId = "268434496"
         val initResponse = loadInitResponseWithGroup()
-        `when`(cardParams.id).thenReturn(cardId)
         `when`(cardParams.securityCodeLength).thenReturn(3)
         `when`(cardParams.securityCodeLocation).thenReturn("back")
         `when`(initRepository.loadInitResponse()).thenReturn(initResponse)
@@ -161,9 +154,7 @@ class DisplayDataUseCaseTest : BasicRobolectricTest() {
     fun whenUseCaseFail() = runBlocking {
         val cardParams = mock(DisplayDataUseCase.CardParams::class.java)
 
-        `when`(cardParams.id).thenReturn("")
         `when`(cardParams.securityCodeLength).thenReturn(0)
-        `when`(cardParams.securityCodeLocation).thenReturn("")
         `when`(initRepository.loadInitResponse()).thenReturn(null)
 
         displayDataUseCase.execute(

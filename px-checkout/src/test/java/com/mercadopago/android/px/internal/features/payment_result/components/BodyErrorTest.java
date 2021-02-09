@@ -2,11 +2,13 @@ package com.mercadopago.android.px.internal.features.payment_result.components;
 
 import android.content.Context;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory;
 import com.mercadopago.android.px.internal.features.payment_result.props.BodyErrorProps;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.mocks.PaymentResults;
 import com.mercadopago.android.px.model.PaymentResult;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ public class BodyErrorTest {
 
     @Mock private ActionDispatcher dispatcher;
     @Mock private Context context;
+    private final PaymentResultViewModelFactory factory = new PaymentResultViewModelFactory(mock(MPTracker.class));
 
     @Before
     public void setup() {
@@ -58,7 +61,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForCallForAuth() {
         final PaymentResult paymentResult = PaymentResults.getStatusCallForAuthPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(CALL_FOR_AUTH_ERROR_TITLE, bodyError.getTitle(context));
     }
@@ -66,7 +69,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForInsufficientAmount() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedInsufficientAmountPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(ERROR_TITLE, bodyError.getTitle(context));
     }
@@ -74,7 +77,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForRejectedOther() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedOtherPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(TextUtil.EMPTY, bodyError.getTitle(context));
     }
@@ -82,7 +85,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForInsufficientData() {
         final PaymentResult paymentResult = PaymentResults.getBoletoRejectedPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(ERROR_TITLE, bodyError.getTitle(context));
     }
@@ -90,7 +93,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForDuplicatedPayment() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedDuplicatedPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals("", bodyError.getTitle(context));
     }
@@ -98,7 +101,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleForPendingContingency() {
         final PaymentResult paymentResult = PaymentResults.getStatusInProcessContingencyPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(TextUtil.EMPTY, bodyError.getTitle(context));
     }
@@ -106,7 +109,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorTitleOnEmptyCase() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedBadFilledFormPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals("", bodyError.getDescription(context));
     }
@@ -114,7 +117,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForPendingContingency() {
         final PaymentResult paymentResult = PaymentResults.getStatusInProcessContingencyPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(CONTINGENCY_DESCRIPTION, bodyError.getDescription(context));
     }
@@ -122,7 +125,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForPendingReviewManual() {
         final PaymentResult paymentResult = PaymentResults.getStatusInProcessReviewManualPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(REVIEW_MANUAL_DESCRIPTION, bodyError.getDescription(context));
     }
@@ -130,7 +133,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedCallForAuth() {
         final PaymentResult paymentResult = PaymentResults.getStatusCallForAuthPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(CALL_FOR_AUTH_DESCRIPTION_1 + TextUtil.NL + CALL_FOR_AUTH_DESCRIPTION_2,
             bodyError.getDescription(context));
@@ -139,7 +142,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedInsufficientAmount() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedInsufficientAmountPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(REJECTED_INSUFFICIENT_AMOUNT_1 + TextUtil.NL + REJECTED_INSUFFICIENT_AMOUNT_2,
             bodyError.getDescription(context));
@@ -148,7 +151,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedOtherReason() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedOtherPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(EMPTY_DESCRIPTION, bodyError.getDescription(context));
     }
@@ -156,7 +159,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedInsufficientData() {
         final PaymentResult paymentResult = PaymentResults.getBoletoRejectedPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(REJECTED_INSUFFICIENT_DATA, bodyError.getDescription(context));
     }
@@ -164,7 +167,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedDuplicatedPayment() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedDuplicatedPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(DUPLICATED_DESCRIPTION, bodyError.getDescription(context));
     }
@@ -172,7 +175,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionOnEmptyCase() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedBadFilledFormPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(TextUtil.EMPTY, bodyError.getDescription(context));
     }
@@ -180,7 +183,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorHasActionForCallForAuth() {
         final PaymentResult paymentResult = PaymentResults.getStatusCallForAuthPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
         assertEquals(CALL_FOR_AUTH_DESCRIPTION_1 + TextUtil.NL + CALL_FOR_AUTH_DESCRIPTION_2,
             bodyError.getDescription(context));
     }
@@ -188,7 +191,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDoestHaveActionForOtherRejected() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedOtherPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
         assertNotEquals(CALL_FOR_AUTH_DESCRIPTION_1 + TextUtil.NL + CALL_FOR_AUTH_DESCRIPTION_2,
             bodyError.getDescription(context));
     }
@@ -196,7 +199,7 @@ public class BodyErrorTest {
     @Test
     public void testBodyErrorDescriptionForRejectedMaxAttempts() {
         final PaymentResult paymentResult = PaymentResults.getStatusRejectedMaxAttemptsPaymentResult();
-        final BodyError bodyError = new BodyError(getBodyErrorProps(paymentResult), dispatcher);
+        final BodyError bodyError = new BodyError(factory, getBodyErrorProps(paymentResult), dispatcher);
 
         assertEquals(MAX_ATTEMPTS_DESCRIPTION, bodyError.getDescription(context));
     }

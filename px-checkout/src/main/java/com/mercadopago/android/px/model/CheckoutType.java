@@ -10,6 +10,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 public @interface CheckoutType {
     String ONE_TAP = "one_tap";
+    @Deprecated
     String TRADITIONAL = "traditional";
 }
-

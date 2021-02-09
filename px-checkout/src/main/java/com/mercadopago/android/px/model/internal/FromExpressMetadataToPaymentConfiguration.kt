@@ -3,7 +3,7 @@ package com.mercadopago.android.px.model.internal
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.ExpressMetadata
 import com.mercadopago.android.px.model.PayerCost
 

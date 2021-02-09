@@ -3,9 +3,9 @@ package com.mercadopago.android.px.internal.di
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.AmountDescriptorMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardUiMapper
-import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodDescriptorMapper
+import com.mercadopago.android.px.internal.mappers.AmountDescriptorMapper
+import com.mercadopago.android.px.internal.mappers.CardUiMapper
+import com.mercadopago.android.px.internal.mappers.PaymentMethodDescriptorMapper
 
 internal object MapperProvider {
     fun getPaymentMethodDrawableItemMapper(): PaymentMethodDrawableItemMapper {

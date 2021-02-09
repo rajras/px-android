@@ -23,19 +23,18 @@ tasks.register('jacocoTestReport', JacocoReport) {
         html.enabled = true
     }
 
-    def fileFilter = ['androidx/**/*.*',
-                      '**/view/*.*',
-                      '**/data/*.*',
-                      '**/data/model/*.*',
-                      '**/generated/callback/*.*',
-                      '**/lambda$*.class',
-                      '**/lambda.class',
-                      '**/*lambda.class',
-                      '**/*lambda*.class']
+    def fileFilter = ['**/px/internal/actions/**',
+                      '**/px/internal/viewmodel/**',
+                      '**/px/tracking/internal/model/**',
+                      '**/px/model/**',
+                      '**/px/configuration/**',
+                      '**/px/addons/model/**',
+                      '**/PaymentCongratsModel.*',
+                      '**/*Builder*']
 
     def javaClasses = fileTree(dir: "${buildDir}/intermediates/javac/debug/classes/", excludes: fileFilter)
     def kotlinClasses = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug/", excludes: fileFilter)
-    def mainSrc = '/src/main/java'
+    def mainSrc = "$project.projectDir/src/main/java"
 
     sourceDirectories.setFrom(files([mainSrc]))
     classDirectories.setFrom(files([

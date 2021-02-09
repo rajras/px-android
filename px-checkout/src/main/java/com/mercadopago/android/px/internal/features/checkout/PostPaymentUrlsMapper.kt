@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.features.checkout
 
 import android.net.Uri
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
-import com.mercadopago.android.px.internal.viewmodel.mappers.Mapper
+import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.model.Payment
 import com.mercadopago.android.px.preferences.CheckoutPreference

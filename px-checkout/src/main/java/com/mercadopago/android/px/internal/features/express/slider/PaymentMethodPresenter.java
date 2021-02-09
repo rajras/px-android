@@ -6,6 +6,7 @@ import com.mercadopago.android.px.internal.repository.AmountConfigurationReposit
 import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.AmountConfiguration;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import org.jetbrains.annotations.Nullable;
 
 class PaymentMethodPresenter extends BasePresenter<PaymentMethod.View> implements PaymentMethod.Action {
@@ -15,7 +16,8 @@ class PaymentMethodPresenter extends BasePresenter<PaymentMethod.View> implement
 
     /* default */ PaymentMethodPresenter(@NonNull final PayerCostSelectionRepository payerCostSelectionRepository,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
-        @NonNull final DrawableFragmentItem item) {
+        @NonNull final DrawableFragmentItem item, @NonNull final MPTracker tracker) {
+        super(tracker);
         this.payerCostSelectionRepository = payerCostSelectionRepository;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.item = item;
