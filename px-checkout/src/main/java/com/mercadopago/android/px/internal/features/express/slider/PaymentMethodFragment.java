@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -105,8 +104,8 @@ public abstract class PaymentMethodFragment<T extends DrawableFragmentItem>
     }
 
     private void setUpCardDrawerCustomView(@NonNull final CardDrawerView cardDrawerView) {
-        final SwitchModel switchModel;
-        if ((switchModel = model.getSwitchModel()) != null) {
+        final SwitchModel switchModel = model.getSwitchModel();
+        if (switchModel != null) {
             final CardDrawerSwitchView cardDrawerSwitch = new CardDrawerSwitchView(getContext());
             cardDrawerSwitch.setSwitchModel(switchModel);
             cardDrawerView.setCustomView(cardDrawerSwitch);

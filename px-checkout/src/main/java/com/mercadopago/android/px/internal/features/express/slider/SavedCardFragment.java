@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.internal.features.express.slider;
 
 import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -9,14 +8,11 @@ import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.meli.android.carddrawer.model.CardDrawerSwitchView;
 import com.meli.android.carddrawer.model.CardDrawerView;
-import com.meli.android.carddrawer.model.SwitchModel;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.CardUiConfiguration;
 import com.mercadopago.android.px.internal.viewmodel.drawables.SavedCardDrawableFragmentItem;
-import org.jetbrains.annotations.NotNull;
 
 public class SavedCardFragment extends PaymentMethodFragment<SavedCardDrawableFragmentItem> {
 
